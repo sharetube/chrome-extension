@@ -26,6 +26,19 @@
 
     window.STDebug = stDebug;
 
+    const worker = chrome.runtime.connect();
+
+    const invitedRoomId = new URLSearchParams(window.location.search).get(
+        "room-id"
+    );
+
+    if (invitedRoomId) {
+        worker.postMessage({
+            type: "joinRoom",
+            data: { invitedRoomId },
+        });
+    }
+
     // Wait for element to be available in the DOM with a timeout
     const waitElement = (selector, timeout = 10000, retries = 3) =>
         new Promise((resolve, reject) => {
@@ -277,10 +290,36 @@
     // Wait for the ad to end and initialize the video player
     waitForAdToEnd().then(initializeVideoPlayer).catch(debug.error);
 
-    // Create the playlist element
-    createElement(
-        "#secondary-inner",
-        "/src/templates/playlist.html",
-        ".st-playlist"
-    );
+    // FIXME
+    Promise.all([
+        createElement(
+            "#secondary-inner",
+            "/src/templates/playlist.html",
+            ".st-playlist"
+        ),
+        createElement(".st-playlist", "/src/templates/popup.html", ".st-popup"),
+    ]).then(() => {
+        const createRoomButton = document.querySelector(
+            "#st-create-room__button"
+        );
+        createRoomButton.addEventListener("click", () => {
+            worker.postMessage({ type: "createRoom" });
+        });
+
+        const copyLinkButton = document.querySelector("#st-copy-link__button");
+        copyLinkButton.addEventListener("click", () => {
+            navigator.clipboard.writeText(
+                `https://www.youtube.com/?room-id=${copyLinkButton.dataset.roomId}`
+            );
+        });
+
+        worker.onMessage.addListener(msg => {
+            switch (msg.type) {
+                case "init":
+                    copyLinkButton.dataset.roomId = msg.data.id;
+                    copyLinkButton.style.display = "block";
+                    break;
+            }
+        });
+    });
 })();
