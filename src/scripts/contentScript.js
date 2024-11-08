@@ -161,18 +161,16 @@
         });
 
         const copyLinkButton = document.querySelector("#st-copy-link__button");
+        copyLinkButton.addEventListener("click", () => {
+            navigator.clipboard.writeText(
+                `https://www.youtube.com/?room-id=${copyLinkButton.dataset.roomId}`
+            );
+        });
 
         worker.onMessage.addListener(msg => {
-            console.log(msg.data);
             switch (msg.type) {
                 case "init":
-                    copyLinkButton.addEventListener("click", () => {
-                        console.log(msg.data.id);
-                        navigator.clipboard.writeText(
-                            `https://www.youtube.com/watch?v=${msg.data.id}`
-                        );
-                    });
-
+                    copyLinkButton.dataset.roomId = msg.data.id;
                     copyLinkButton.style.display = "block";
                     break;
             }
