@@ -29,7 +29,6 @@
     const invitedRoomId = new URLSearchParams(window.location.search).get(
         "room-id"
     );
-    console.log(invitedRoomId);
 
     if (invitedRoomId) {
         worker.postMessage({
@@ -290,7 +289,7 @@
     // Wait for the ad to end and initialize the video player
     waitForAdToEnd().then(initializeVideoPlayer).catch(debug.error);
 
-    // FIXME
+    //! FIX THIS ARTEM's SHIT
     Promise.all([
         createElement(
             "#secondary-inner",
