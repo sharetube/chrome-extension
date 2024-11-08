@@ -174,8 +174,9 @@
             overlay.style.left = "0";
             overlay.style.zIndex = zIndex;
             overlay.style.cursor = "pointer";
-            //! Debug
-            // overlay.style.backgroundColor = "red";
+            if (debug.state) {
+                overlay.style.backgroundColor = "red";
+            }
             element.style.position = "relative";
             element.prepend(overlay);
         }
