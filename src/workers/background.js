@@ -8,19 +8,19 @@ console.log(username);
 
 function initWsEvents() {
     ws.onmessage = event => {
-        let data = JSON.parse(event.data);
-        console.log("Recieved message:",data);
-        switch (data.type) {
+        let msg = JSON.parse(event.data);
+        console.log("Recieved message:", msg);
+        switch (msg.type) {
             case "init":
                 primaryTab.postMessage({
                     type: "init",
-                    data: data,
+                    data: msg.data,
                 });
                 break;
             case "update":
                 primaryTab.postMessage({
                     type: "wsMessage",
-                    data: data,
+                    data: msg,
                 });
                 break;
             default:
