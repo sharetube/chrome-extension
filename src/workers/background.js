@@ -1,46 +1,67 @@
 let ws = null;
-let connections = new Set();
+let primaryTab = null;
+let secondTabs = new Set();
 
 let color = "FFF";
 let username = Math.random().toString(36).substring(2, 15);
 console.log(username);
 
-function initEvents(ws) {
+function initWsEvents() {
     ws.onmessage = event => {
-        console.log(event);
-        connections.forEach(port => {
-            port.postMessage({
-                type: "wsMessage",
-                data: JSON.parse(event.data),
-            });
-        });
+        let msg = JSON.parse(event.data);
+        console.log("Recieved message:", msg);
+        switch (msg.type) {
+            case "init":
+                primaryTab.postMessage({
+                    type: "init",
+                    data: msg.data,
+                });
+                break;
+            case "update":
+                primaryTab.postMessage({
+                    type: "wsMessage",
+                    data: msg,
+                });
+                break;
+            default:
+                break;
+        }
+        // primaryTab.postMessage({
+        //     type: "wsMessage",
+        //     data: ,
+        // });
     };
 
-    ws.onopen = () => {
-        connections.forEach(port => {
-            port.postMessage({ type: "wsConnected" });
-        });
-    };
+    // ws.onopen = () => {
+    //     connections.forEach(port => {
+    //         port.postMessage({ type: "wsConnected" });
+    //     });
+    // };
 
     ws.onclose = () => {
-        connections.forEach(port => {
+        secondTabs.forEach(port => {
             port.postMessage({ type: "wsDisconnected" });
         });
         ws = null;
     };
 }
 
-chrome.runtime.onConnect.addListener(port => {
-    connections.add(port);
+// handle new tab created.
+chrome.runtime.onConnect.addListener(tab => {
+    if (primaryTab) {
+        secondTabs.add(tab);
+    } else {
+        primaryTab = tab;
+    }
 
-    port.onMessage.addListener(msg => {
+    tab.onMessage.addListener(msg => {
         switch (msg.type) {
             case "createRoom":
                 if (!ws || ws.readyState === WebSocket.CLOSED) {
                     ws = new WebSocket(
                         `ws://localhost:8080/ws?username=${username}&color=FFF`
                     );
-                    initEvents(ws);
+                    initWsEvents();
                 }
                 break;
             case "joinRoom":
@@ -49,7 +70,7 @@ chrome.runtime.onConnect.addListener(port => {
                     ws = new WebSocket(
                         `ws://localhost:8080/ws/${msg.data.roomId}?username=${username}&color=${color}`
                     );
-                    initEvents(ws);
+                    initWsEvents();
                 }
                 break;
             case "disconnect":
@@ -68,12 +89,12 @@ chrome.runtime.onConnect.addListener(port => {
         }
     });
 
-    port.onDisconnect.addListener(() => {
-        connections.delete(port);
-        if (connections.size === 0 && ws) {
-            console.log("Disconnecting WebSocket");
+    tab.onDisconnect.addListener(() => {
+        if (secondTabs.size === 0) {
             ws.close();
             ws = null;
+        } else {
+            secondTabs.delete(tab);
         }
     });
 });
