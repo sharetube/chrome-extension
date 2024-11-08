@@ -1,2 +1,3 @@
 # chrome-extension
-Chrome extension files
+
+ShareTube Chrome extension.
