@@ -2,6 +2,19 @@
     // Handle errors
     const handleError = console.error;
 
+    const worker = chrome.runtime.connect();
+
+    const invitedRoomId = new URLSearchParams(window.location.search).get(
+        "room-id"
+    );
+
+    if (invitedRoomId) {
+        worker.postMessage({
+            type: "joinRoom",
+            data: { invitedRoomId },
+        });
+    }
+
     // Wait for element to be available in the DOM with a timeout
     const waitElement = (selector, timeout = 10000) =>
         new Promise((resolve, reject) => {
@@ -17,7 +30,10 @@
                 }
             });
 
-            observer.observe(document.body, { childList: true, subtree: true });
+            observer.observe(document.documentElement, {
+                childList: true,
+                subtree: true,
+            });
 
             const timeoutId = setTimeout(() => {
                 observer.disconnect();
@@ -128,9 +144,38 @@
 
     waitForAdToEnd().then(initializeVideoPlayer).catch(handleError);
 
-    createElement(
-        "#secondary-inner",
-        "/src/templates/playlist.html",
-        ".st-playlist"
-    );
+    // FIXME
+    Promise.all([
+        createElement(
+            "#secondary-inner",
+            "/src/templates/playlist.html",
+            ".st-playlist"
+        ),
+        createElement(".st-playlist", "/src/templates/popup.html", ".st-popup"),
+    ]).then(() => {
+        const createRoomButton = document.querySelector(
+            "#st-create-room__button"
+        );
+        createRoomButton.addEventListener("click", () => {
+            worker.postMessage({ type: "createRoom" });
+        });
+
+        const copyLinkButton = document.querySelector("#st-copy-link__button");
+
+        worker.onMessage.addListener(msg => {
+            console.log(msg.data);
+            switch (msg.type) {
+                case "init":
+                    copyLinkButton.addEventListener("click", () => {
+                        console.log(msg.data.id);
+                        navigator.clipboard.writeText(
+                            `https://www.youtube.com/watch?v=${msg.data.id}`
+                        );
+                    });
+
+                    copyLinkButton.style.display = "block";
+                    break;
+            }
+        });
+    });
 })();
