@@ -1,6 +1,7 @@
 let ws = null;
 let primaryTab = null;
 let secondTabs = new Set();
+let debugState = false;
 
 let color = "FFF";
 let username = Math.random().toString(36).substring(2, 15);
@@ -18,10 +19,10 @@ function initWsEvents() {
                 });
                 break;
             case "update":
-                primaryTab.postMessage({
-                    type: "wsMessage",
-                    data: msg,
-                });
+                // primaryTab.postMessage({
+                //     type: "wsMessage",
+                //     data: msg,
+                // });
                 break;
             default:
                 break;
@@ -86,6 +87,12 @@ chrome.runtime.onConnect.addListener(tab => {
                     );
                 }
                 break;
+            case "toggleDebugMode":
+                debugState = !debugState;
+                tab.postMessage({
+                    type: "debugModeChanged",
+                    data: debugState,
+                });
         }
     });
 

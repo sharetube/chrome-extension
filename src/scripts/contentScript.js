@@ -17,25 +17,24 @@
 
     // Handle warnings
     debug.warn = warning => (debug ? console.warn(warning) : null);
-
-    //? Enable or disable debugging mode
+    const worker = chrome.runtime.connect();
     function stDebug() {
-        debug.state = !debug.state;
-        console.log(`Debugging is now ${debug.state ? "enabled" : "disabled"}`);
+        worker.postMessage({
+            type: "toggleDebugMode",
+        });
     }
 
     window.STDebug = stDebug;
 
-    const worker = chrome.runtime.connect();
-
     const invitedRoomId = new URLSearchParams(window.location.search).get(
         "room-id"
     );
+    console.log(invitedRoomId);
 
     if (invitedRoomId) {
         worker.postMessage({
             type: "joinRoom",
-            data: { invitedRoomId },
+            data: { roomId: invitedRoomId },
         });
     }
 
@@ -55,7 +54,7 @@
                     }
                 });
 
-                observer.observe(document.body, {
+                observer.observe(document.documentElement, {
                     childList: true,
                     subtree: true,
                 });
@@ -235,7 +234,7 @@
             });
         });
 
-        observer.observe(document.body, {
+        observer.observe(document.documentElement, {
             childList: true,
             subtree: true,
         });
@@ -320,6 +319,11 @@
                     copyLinkButton.dataset.roomId = msg.data.id;
                     copyLinkButton.style.display = "block";
                     break;
+                case "debugModeChanged":
+                    debug.state = msg.data;
+                    console.log(
+                        `Debugging is now ${msg.data ? "enabled" : "disabled"}`
+                    );
             }
         });
     });
