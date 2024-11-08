@@ -19,9 +19,14 @@
     debug.warn = warning => (debug ? console.warn(warning) : null);
     const worker = chrome.runtime.connect();
     function stDebug() {
-        worker.postMessage({
-            type: "toggleDebugMode",
-        });
+        chrome.runtime
+            .sendMessage({
+                type: "toggleDebugMode",
+            })
+            .then(debugState => {
+                debug.state = debugState;
+                debug.log("Debug state:", debugState);
+            });
     }
 
     window.STDebug = stDebug;
@@ -29,7 +34,6 @@
     const invitedRoomId = new URLSearchParams(window.location.search).get(
         "room-id"
     );
-    console.log(invitedRoomId);
 
     if (invitedRoomId) {
         worker.postMessage({
@@ -37,6 +41,15 @@
             data: { roomId: invitedRoomId },
         });
     }
+
+    chrome.runtime
+        .sendMessage({
+            type: "getDebugMode",
+        })
+        .then(debugState => {
+            debug.state = debugState;
+            debug.log("Debug state:", debugState);
+        });
 
     // Wait for element to be available in the DOM with a timeout
     const waitElement = (selector, timeout = 10000, retries = 3) =>
@@ -319,11 +332,6 @@
                     copyLinkButton.dataset.roomId = msg.data.id;
                     copyLinkButton.style.display = "block";
                     break;
-                case "debugModeChanged":
-                    debug.state = msg.data;
-                    console.log(
-                        `Debugging is now ${msg.data ? "enabled" : "disabled"}`
-                    );
             }
         });
     });
