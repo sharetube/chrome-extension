@@ -16,16 +16,12 @@
     };
 
     // Get the state from the background script
-    chrome.runtime
-        .sendMessage({
-            type: "getDebugMode",
-        })
-        .then(debugState => {
-            debug.state = debugState;
-            debug.log("Debug state:", debugState);
-        });
+    chrome.runtime.sendMessage({ type: "getDebugMode" }).then(debugState => {
+        debug.state = debugState;
+        debug.log("log", "Debug state:", debugState);
+    });
 
-    // Expose the debug function to the global scope
+    // Expose the debug functions to the global scope
     window.STDebug = debug.stDebug;
 
     // Wait for element to be available in the DOM with a timeout

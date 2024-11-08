@@ -3,7 +3,7 @@
     "name": "ShareTube",
     "version": "0.1.0",
     "description": "Share and sync YouTube videos with friends",
-    "permissions": ["storage", "tabs", "scripting"],
+    "permissions": ["storage", "activeTab", "tabs", "scripting"],
     "host_permissions": ["https://*.youtube.com/*"],
     "background": {
         "service_worker": "src/workers/background.js"
