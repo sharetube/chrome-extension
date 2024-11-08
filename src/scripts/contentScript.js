@@ -5,15 +5,17 @@
         error: e => debug.state && console.error(e),
         log: (...l) => debug.state && console.log(...l),
         warn: w => debug.state && console.warn(w),
-        stDebug: () => {
-            chrome.runtime
-                .sendMessage({ type: "toggleDebugMode" })
-                .then(debugState => {
-                    debug.state = debugState;
-                    debug.log("Debug state:", debugState);
-                });
-        },
     };
+
+    // Toggle debug mode
+    function stDebug() {
+        chrome.runtime
+            .sendMessage({ type: "toggleDebugMode" })
+            .then(debugState => {
+                debug.state = debugState;
+                debug.log("Debug state:", debugState);
+            });
+    }
 
     // Get the state from the background script
     chrome.runtime.sendMessage({ type: "getDebugMode" }).then(debugState => {
@@ -22,7 +24,7 @@
     });
 
     // Expose the debug functions to the global scope
-    window.STDebug = debug.stDebug;
+    window.STDebug = stDebug;
 
     // Wait for element to be available in the DOM with a timeout
     const waitElement = (selector, timeout = 10000, retries = 3) =>
