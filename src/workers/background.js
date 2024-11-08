@@ -55,7 +55,7 @@ chrome.runtime.onConnect.addListener(tab => {
         primaryTab = tab;
     }
 
-    tab.onMessage.addListener(msg => {
+    tab.onMessage.addListener((msg, sender, sendResponse) => {
         switch (msg.type) {
             case "createRoom":
                 if (!ws || ws.readyState === WebSocket.CLOSED) {
@@ -87,21 +87,30 @@ chrome.runtime.onConnect.addListener(tab => {
                     );
                 }
                 break;
-            case "toggleDebugMode":
-                debugState = !debugState;
-                tab.postMessage({
-                    type: "debugModeChanged",
-                    data: debugState,
-                });
         }
     });
 
     tab.onDisconnect.addListener(() => {
         if (secondTabs.size === 0) {
-            ws.close();
+            primaryTab = null;
             ws = null;
+            ws.close();
         } else {
             secondTabs.delete(tab);
         }
     });
+});
+
+chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
+    switch (msg.type) {
+        case "getDebugMode":
+            sendResponse(debugState);
+            break;
+        case "toggleDebugMode":
+            debugState = !debugState;
+            sendResponse(debugState);
+            break;
+        default:
+            break;
+    }
 });
