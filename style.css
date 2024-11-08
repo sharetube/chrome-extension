@@ -1,0 +1,11 @@
+.st-playlist {
+  min-height: 300px;
+  border-radius: 12px;
+  border: 1px solid var(--yt-spec-10-percent-layer);
+}
+
+.st-playlist__title {
+  padding: 12px 6px 0 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
