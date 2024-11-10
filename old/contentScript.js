@@ -56,7 +56,7 @@
                         debug.error(
                             `Element "${selector}" not found after ${timeout}ms`
                         );
-                        resolve(null); // Resolve with null instead of rejecting
+                        resolve(null);
                     }
                 }, timeout);
             };
@@ -70,9 +70,9 @@
             const parentElement = await waitElement(selector);
             const response = await fetch(chrome.runtime.getURL(templatePath));
             const text = await response.text();
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(text, "text/html");
-            const element = doc.querySelector(elementClass);
+            const element = new DOMParser()
+                .parseFromString(text, "text/html")
+                .querySelector(elementClass);
             parentElement.prepend(element);
         } catch (error) {
             debug.error(error);
@@ -118,11 +118,12 @@
         // Send the state of the video
         const sendState = player => debug.log(getState(player));
 
-        // Actions to mute or unmute video by user
+        // Actions to mute video by user
         const muteVideo = () => {
             debug.log("Mute video");
         };
 
+        // Actions to unmute video by user
         const unmuteVideo = () => {
             debug.log("Unmute video");
         };
@@ -176,9 +177,7 @@
                 overlay.style.left = "0";
                 overlay.style.zIndex = zIndex;
                 overlay.style.cursor = "pointer";
-                if (debug.state) {
-                    overlay.style.backgroundColor = "red";
-                }
+                overlay.style.backgroundColor = debug.state ? "red" : "";
                 element.style.position = "relative";
                 element.prepend(overlay);
             }
