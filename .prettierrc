@@ -1,5 +1,5 @@
 {
     "tabWidth": 4,
-    "maxLineLength": 100,
+    "maxLineLength": 80,
     "arrowParens": "avoid"
 }
