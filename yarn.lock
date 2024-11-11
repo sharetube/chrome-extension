@@ -241,31 +241,26 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@crxjs/vite-plugin@npm:^1.0.14":
-  version: 1.0.14
-  resolution: "@crxjs/vite-plugin@npm:1.0.14"
+"@crxjs/vite-plugin@npm:^2.0.0-beta.26":
+  version: 2.0.0-beta.28
+  resolution: "@crxjs/vite-plugin@npm:2.0.0-beta.28"
   dependencies:
     "@rollup/pluginutils": "npm:^4.1.2"
-    "@vitejs/plugin-react": "npm:>=1.2.0"
     "@webcomponents/custom-elements": "npm:^1.5.0"
     acorn-walk: "npm:^8.2.0"
     cheerio: "npm:^1.0.0-rc.10"
-    connect-injector: "npm:^0.4.4"
+    convert-source-map: "npm:^1.7.0"
     debug: "npm:^4.3.3"
     es-module-lexer: "npm:^0.10.0"
     fast-glob: "npm:^3.2.11"
     fs-extra: "npm:^10.0.1"
     jsesc: "npm:^3.0.2"
-    magic-string: "npm:^0.26.0"
+    magic-string: "npm:^0.30.12"
     picocolors: "npm:^1.0.0"
     react-refresh: "npm:^0.13.0"
-    rollup: "npm:^2.70.2"
-  peerDependencies:
-    vite: ^2.9.0
-  dependenciesMeta:
-    "@vitejs/plugin-react":
-      optional: true
-  checksum: 10c0/19e203ddcfc3110973999bcc5224a0e8846b985a720d37ed55a945ed7ef726115bbb2ae06e5d30328c5c6338877acd1c77f27b35870fd92d2493b9bee65421f5
+    rollup: "npm:2.79.2"
+    rxjs: "npm:7.5.7"
+  checksum: 10c0/5ed686762c88e39672b2252fabbdb3c7b088ce12fdd5a813803f92b9a663920e57e2956e0ce149565c72c8c6aab18b31712ac147d2433a4c9aa13faaaf36fef2
   languageName: node
   linkType: hard
 
@@ -476,7 +471,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@jridgewell/sourcemap-codec@npm:^1.4.14":
+"@jridgewell/sourcemap-codec@npm:^1.4.14, @jridgewell/sourcemap-codec@npm:^1.5.0":
   version: 1.5.0
   resolution: "@jridgewell/sourcemap-codec@npm:1.5.0"
   checksum: 10c0/2eb864f276eb1096c3c11da3e9bb518f6d9fc0023c78344cdc037abadc725172c70314bdb360f2d4b7bffec7f5d657ce006816bc5d4ecb35e61b66132db00c18
@@ -795,7 +790,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vitejs/plugin-react@npm:>=1.2.0, @vitejs/plugin-react@npm:^4.3.1":
+"@vitejs/plugin-react@npm:^4.3.1":
   version: 4.3.1
   resolution: "@vitejs/plugin-react@npm:4.3.1"
   dependencies:
@@ -1139,15 +1134,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"connect-injector@npm:^0.4.4":
-  version: 0.4.4
-  resolution: "connect-injector@npm:0.4.4"
-  dependencies:
-    debug: "npm:^2.0.0"
-    q: "npm:^1.0.1"
-    stream-buffers: "npm:^0.2.3"
-    uberproto: "npm:^1.1.0"
-  checksum: 10c0/6186a21285db6e989d610e7e2223305f59f1f11d4977bbf62db21680eb6b2f9b6080d5f03171d98d346496388c0cdb3f38bcec9bfebd3a58bc258ce12186ea1c
+"convert-source-map@npm:^1.7.0":
+  version: 1.9.0
+  resolution: "convert-source-map@npm:1.9.0"
+  checksum: 10c0/281da55454bf8126cbc6625385928c43479f2060984180c42f3a86c8b8c12720a24eac260624a7d1e090004028d2dee78602330578ceec1a08e27cb8bb0a8a5b
   languageName: node
   linkType: hard
 
@@ -1214,15 +1204,6 @@ __metadata:
     supports-color:
       optional: true
   checksum: 10c0/3293416bff072389c101697d4611c402a6bacd1900ac20c0492f61a9cdd6b3b29750fc7f5e299f8058469ef60ff8fb79b86395a30374fbd2490113c1c7112285
-  languageName: node
-  linkType: hard
-
-"debug@npm:^2.0.0":
-  version: 2.6.9
-  resolution: "debug@npm:2.6.9"
-  dependencies:
-    ms: "npm:2.0.0"
-  checksum: 10c0/121908fb839f7801180b69a7e218a40b5a0b718813b886b7d6bdb82001b931c938e2941d1e4450f33a1b1df1da653f5f7a0440c197f29fbf8a6e9d45ff6ef589
   languageName: node
   linkType: hard
 
@@ -1969,12 +1950,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"magic-string@npm:^0.26.0":
-  version: 0.26.7
-  resolution: "magic-string@npm:0.26.7"
+"magic-string@npm:^0.30.12":
+  version: 0.30.12
+  resolution: "magic-string@npm:0.30.12"
   dependencies:
-    sourcemap-codec: "npm:^1.4.8"
-  checksum: 10c0/950035b344fe2a8163668980bc4a215a0b225086e6e22100fd947e7647053c6ba6b4f11a04de83a97a276526ccb602ef53b173725dbb1971fb146cff5a5e14f6
+    "@jridgewell/sourcemap-codec": "npm:^1.5.0"
+  checksum: 10c0/469f457d18af37dfcca8617086ea8a65bcd8b60ba8a1182cb024ce43e470ace3c9d1cb6bee58d3b311768fb16bc27bd50bdeebcaa63dadd0fd46cac4d2e11d5f
   languageName: node
   linkType: hard
 
@@ -2124,13 +2105,6 @@ __metadata:
   bin:
     mkdirp: bin/cmd.js
   checksum: 10c0/46ea0f3ffa8bc6a5bc0c7081ffc3907777f0ed6516888d40a518c5111f8366d97d2678911ad1a6882bf592fa9de6c784fea32e1687bb94e1f4944170af48a5cf
-  languageName: node
-  linkType: hard
-
-"ms@npm:2.0.0":
-  version: 2.0.0
-  resolution: "ms@npm:2.0.0"
-  checksum: 10c0/f8fda810b39fd7255bbdc451c46286e549794fcc700dc9cd1d25658bbc4dc2563a5de6fe7c60f798a16a60c6ceb53f033cb353f493f0cf63e5199b702943159d
   languageName: node
   linkType: hard
 
@@ -2442,13 +2416,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"q@npm:^1.0.1":
-  version: 1.5.1
-  resolution: "q@npm:1.5.1"
-  checksum: 10c0/7855fbdba126cb7e92ef3a16b47ba998c0786ec7fface236e3eb0135b65df36429d91a86b1fff3ab0927b4ac4ee88a2c44527c7c3b8e2a37efbec9fe34803df4
-  languageName: node
-  linkType: hard
-
 "queue-microtask@npm:^1.2.2":
   version: 1.2.3
   resolution: "queue-microtask@npm:1.2.3"
@@ -2460,7 +2427,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "react-content-script@workspace:."
   dependencies:
-    "@crxjs/vite-plugin": "npm:^1.0.14"
+    "@crxjs/vite-plugin": "npm:^2.0.0-beta.26"
     "@types/chrome": "npm:^0.0.269"
     "@types/node": "npm:^22.2.0"
     "@types/react": "npm:^18.0.17"
@@ -2570,9 +2537,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rollup@npm:^2.70.2":
-  version: 2.79.1
-  resolution: "rollup@npm:2.79.1"
+"rollup@npm:2.79.2":
+  version: 2.79.2
+  resolution: "rollup@npm:2.79.2"
   dependencies:
     fsevents: "npm:~2.3.2"
   dependenciesMeta:
@@ -2580,7 +2547,7 @@ __metadata:
       optional: true
   bin:
     rollup: dist/bin/rollup
-  checksum: 10c0/421418687f5dcd7324f4387f203c6bfc7118b7ace789e30f5da022471c43e037a76f5fd93837052754eeeae798a4fb266ac05ccee1e594406d912a59af98dde9
+  checksum: 10c0/bc3746c988d903c2211266ddc539379d53d92689b9cc5c2b4e3ae161689de9af491957a567c629b6cc81f48d0928a7591fc4c383fba68a48d2966c9fb8a2bce9
   languageName: node
   linkType: hard
 
@@ -2653,6 +2620,15 @@ __metadata:
   dependencies:
     queue-microtask: "npm:^1.2.2"
   checksum: 10c0/200b5ab25b5b8b7113f9901bfe3afc347e19bb7475b267d55ad0eb86a62a46d77510cb0f232507c9e5d497ebda569a08a9867d0d14f57a82ad5564d991588b39
+  languageName: node
+  linkType: hard
+
+"rxjs@npm:7.5.7":
+  version: 7.5.7
+  resolution: "rxjs@npm:7.5.7"
+  dependencies:
+    tslib: "npm:^2.1.0"
+  checksum: 10c0/283620b3c90b85467c3549f7cda0dd768bc18719cccbbdd9aacadb0f0946827ab20d036f1a00d78066d769764e73070bfee8706091d77b8d971975598f6cbbd4
   languageName: node
   linkType: hard
 
@@ -2748,13 +2724,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sourcemap-codec@npm:^1.4.8":
-  version: 1.4.8
-  resolution: "sourcemap-codec@npm:1.4.8"
-  checksum: 10c0/f099279fdaae070ff156df7414bbe39aad69cdd615454947ed3e19136bfdfcb4544952685ee73f56e17038f4578091e12b17b283ed8ac013882916594d95b9e6
-  languageName: node
-  linkType: hard
-
 "sprintf-js@npm:^1.1.3":
   version: 1.1.3
   resolution: "sprintf-js@npm:1.1.3"
@@ -2768,13 +2737,6 @@ __metadata:
   dependencies:
     minipass: "npm:^7.0.3"
   checksum: 10c0/e5a1e23a4057a86a97971465418f22ea89bd439ac36ade88812dd920e4e61873e8abd6a9b72a03a67ef50faa00a2daf1ab745c5a15b46d03e0544a0296354227
-  languageName: node
-  linkType: hard
-
-"stream-buffers@npm:^0.2.3":
-  version: 0.2.6
-  resolution: "stream-buffers@npm:0.2.6"
-  checksum: 10c0/8d685a5f98e0b392802fc07617f31e6ae63652ed2fff7fe7df309222ffb06502f47b31ab35c2cf9b4de0320f657ed3aa6d697641f0f72f5c6f3a703ba8d7b594
   languageName: node
   linkType: hard
 
@@ -2954,6 +2916,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"tslib@npm:^2.1.0":
+  version: 2.8.1
+  resolution: "tslib@npm:2.8.1"
+  checksum: 10c0/9c4759110a19c53f992d9aae23aac5ced636e99887b51b9e61def52611732872ff7668757d4e4c61f19691e36f4da981cd9485e869b4a7408d689f6bf1f14e62
+  languageName: node
+  linkType: hard
+
 "typescript@npm:^5.5.4":
   version: 5.5.4
   resolution: "typescript@npm:5.5.4"
@@ -2971,13 +2940,6 @@ __metadata:
     tsc: bin/tsc
     tsserver: bin/tsserver
   checksum: 10c0/73409d7b9196a5a1217b3aaad929bf76294d3ce7d6e9766dd880ece296ee91cf7d7db6b16c6c6c630ee5096eccde726c0ef17c7dfa52b01a243e57ae1f09ef07
-  languageName: node
-  linkType: hard
-
-"uberproto@npm:^1.1.0":
-  version: 1.2.0
-  resolution: "uberproto@npm:1.2.0"
-  checksum: 10c0/0071dbc7b3b71b4fedd4de5c914a6851df8ce11f6d98cf84ef8a1973afd8562027d111db97c047e2e42894bd5f99b24c6d07058d338d3204b3aea2c3c75421d2
   languageName: node
   linkType: hard
 

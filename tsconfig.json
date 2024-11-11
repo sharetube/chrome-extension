@@ -17,8 +17,10 @@
         "jsx": "react-jsx",
         "baseUrl": ".",
         "paths": {
+            "@app/*": ["content-script/src/app/*"],
             "@shared/*": ["content-script/src/shared/*"],
-            "@widgets/*": ["content-script/src/widgets/*"]
+            "@widgets/*": ["content-script/src/widgets/*"],
+            "@entities/*": ["content-script/src/entities/*"]
         }
     },
     "include": ["src", "content-script/src"],
