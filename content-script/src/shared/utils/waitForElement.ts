@@ -1,4 +1,3 @@
-import debug from "@shared/lib/debug";
 /**
  * Waits for an element to appear in the DOM.
  * @param selector - The CSS selector of the element to wait for.
@@ -34,12 +33,8 @@ const waitForElement = (
             const timeoutId = setTimeout(() => {
                 observer.disconnect();
                 if (retryCount > 0) {
-                    debug.warn(`Retrying... (${retries - retryCount + 1})`);
                     attempt(retryCount - 1);
                 } else {
-                    debug.error(
-                        `Element "${selector}" not found after ${timeout}ms`
-                    );
                     resolve(null);
                 }
             }, timeout);

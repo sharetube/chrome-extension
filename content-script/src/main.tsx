@@ -5,24 +5,18 @@ import { createRoot } from "react-dom/client";
 import "@shared/styles/global.css";
 
 // Utils
+import render from "@shared/lib/render";
+import error from "@shared/lib/error";
 import waitForElement from "@shared/utils/waitForElement";
 
 // Components
-import Playlist from "@widgets/Playlist/Playlist";
+import Playlist from "@widgets/ui/Playlist/Playlist";
+import Popup from "@widgets/ui/Popup/Popup";
 
+//! Debug
 console.log("Hello from content script");
 
+// Render playlist
 waitForElement("#secondary-inner")
-    .then(elem => {
-        const playlist = document.createElement("div");
-        playlist.id = "root";
-
-        elem!.prepend(playlist);
-
-        const root = createRoot(playlist);
-
-        root.render(<Playlist />);
-    })
-    .catch(error => {
-        console.error("Error waiting for body", error);
-    });
+    .then(elem => render(elem, <Playlist />))
+    .catch(error => error("Failed to render playlist", error));

@@ -20,14 +20,16 @@ const viteManifestHackIssue846: Plugin & {
 export default defineConfig({
     plugins: [
         react(),
-        viteManifestHackIssue846,
+        // viteManifestHackIssue846,
         crx({ manifest }),
         tsconfigPaths(),
     ],
     resolve: {
         alias: {
+            "@app": "/content-script/src/app/",
             "@shared": "/content-script/src/shared",
             "@widgets": "/content-script/src/widgets",
+            "@entities": "/content-script/src/entities",
         },
     },
     build: {
