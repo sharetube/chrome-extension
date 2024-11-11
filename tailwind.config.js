@@ -10,9 +10,18 @@ module.exports = {
                 "spin-slow": "spin 20s linear infinite",
             },
             colors: {
-                primary: "red",
                 "playlist-header-background":
                     "var(--st-playlist-header-background)",
+                "text-primary": "var(--st-text-primary)",
+                "text-secondary": "var(--st-text-secondary)",
+                "spec-outline": "var(--st-spec-outline)",
+                "spec-badge-chip-background":
+                    "var(--st-spec-badge-chip-background)",
+                "icon-shape-color": "var(--st-icon-shape-color)",
+            },
+            fontFamily: {
+                primary: "var(--st-font-primary)",
+                secondary: "var(--st-font-secondary)",
             },
         },
     },
