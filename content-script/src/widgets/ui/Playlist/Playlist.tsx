@@ -47,10 +47,10 @@ const Playlist: React.FC = () => {
     ]);
 
     return (
-        <div className="st-playlist border border-solid rounded-[12px] border-spec-outline h-[400px] overflow-hidden box-border m-[0_0_8px] w-[100%]">
-            <div className="st-playlist__content flex flex-col h-[400px]">
-                <div className="st-playlist__header p-[12px_6px_4px_16px] bg-playlist-header-background">
-                    <a className="st-playlist__title m-[0_-2px_0_0] p-[0_1px_0_0] text-text-primary font-primary text-[2rem] leading-[2.8rem] font-[700]">
+        <div className="st-playlist m-[0_0_8px] box-border h-[400px] w-[100%] overflow-hidden rounded-[12px] border border-solid border-spec-outline">
+            <div className="st-playlist__content flex h-[400px] flex-col">
+                <div className="st-playlist__header bg-playlist-header-background p-[12px_6px_4px_16px]">
+                    <a className="st-playlist__title m-[0_-2px_0_0] p-[0_1px_0_0] font-primary text-[2rem] font-[700] leading-[2.8rem] text-text-primary">
                         ShareTube
                     </a>
                 </div>
