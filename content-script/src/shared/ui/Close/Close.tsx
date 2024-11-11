@@ -10,7 +10,7 @@ const Close = () => {
             width="24"
             focusable="false"
             aria-hidden="true"
-            className="fill-current pointer-events-none w-[100%] h-[100%]"
+            className="pointer-events-none h-[100%] w-[100%] fill-current"
         >
             <path d="m12.71 12 8.15 8.15-.71.71L12 12.71l-8.15 8.15-.71-.71L11.29 12 3.15 3.85l.71-.71L12 11.29l8.15-8.15.71.71L12.71 12z"></path>
         </svg>
