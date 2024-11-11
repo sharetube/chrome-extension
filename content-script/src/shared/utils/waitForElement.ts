@@ -1,3 +1,5 @@
+import log from "@shared/lib/log";
+
 /**
  * Waits for an element to appear in the DOM.
  * @param selector - The CSS selector of the element to wait for.
@@ -5,20 +7,19 @@
  * @param retries - The number of times to retry before giving up (default is 3).
  * @returns A promise that resolves with the element if found, or null if not found within the timeout.
  */
-
 const waitForElement = (
     selector: string,
     timeout = 10000,
-    retries = 3
-): Promise<Element | null> =>
+    retries = 3,
+): Promise<HTMLElement | null> =>
     new Promise(resolve => {
         const attempt = (retryCount: number) => {
             const element = document.querySelector(selector);
-            if (element) return resolve(element);
+            if (element instanceof HTMLElement) return resolve(element);
 
             const observer = new MutationObserver(() => {
                 const element = document.querySelector(selector);
-                if (element) {
+                if (element instanceof HTMLElement) {
                     clearTimeout(timeoutId);
                     observer.disconnect();
                     resolve(element);
@@ -33,6 +34,7 @@ const waitForElement = (
             const timeoutId = setTimeout(() => {
                 observer.disconnect();
                 if (retryCount > 0) {
+                    log("Retrying...", retryCount);
                     attempt(retryCount - 1);
                 } else {
                     resolve(null);
