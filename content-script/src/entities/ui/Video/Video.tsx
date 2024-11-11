@@ -16,7 +16,7 @@ const Video: React.FC<VideoProps> = props => {
     return (
         <li
             title="Play"
-            className="st-video-item group flex items-stretch p-[8px_8px_4px_0] hover:cursor-pointer hover:bg-spec-badge-chip-background"
+            className="st-video-item group flex items-stretch p-[4px_8px_4px_0] hover:cursor-pointer hover:bg-spec-badge-chip-background"
         >
             <div className="st-video-item__column flex items-center">
                 <span className="st-video-item__number m-0 w-[24px] p-0 text-center font-secondary text-[1.2rem] font-[400] leading-[1.5rem] text-text-secondary">
