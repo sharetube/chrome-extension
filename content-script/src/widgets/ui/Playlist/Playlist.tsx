@@ -1,8 +1,11 @@
 import React, { useState } from "react";
-
+import useResize from "@shared/hooks/useResize";
+// Component
 import Video from "@entities/ui/Video/Video";
 
 const Playlist: React.FC = () => {
+    const { isFullScreen, height } = useResize();
+
     const [videos, setVideos] = useState([
         {
             id: 23123,
@@ -47,8 +50,11 @@ const Playlist: React.FC = () => {
     ]);
 
     return (
-        <div className="st-playlist m-[0_0_8px] box-border h-[400px] w-[100%] overflow-hidden rounded-[12px] border border-solid border-spec-outline">
-            <div className="st-playlist__content flex h-[400px] flex-col">
+        <div
+            style={{ height: height }}
+            className="st-playlist m-[0_0_8px] box-border min-h-[400px] w-[100%] overflow-hidden rounded-[12px] border border-solid border-spec-outline"
+        >
+            <div className="st-playlist__content flex h-[100%] flex-col">
                 <div className="st-playlist__header bg-playlist-header-background p-[12px_6px_4px_16px]">
                     <a className="st-playlist__title m-[0_-2px_0_0] p-[0_1px_0_0] font-primary text-[2rem] font-[700] leading-[2.8rem] text-text-primary">
                         ShareTube
