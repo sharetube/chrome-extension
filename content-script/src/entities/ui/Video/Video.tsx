@@ -84,7 +84,7 @@ const Video: React.FC<VideoProps> = props => {
                     {videoData.author_name}
                 </p>
             </div>
-            <div className="st-video-item__col flex items-center hover:cursor-default">
+            <div className="st-video-item__col ml-auto flex items-center justify-self-end hover:cursor-default">
                 <button
                     title="Remove video"
                     className="st-video-item__icon-wrapper m-0 flex h-[40px] w-[40px] items-center justify-center border-none bg-transparent p-0 hover:cursor-pointer"
