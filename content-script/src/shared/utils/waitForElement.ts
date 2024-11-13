@@ -1,12 +1,5 @@
 import log from "@shared/lib/log";
 
-/**
- * Waits for an element to appear in the DOM.
- * @param selector - The CSS selector of the element to wait for.
- * @param timeout - The maximum time to wait in milliseconds (default is 10000ms).
- * @param retries - The number of times to retry before giving up (default is 3).
- * @returns A promise that resolves with the element if found, or null if not found within the timeout.
- */
 const waitForElement = (
     selector: string,
     timeout = 10000,
