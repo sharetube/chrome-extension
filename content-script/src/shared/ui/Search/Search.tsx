@@ -1,10 +1,10 @@
 import React from "react";
 
-const Trash: React.FC = () => {
+const Search: React.FC = () => {
     return (
         <svg
             xmlns="http://www.w3.org/2000/svg"
-            enable-background="new 0 0 24 24"
+            fill="currentColor"
             height="24"
             viewBox="0 0 24 24"
             width="24"
@@ -12,9 +12,13 @@ const Trash: React.FC = () => {
             aria-hidden="true"
             className="pointer-events-none h-[100%] w-[100%] fill-current"
         >
-            <path d="M11 17H9V8h2v9zm4-9h-2v9h2V8zm4-4v1h-1v16H6V5H5V4h4V3h6v1h4zm-2 1H7v15h10V5z"></path>
+            <path
+                clip-rule="evenodd"
+                d="M16.296 16.996a8 8 0 11.707-.708l3.909 3.91-.707.707-3.909-3.909zM18 11a7 7 0 00-14 0 7 7 0 1014 0z"
+                fill-rule="evenodd"
+            ></path>
         </svg>
     );
 };
 
-export default Trash;
+export default Search;
