@@ -26,12 +26,12 @@ Promise.all([
     .catch(error => log("Failed to add events to player", error));
 
 // Render main panel
-waitForElement("#secondary")
+waitForElement("#secondary", 10000, 10)
     .then(elem => ReactDOM.render(<Panel />, elem))
     .catch(error => log("Failed to render main panel", error));
 
 // Render search
-waitForElement("#center")
+waitForElement("#center", 10000, 10)
     .then(elem => ReactDOM.render(<Search />, elem))
     .catch(error => log("Failed to render input", error));
 
