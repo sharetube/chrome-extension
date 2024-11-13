@@ -1,10 +1,13 @@
 @tailwind utilities;
 
 :root {
-    /* Colors */
-    --st-playlist-header-background: var(--yt-spec-badge-chip-background);
+    /* Background */
+    --st-background-primary: var(--yt-spec-badge-chip-background);
+    --st-background-secondary: var(--yt-spec-menu-background);
+    /* Text colors */
     --st-text-primary: var(--yt-spec-text-primary);
     --st-text-secondary: var(--yt-spec-text-secondary);
+    /* Colors */
     --st-spec-outline: var(--yt-spec-outline);
     --st-spec-badge-chip-background: var(--yt-spec-badge-chip-background);
     --st-icon-shape-color: var(

@@ -10,8 +10,8 @@ module.exports = {
                 "spin-slow": "spin 20s linear infinite",
             },
             colors: {
-                "playlist-header-background":
-                    "var(--st-playlist-header-background)",
+                "background-primary": "var(--st-background-primary)",
+                "background-secondary": "var(--st-background-secondary)",
                 "text-primary": "var(--st-text-primary)",
                 "text-secondary": "var(--st-text-secondary)",
                 "spec-outline": "var(--st-spec-outline)",
