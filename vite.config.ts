@@ -30,6 +30,7 @@ export default defineConfig({
             "@shared": "/content-script/src/shared",
             "@widgets": "/content-script/src/widgets",
             "@entities": "/content-script/src/entities",
+            "@tabs": "/content-script/src/tabs",
         },
     },
     build: {
