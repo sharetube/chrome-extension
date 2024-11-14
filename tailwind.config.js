@@ -12,6 +12,7 @@ module.exports = {
             colors: {
                 "background-primary": "var(--st-background-primary)",
                 "background-secondary": "var(--st-background-secondary)",
+                "background-active": "var(--st-background-active)",
                 "text-primary": "var(--st-text-primary)",
                 "text-secondary": "var(--st-text-secondary)",
                 "spec-outline": "var(--st-spec-outline)",
