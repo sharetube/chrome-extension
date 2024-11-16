@@ -1,6 +1,0 @@
-## Road map
-
--   Motion preview
--   Pagination for playlist
--   Icon "play" on playlist change to "pause"
--
