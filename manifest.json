@@ -14,6 +14,9 @@
         "default_title": "ShareTube"
     },
     "icons": {},
+    "background": {
+        "service_worker": "background-script/src/main.ts"
+    },
     "content_scripts": [
         {
             "matches": ["https://*.youtube.com/*"],
