@@ -1,35 +1,90 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
-import Member from "@entities/ui/Member/Member";
+import Avatar from "@entities/ui/Avatar/Avatar";
+import SharedButton from "@entities/ui/SharedButton/SharedButton";
 
-interface RoomProps {
-    className?: string;
-}
+const initialUsers = [
+    {
+        id: 1,
+        avatar: "https://avatars.githubusercontent.com/u/47269217?v=4",
+        nickname: "ArtemkaProhorov",
+    },
+    {
+        id: 2,
+        avatar: "https://avatars.githubusercontent.com/u/47269217?v=4",
+        nickname: "ArtemkaProhor",
+    },
+    {
+        id: 3,
+        avatar: "https://avatars.githubusercontent.com/u/47269217?v=4",
+        nickname: "Use(use)",
+    },
+    {
+        id: 4,
+        avatar: "https://avatars.githubusercontent.com/u/47269217?v=4",
+        nickname: "EvgenikaPonasenk",
+    },
+    {
+        id: 5,
+        avatar: "https://avatars.githubusercontent.com/u/47269217?v=4",
+        nickname: "EvgenikaPonasenk",
+    },
+    {
+        id: 6,
+        nickname: "EvgenikaPonasenk",
+    },
+    {
+        id: 7,
+        nickname: "EvgenikaPonasenk",
+    },
+];
 
-const href =
-    "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.rbc.ru%2Fpolitics%2F27%2F07%2F2022%2F62e178769a7947680506a1be&psig=AOvVaw1LYEqxOS_95R4695_fhGM5&ust=1731690391362000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCLC0jcen3IkDFQAAAAAdAAAAABAT";
+const Room: React.FC = () => {
+    const [users, setUsers] = useState(initialUsers);
+    const [isFull, setIsFull] = useState(false);
 
-const Room: React.FC<RoomProps> = props => {
+    const addHandler = () => {
+        setUsers(prevUsers => [
+            ...prevUsers,
+            {
+                id: prevUsers.length + 1,
+                avatar: "https://avatars.githubusercontent.com/u/47269217?v=4",
+                nickname: "EvgenikaPonasenk",
+            },
+        ]);
+    };
+
+    useEffect(() => {
+        users.length === 9 && setIsFull(true);
+    }, [users]);
+
     return (
-        <div className={"st-room flex-growl" + props.className}>
-            {/* <Member
-                name="EvgenikaPonasenkova"
-                avatar={href}
-                color={"FF0000"}
-                isAdmin={true}
-            />
-            <Member
-                name="Vasy Vailenko"
-                avatar={href}
-                color={"F0AB23"}
-                isAdmin={true}
-            />
-            <Member
-                name="Artemka dota 2"
-                avatar={href}
-                color={"F000F3"}
-                isAdmin={true}
-            /> */}
+        <div className="grid grid-cols-3 grid-rows-3 p-0">
+            {users.map(user => (
+                <div
+                    key={user.id}
+                    className="m-[0_0_6px] flex h-[75px] flex-col items-center justify-start"
+                >
+                    <Avatar
+                        url={user.avatar}
+                        text={user.avatar ? "" : user.nickname.slice(0, 2)}
+                    />
+                    <span className="m-[4px_0] text-center text-[12px] text-text-primary">
+                        {user.nickname}
+                    </span>
+                </div>
+            ))}
+            {!isFull && (
+                <div
+                    className="m-[0_0_6px] flex h-[75px] flex-col items-center justify-start hover:cursor-pointer"
+                    onClick={addHandler}
+                >
+                    <SharedButton />
+                    <span className="m-[4px_0] text-center text-[12px] text-text-primary">
+                        Copy link
+                    </span>
+                </div>
+            )}
         </div>
     );
 };
