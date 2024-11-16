@@ -7,6 +7,8 @@ import validateVideo from "@shared/api/validateVideo";
 import log from "@shared/lib/log";
 
 const Search: React.FC = () => {
+    const [isAdmin, setIsAdmin] = useState(false);
+
     const [inputValue, setInputValue] = useState<string>("");
 
     // Handle input change event
@@ -49,32 +51,35 @@ const Search: React.FC = () => {
         };
     }, []);
 
-    return (
-        <div className="st-search-container relative m-[0_auto] w-[100%] max-w-[536px]">
-            <div className="box-border flex rounded-full border border-solid border-spec-outline">
-                <div className="box-border h-[40px] w-[100%] flex-grow">
-                    <input
-                        type="text"
-                        className="m-0 h-[40px] w-[100%] border-none bg-transparent p-[0_4px_0_16px] font-secondary text-[16px] font-normal leading-[22px] text-text-primary outline-none placeholder:text-text-secondary"
-                        placeholder="Enter video url here"
-                        value={inputValue}
-                        onChange={handleInputChange}
-                        onKeyDown={handleKeyDown}
-                        ref={inputRef}
-                    />
-                </div>
-                <button
-                    onClick={handleClick}
-                    title="Add"
-                    className="border-l-solid bg-background-primary m-0 box-border flex h-[40px] w-[64px] items-center justify-center rounded-br-full rounded-tr-full border-b-0 border-l border-r-0 border-t-0 border-solid border-spec-outline p-[1px_4px] hover:cursor-pointer"
-                >
-                    <div className="box-border h-[24px] w-[24px] text-text-primary">
-                        <Icon />
+    if (isAdmin) {
+        return (
+            <div className="st-search-container relative m-[0_auto] w-[100%] max-w-[536px]">
+                <div className="box-border flex rounded-full border border-solid border-spec-outline">
+                    <div className="box-border h-[40px] w-[100%] flex-grow">
+                        <input
+                            type="text"
+                            className="m-0 h-[40px] w-[100%] border-none bg-transparent p-[0_4px_0_16px] font-secondary text-[16px] font-normal leading-[22px] text-text-primary outline-none placeholder:text-text-secondary"
+                            placeholder="Enter video url here"
+                            value={inputValue}
+                            onChange={handleInputChange}
+                            onKeyDown={handleKeyDown}
+                            ref={inputRef}
+                        />
                     </div>
-                </button>
+                    <button
+                        onClick={handleClick}
+                        title="Add"
+                        className="border-l-solid m-0 box-border flex h-[40px] w-[64px] items-center justify-center rounded-br-full rounded-tr-full border-b-0 border-l border-r-0 border-t-0 border-solid border-spec-outline bg-background-primary p-[1px_4px] hover:cursor-pointer"
+                    >
+                        <div className="box-border h-[24px] w-[24px] text-text-primary">
+                            <Icon />
+                        </div>
+                    </button>
+                </div>
             </div>
-        </div>
-    );
+        );
+    }
+    return null;
 };
 
 export default Search;
