@@ -84,7 +84,7 @@ const Video: React.FC<VideoProps> = props => {
             className={`${props.current ? "bg-background-active" : "hover:bg-spec-badge-chip-background"} ${props.actions ? "hover:cursor-pointer" : ""} st-video-item group flex items-stretch p-[4px_8px_4px_0]`}
         >
             <div className="st-video-item__column flex items-center">
-                <span className="st-video-item__number m-0 w-[24px] p-0 text-center font-secondary text-[1.2rem] font-[400] leading-[1.5rem] text-text-secondary">
+                <span className="st-video-item__number m-0 w-[24px] select-none p-0 text-center font-secondary text-[1.2rem] font-[400] leading-[1.5rem] text-text-secondary">
                     {props.number ? props.number : null}
                     {props.current ? "▶" : null}
                 </span>
@@ -123,7 +123,7 @@ const Video: React.FC<VideoProps> = props => {
                         className="st-video-item__icon-wrapper m-0 flex h-[40px] w-[40px] items-center justify-center border-none bg-transparent p-0 hover:cursor-pointer"
                         onClick={() => {}}
                     >
-                        <div className="st-video-item__icon hidden h-[20px] w-[20px] text-icon-shape-color group-hover:block">
+                        <div className="st-video-item__icon hidden h-[20px] w-[20px] select-none text-icon-shape-color group-hover:block">
                             <Trash />
                         </div>
                     </button>
