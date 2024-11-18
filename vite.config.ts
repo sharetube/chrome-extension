@@ -31,6 +31,7 @@ export default defineConfig({
             "@widgets": "/content-script/src/widgets",
             "@entities": "/content-script/src/entities",
             "@tabs": "/content-script/src/tabs",
+            "@player": "/content-script/src/player",
         },
     },
     build: {
