@@ -1,9 +1,9 @@
+import debug from "@app/api/debug";
 /**
  * Handle debug log
- *
- * @param {...any[]} args - The error messages or objects to log.
- * @returns {void}
  */
-const log = (...args: any[]): void => console.log(...args);
+const log = (...args: any[]): void => {
+    if (debug) console.log(...args);
+};
 
 export default log;
