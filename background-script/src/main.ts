@@ -1,38 +1,56 @@
-const ytRegex = /^https:\/\/(www\.)?youtube\.com\/.*$/;
+function handlePrimaryTabAPI() {
+    const addVideo = (videoId: string) => {
+        console.log("Adding video", videoId);
+    };
 
-// Handle created YouTube tabs
-chrome.tabs.onCreated.addListener(tab => {
-    if (tab.url?.match(ytRegex)) {
-        handleTab(tab);
-    }
-});
-
-// Handle updated YouTube tabs
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-    if (changeInfo.url?.match(ytRegex)) {
-        handleTab(tab);
-    }
-});
-
-// Handle tab
-function handleTab(tab: chrome.tabs.Tab) {
-    console.log("Youtube", tab);
-    setPrimary(tab.id!);
-}
-
-// Storage functions
-
-function setPrimary(tabId: number) {
-    chrome.storage.local.set({ primary: tabId }, () => {
-        console.log("Primary tab set to", tabId);
+    chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
+        // Add video to playlist
+        switch (msg.type) {
+            case "addVideo":
+                addVideo(msg);
+            default:
+                break;
+        }
     });
 }
 
-function getPrimary() {
-    chrome.storage.local.get("primary", data => {
-        console.log("Primary tab is", data.primary);
-    });
-}
+handlePrimaryTabAPI();
+
+// const ytRegex = /^https:\/\/(www\.)?youtube\.com\/.*$/;
+
+// // Handle created YouTube tabs
+// chrome.tabs.onCreated.addListener(tab => {
+//     if (tab.url?.match(ytRegex)) {
+//         handleTab(tab);
+//     }
+// });
+
+// // Handle updated YouTube tabs
+// chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+//     if (changeInfo.url?.match(ytRegex)) {
+//         handleTab(tab);
+//     }
+// });
+
+// // Handle tab
+// function handleTab(tab: chrome.tabs.Tab) {
+//     console.log("Youtube", tab);
+//     setPrimary(tab.id!);
+// }
+
+// // Storage functions
+
+// function setPrimary(tabId: number) {
+//     chrome.storage.local.set({ primary: tabId }, () => {
+//         console.log("Primary tab set to", tabId);
+//     });
+// }
+
+// function getPrimary() {
+//     chrome.storage.local.get("primary", data => {
+//         console.log("Primary tab is", data.primary);
+//     });
+// }
 
 // let ws = null;
 // let primaryTab = null;

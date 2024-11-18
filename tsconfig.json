@@ -21,7 +21,8 @@
             "@shared/*": ["content-script/src/shared/*"],
             "@widgets/*": ["content-script/src/widgets/*"],
             "@entities/*": ["content-script/src/entities/*"],
-            "@tabs/*": ["content-script/src/tabs/*"]
+            "@tabs/*": ["content-script/src/tabs/*"],
+            "@player/*": ["content-script/src/player/*"]
         }
     },
     "include": ["src", "content-script/src"],
