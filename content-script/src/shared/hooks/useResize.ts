@@ -27,7 +27,6 @@ const useFullScreenResize = () => {
                 setHeight(video.clientHeight);
             } else if (document.fullscreenElement) {
                 setHeight(400);
-                console.log("Fullscreen");
             }
         };
 
