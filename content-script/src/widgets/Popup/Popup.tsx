@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 const Popup: React.FC = () => {
     const [isExpended, setIsExpended] = useState<boolean>(false);
@@ -6,6 +6,24 @@ const Popup: React.FC = () => {
     const expandChange = () => {
         setIsExpended(!isExpended);
     };
+
+    const handleClick = (e: MouseEvent) => {
+        if ((e.target as HTMLElement).classList.contains("st-popup__content"))
+            return;
+        setIsExpended(false);
+    };
+
+    useEffect(() => {
+        if (isExpended) {
+            document.addEventListener("click", handleClick);
+        } else {
+            document.removeEventListener("click", handleClick);
+        }
+
+        return () => {
+            document.removeEventListener("click", handleClick);
+        };
+    }, [isExpended]);
 
     return (
         <div className="st-popup h-[40px] w-[40px] box-border relative">
@@ -27,7 +45,7 @@ const Popup: React.FC = () => {
                 </svg>
             </div>
             {isExpended && (
-                <div className="w-[300px] h-[300px] rounded-[12px] bg-spec-menu-background absolute flex flex-col items-center right-0 top-[40px] z-[2300] p-[16px]">
+                <div className="st-popup__content w-[300px] h-[300px] rounded-[12px] bg-spec-menu-background absolute flex flex-col items-center right-0 top-[40px] z-[2300] p-[16px]">
                     gg
                 </div>
             )}
