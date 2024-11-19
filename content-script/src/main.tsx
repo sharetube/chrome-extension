@@ -1,8 +1,7 @@
-import React from "react";
-// Global styles
 import "@app/styles/global.css";
-// Tabs
+import AllTab from "@tabs/All/All";
 import PrimaryTab from "@tabs/Primary/Primary";
-import waitForElement from "@shared/lib/waitForElement";
+import React from "react";
 
 PrimaryTab();
+AllTab();

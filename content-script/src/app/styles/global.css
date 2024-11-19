@@ -15,6 +15,12 @@
         --ytd-menu-renderer-button-color,
         var(--yt-spec-icon-inactive)
     );
+    --st-spec-wordmark-text: var(--yt-spec-wordmark-text);
+    --st-spec-button-chip-background-hover: var(
+        --yt-spec-button-chip-background-hover
+    );
+    --st-spec-base-background: var(--yt-spec-base-background);
+    --st-spec-menu-background: var(--yt-spec-menu-background);
     /* Fonts */
     --st-font-primary: "YouTube Sans", "Roboto", sans-serif;
     --st-font-secondary: "Roboto", "Arial", sans-serif;

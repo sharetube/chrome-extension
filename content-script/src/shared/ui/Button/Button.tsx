@@ -22,7 +22,7 @@ const Button: React.FC<ButtonProps> = props => {
             onClick={props.onClick}
             className={
                 (props.className ? ` ${props.className}` : "") +
-                "m-0 box-border flex h-[40px] w-[40px] border-none bg-transparent p-0 text-text-primary hover:cursor-pointer"
+                "m-0 box-border flex h-[40px] w-[36px] border-none bg-transparent p-0 text-text-primary hover:cursor-pointer"
             }
         >
             <div className="m-auto h-[24px] w-[24px] fill-current">
