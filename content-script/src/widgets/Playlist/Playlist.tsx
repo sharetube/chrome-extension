@@ -1,7 +1,6 @@
-import React, { useState } from "react";
-
-// Video component
 import Video from "@entities/Video/Video";
+import useAdmin from "@shared/Context/Admin/hooks/useAdmin";
+import React, { useState } from "react";
 
 const Playlist: React.FC = () => {
     const [previous, setPrevious] = useState<{ id: string }>({
@@ -45,18 +44,19 @@ const Playlist: React.FC = () => {
         },
     ]);
 
-    const [actions, setActions] = useState<boolean>(true);
+    // Get global admin status
+    const { is_admin } = useAdmin();
 
     return (
         <ul className="st-playlist m-[6px_0_0]">
-            <Video videoId={previous.id} previous actions={actions} />
-            <Video videoId={current.id} current actions={actions} />
+            <Video videoId={previous.id} previous actions={is_admin} />
+            <Video videoId={current.id} current actions={is_admin} />
             {videos.map((video, index) => (
                 <Video
                     key={video.id}
                     videoId={video.id}
                     number={index + 1}
-                    actions={actions}
+                    actions={is_admin}
                 />
             ))}
         </ul>
