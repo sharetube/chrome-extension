@@ -1,3 +1,4 @@
+import useAdmin from "@shared/Context/Admin/hooks/useAdmin";
 import Mute from "@shared/icons/Mute/Mute";
 import Shield from "@shared/icons/Shield/Shield";
 import React, { useState } from "react";
@@ -42,11 +43,13 @@ const Member: React.FC<MemberProps> = ({
     online,
     admin,
 }) => {
+    // Global admin context
+    const { is_admin } = useAdmin();
+
     return (
         <li
-            className={`st-member flex items-center  ${online ? "" : "opacity-60"}`}
+            className={`st-member flex items-center  ${online ? "" : "opacity-60"} ${is_admin ? "hover:cursor-pointer" : "hover:cursor-default"}`}
         >
-            {/* TODO: Make cursor hover pointer, when global user is admin */}
             {/* Avatar */}
             {avatar && (
                 <div
