@@ -1,17 +1,21 @@
-import ReactDOM from "react-dom";
-// Utils
-import waitForElement from "@shared/lib/waitForElement";
-import waitAdEnd from "@shared/utils/video/waitAdEnd";
-import addEvents from "@shared/utils/video/addEvents";
-import player from "@shared/types/video/player";
+import getAutoplay from "@player/get/autoplay";
+import addFullscreenListeners from "@player/listeners/fullScreen";
+import onPlay from "@player/listeners/onPlay";
+import addTheaterListeners from "@player/listeners/theaterScreen";
+import setAutoplay from "@player/set/autoplay";
+import pause from "@player/set/pause";
+import { AdminProvider } from "@shared/Context/Admin/Admin";
 // Debug
 import log from "@shared/lib/log";
+// Utils
+import waitForElement from "@shared/lib/waitForElement";
+import player from "@shared/types/video/player";
+import addEvents from "@shared/utils/video/addEvents";
+import waitAdEnd from "@shared/utils/video/waitAdEnd";
+import Panel from "@widgets/Panel/Panel";
 // Widgets
 import Search from "@widgets/Search/Search";
-import Panel from "@widgets/Panel/Panel";
-
-import addFullscreenListeners from "@player/listeners/fullScreen";
-import addTheaterListeners from "@player/listeners/theaterScreen";
+import ReactDOM from "react-dom";
 
 function PrimaryTab() {
     // Add event listeners to player after the ad ends
@@ -19,17 +23,35 @@ function PrimaryTab() {
         waitForElement("video.video-stream.html5-main-video"),
         waitAdEnd(),
     ])
-        .then(([elem]) => addEvents(elem as player))
+        .then(([elem]) => {
+            addEvents(elem as player);
+            pause(elem as player);
+            onPlay(elem as player);
+        })
         .catch(error => log("Failed to add events to player", error));
 
     // Render main panel
     waitForElement("#secondary", 10000, 10)
-        .then(elem => ReactDOM.render(<Panel />, elem))
+        .then(elem =>
+            ReactDOM.render(
+                <AdminProvider>
+                    <Panel />
+                </AdminProvider>,
+                elem,
+            ),
+        )
         .catch(error => log("Failed to render main panel", error));
 
     // Render search
     waitForElement("#center", 10000, 10)
-        .then(elem => ReactDOM.render(<Search />, elem))
+        .then(elem =>
+            ReactDOM.render(
+                <AdminProvider>
+                    <Search />
+                </AdminProvider>,
+                elem,
+            ),
+        )
         .catch(error => log("Failed to render input", error));
 
     /**
