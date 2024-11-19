@@ -31,7 +31,7 @@ const initialUsers = [
     },
     {
         id: "4",
-        avatar: "https://cdn.akamai.steamstatic.com/apps/dota2/images/dota_react/heroes/nevermore.png",
+        avatar: "https://i.pinimg.com/originals/6d/4d/4d/6d4d4d900546e1337e5e6deb1db3714c.gif",
         nickname: "Geroin 2",
         color: "#FFC107",
         admin: false,
@@ -51,6 +51,7 @@ const initialUsers = [
         id: "6",
         nickname: "MishaZAbivch",
         color: "#E91E63",
+        avatar: "https://media4.giphy.com/media/GRk3GLfzduq1NtfGt5/200w.gif",
         admin: false,
         muted: false,
         online: true,
