@@ -18,6 +18,11 @@ module.exports = {
                 "spec-badge-chip-background":
                     "var(--st-spec-badge-chip-background)",
                 "icon-shape-color": "var(--st-icon-shape-color)",
+                "spec-wordmark-text": "var(--st-spec-wordmark-text)",
+                "spec-button-chip-background-hover":
+                    "var(--st-spec-button-chip-background-hover)",
+                "spec-base-background": "var(--st-spec-base-background)",
+                "spec-menu-background": "var(--st-spec-menu-background)",
             },
             fontFamily: {
                 primary: "var(--st-font-primary)",
