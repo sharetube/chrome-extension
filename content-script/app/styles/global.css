@@ -1,0 +1,27 @@
+@tailwind utilities;
+
+:root {
+    /* Background */
+    --st-background-active: rgba(255, 0, 0, 0.1);
+    --st-background-primary: var(--yt-spec-badge-chip-background);
+    --st-background-secondary: var(--yt-spec-menu-background);
+    /* Colors */
+    --st-icon-shape-color: var(
+        --ytd-menu-renderer-button-color,
+        var(--yt-spec-icon-inactive)
+    );
+    --st-spec-badge-chip-background: var(--yt-spec-badge-chip-background);
+    --st-spec-base-background: var(--yt-spec-base-background);
+    --st-spec-button-chip-background-hover: var(
+        --yt-spec-button-chip-background-hover
+    );
+    --st-spec-menu-background: var(--yt-spec-menu-background);
+    --st-spec-outline: var(--yt-spec-outline);
+    --st-spec-wordmark-text: var(--yt-spec-wordmark-text);
+    /* Fonts */
+    --st-font-primary: "YouTube Sans", "Roboto", sans-serif;
+    --st-font-secondary: "Roboto", "Arial", sans-serif;
+    /* Text colors */
+    --st-text-primary: var(--yt-spec-text-primary);
+    --st-text-secondary: var(--yt-spec-text-secondary);
+}

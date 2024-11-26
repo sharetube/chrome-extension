@@ -1,8 +1,9 @@
-import { defineConfig, Plugin } from "vite";
-import react from "@vitejs/plugin-react";
 import { crx } from "@crxjs/vite-plugin";
-import manifest from "./manifest.json";
+import react from "@vitejs/plugin-react";
+import { Plugin, defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
+
+import manifest from "./manifest.json";
 
 const viteManifestHackIssue846: Plugin & {
     renderCrxManifest: (manifest: any, bundle: any) => void;
@@ -26,12 +27,12 @@ export default defineConfig({
     ],
     resolve: {
         alias: {
-            "@app": "/content-script/src/app/",
-            "@shared": "/content-script/src/shared",
-            "@widgets": "/content-script/src/widgets",
-            "@entities": "/content-script/src/entities",
-            "@tabs": "/content-script/src/tabs",
-            "@player": "/content-script/src/player",
+            "@app": "/content-script/app/",
+            "@shared": "/content-script/shared",
+            "@widgets": "/content-script/widgets",
+            "@entities": "/content-script/entities",
+            "@tabs": "/content-script/tabs",
+            "@player": "/content-script/player",
         },
     },
     build: {
