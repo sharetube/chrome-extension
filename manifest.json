@@ -14,13 +14,10 @@
         "default_title": "ShareTube"
     },
     "icons": {},
-    "background": {
-        "service_worker": "background-script/src/main.ts"
-    },
     "content_scripts": [
         {
             "matches": ["https://*.youtube.com/*"],
-            "js": ["content-script/src/main.tsx"],
+            "js": ["content-script/main.tsx"],
             "run_at": "document_start",
             "media": []
         }
