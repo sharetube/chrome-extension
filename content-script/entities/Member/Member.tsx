@@ -1,67 +1,37 @@
-import useAdmin from "@shared/Context/Admin/hooks/useAdmin";
-import Mute from "@shared/ui/Mute/Mute";
-import Shield from "@shared/ui/Shield/Shield";
-import React from "react";
+import useAdmin from '@shared/Context/Admin/hooks/useAdmin';
+import Mute from '@shared/ui/Mute/Mute';
+import Shield from '@shared/ui/Shield/Shield';
+import React from 'react';
 
 interface MemberProps {
-    /**
-     * Member id
-     */
     id: string;
-    /**
-     * Member nickname
-     */
     nickname: string;
-    /**
-     * Member color
-     */
     color: string;
-    /**
-     * Member muted status
-     */
     muted: boolean;
-    /**
-     * Member admin status
-     */
     admin: boolean;
-    /**
-     * Member online status
-     */
     online: boolean;
-    /**
-     * Member avatar url, default is two letters from nickname
-     */
-    avatar?: string;
+    avatar_url?: string;
 }
 
-const Member: React.FC<MemberProps> = ({
-    id,
-    nickname,
-    avatar,
-    color,
-    muted,
-    online,
-    admin,
-}) => {
-    // Global admin context
-    const { is_admin } = useAdmin();
+const Member: React.FC<MemberProps> = ({id, nickname, avatar_url, color, muted, online, admin}) => {
+    const {is_admin} = useAdmin();
 
     return (
         <li
-            className={`st-member flex items-center  ${online ? "" : "opacity-60"} ${is_admin ? "hover:cursor-pointer" : "hover:cursor-default"}`}
+            className={`flex items-center  ${online ? '' : 'opacity-60'} ${is_admin ? 'hover:cursor-pointer' : 'hover:cursor-default'}`}
         >
             {/* Avatar */}
-            {avatar && (
+            {avatar_url && (
                 <div
-                    className={`rounded-full bg-cover bg-center bg-no-repeat h-[30px] w-[30px] select-none ${online ? "" : "animate-pulse"}`}
-                    style={{ backgroundImage: `url(${avatar})` }}
+                    className={`rounded-full bg-cover bg-center bg-no-repeat h-[30px] w-[30px] select-none ${online ? '' : 'animate-pulse'}`}
+                    style={{backgroundImage: `url(${avatar_url})`}}
                 ></div>
             )}
             {/* Not avatar */}
-            {!avatar && (
+            {!avatar_url && (
                 <div
-                    className={`rounded-full bg-cover bg-center bg-no-repeat h-[30px] w-[30px] flex select-none ${online ? "" : "animate-pulse"}`}
-                    style={{ backgroundColor: color }}
+                    className={`rounded-full bg-cover bg-center bg-no-repeat h-[30px] w-[30px] flex select-none ${online ? '' : 'animate-pulse'}`}
+                    style={{backgroundColor: color}}
                 >
                     <p className="font-semibold text-[1.4rem] text-center font-secondary m-auto p-0 text-white select-none">
                         {nickname.slice(0, 1)}
@@ -70,8 +40,8 @@ const Member: React.FC<MemberProps> = ({
             )}
             {/* Nickname */}
             <p
-                className={`m-0 p-[0_0_0_8px] text-text-primary font-secondary leading-normal text-[1.25rem] font-medium ${online ? "" : "animate-pulse"}`}
-                style={{ color: color }}
+                className={`m-0 p-[0_0_0_8px] text-text-primary font-secondary leading-normal text-[1.25rem] font-medium ${online ? '' : 'animate-pulse'}`}
+                style={{color: color}}
             >
                 {nickname}
             </p>
@@ -79,14 +49,14 @@ const Member: React.FC<MemberProps> = ({
             <div className="flex items-center">
                 {admin && (
                     <div
-                        className={`text-text-primary h-[14px] w-[12px] box-border m-[0_0_0_4px] ${online ? "" : "animate-pulse"}`}
+                        className={`text-text-primary h-[14px] w-[12px] box-border m-[0_0_0_4px] ${online ? '' : 'animate-pulse'}`}
                     >
                         <Shield />
                     </div>
                 )}
                 {muted && (
                     <div
-                        className={`text-text-secondary h-[12px] w-[12px] box-border m-[0_-2px_0_4px] ${online ? "" : "animate-pulse"}`}
+                        className={`text-text-secondary h-[12px] w-[12px] box-border m-[0_-2px_0_4px] ${online ? '' : 'animate-pulse'}`}
                     >
                         <Mute />
                     </div>
