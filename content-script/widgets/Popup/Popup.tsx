@@ -1,3 +1,5 @@
+import Back from "@shared/ui/Back/Back";
+import Settings from "@shared/ui/Settings/Settings";
 import React, { useEffect, useState } from "react";
 
 const Popup: React.FC = () => {
@@ -18,6 +20,7 @@ const Popup: React.FC = () => {
             document.addEventListener("click", handleClick);
         } else {
             document.removeEventListener("click", handleClick);
+            setEdit(false);
         }
 
         return () => {
@@ -25,8 +28,19 @@ const Popup: React.FC = () => {
         };
     }, [isExpended]);
 
+    const [edit, setEdit] = useState<boolean>(false);
+    const [unsave, setUnsave] = useState<boolean>(false);
+
+    const handleEdit = () => {
+        unsave ? "" : setEdit(!edit);
+    };
+
+    const [nickname, setNickname] = useState<string>("Евгений Zsvo");
+    const [color, setColor] = useState<string>("CDDC39");
+    const [avatarUrl, setAvatarUrl] = useState<string>("");
+
     return (
-        <div className="st-popup h-[40px] w-[40px] box-border relative">
+        <div className="st-popup h-[40px] w-[40px] box-border relative m-[0_8px_0_0]">
             <div
                 className="hover:bg-spec-button-chip-background-hover hover:cursor-pointer text-spec-wordmark-text h-[40px] w-[40px] box-border flex rounded-full"
                 onClick={expandChange}
@@ -45,8 +59,57 @@ const Popup: React.FC = () => {
                 </svg>
             </div>
             {isExpended && (
-                <div className="st-popup__content w-[300px] h-[300px] rounded-[12px] bg-spec-menu-background absolute flex flex-col items-center right-0 top-[40px] z-[2300] p-[16px]">
-                    gg
+                <div
+                    className="st-popup__content box-border w-[345px] h-[300px] rounded-[12px] bg-spec-menu-background absolute right-0 top-[40px] z-[2300]"
+                    onClick={e => {
+                        e.stopPropagation();
+                    }}
+                >
+                    <header className="flex items-center justify-between w-[100%] p-[0_8px_0_16px] h-[49px] box-border border-b border-solid border-spec-outline border-t-0 border-r-0 border-l-0">
+                        <p className="text-text-primary font-secondary text-[1.6rem] leading-[2.2rem] font-normal m-0 p-0 select-none">
+                            ShareTube profile
+                        </p>
+                        <div
+                            className="w-[40px] h-[40px] text-text-primary flex hover:bg-spec-button-chip-background-hover hover:cursor-pointer rounded-full m-0 p-0"
+                            onClick={() => {
+                                handleEdit();
+                            }}
+                        >
+                            <div className="w-[24px] h-[24px] m-auto">
+                                {edit && <Back />}
+                                {!edit && <Settings />}
+                            </div>
+                        </div>
+                    </header>
+                    {!edit && (
+                        <div className="p-[16px_8px] flex items-center flex-col">
+                            <div
+                                className="rounded-full h-[92px] w-[92px] flex items-center justify-center bg-center bg-no-repeat bg-cover"
+                                style={{
+                                    backgroundImage: `url(${avatarUrl})`,
+                                    backgroundColor: avatarUrl
+                                        ? "transparent"
+                                        : `#${color}`,
+                                    backgroundSize: "cover",
+                                    backgroundPosition: "center",
+                                }}
+                            >
+                                {!avatarUrl && (
+                                    <p className="font-secondary text-white m-0 p-0 text-center text-[3.2rem] select-none">
+                                        {nickname.slice(0, 1)}
+                                    </p>
+                                )}
+                            </div>
+                            <h1 className="text-text-primary font-primary p-0 m-[8px_0_0] text-[2rem] leading-[2.8rem] font-bold text-center select-none">
+                                {nickname}
+                            </h1>
+                        </div>
+                    )}
+                    {edit && (
+                        <div className="p-[16px_8px] flex items-center flex-col">
+                            gg
+                        </div>
+                    )}
                 </div>
             )}
         </div>
