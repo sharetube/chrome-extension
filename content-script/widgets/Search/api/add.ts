@@ -1,5 +1,7 @@
+import log from '@shared/lib/log';
+
 const add = (videoID: string) => {
-    console.log("Adding video with ID: ", videoID);
+    log('Adding video with ID: ', videoID);
 };
 
 export default add;
