@@ -1,12 +1,26 @@
 {
+    "printWidth": 100,
+    "singleQuote": true,
     "tabWidth": 4,
-    "maxLineLength": 80,
+    "trailingComma": "all",
     "arrowParens": "avoid",
-    "plugins": [
-        "prettier-plugin-tailwindcss",
-        "@trivago/prettier-plugin-sort-imports"
-    ],
-    "importOrder": ["^components/(.*)$", "^[./]"],
+    "bracketSpacing": false,
     "importOrderSeparation": true,
-    "importOrderSortSpecifiers": true
+    "importOrderSortSpecifiers": true,
+    "maxLineLength": 80,
+    "overrides": [
+        {
+            "files": ["*.js", "*.jsx", "*.ts", "*.tsx"],
+            "options": {
+                "parser": "typescript"
+            }
+        },
+        {
+            "files": ["*.md", "*.json", "*.yaml", "*.yml", "*.config.js"],
+            "options": {
+                "tabWidth": 2
+            }
+        }
+    ],
+    "plugins": ["prettier-plugin-tailwindcss", "@trivago/prettier-plugin-sort-imports"]
 }
