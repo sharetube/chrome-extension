@@ -1,5 +1,5 @@
+import validate from '../../shared/api/validateVideo';
 import add from './api/add';
-import validate from './api/validate';
 import useKey from './hooks/useKey';
 import useAdmin from '@shared/Context/Admin/hooks/useAdmin';
 import log from '@shared/lib/log';

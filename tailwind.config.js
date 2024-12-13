@@ -15,6 +15,8 @@ module.exports = {
         'spec-button-chip-background-hover': 'var(--st-spec-button-chip-background-hover)',
         'spec-base-background': 'var(--st-spec-base-background)',
         'spec-menu-background': 'var(--st-spec-menu-background)',
+        'button-bg': 'var(--st-button-bg)',
+        'button-text-disabled': 'var(--st-button-text-disabled)',
       },
       fontFamily: {
         primary: 'var(--st-font-primary)',
