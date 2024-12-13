@@ -1,39 +1,25 @@
 {
-    "manifest_version": 3,
-    "name": "ShareTube",
-    "version": "0.1.0",
-    "description": "Share and sync YouTube videos with friends",
-    "permissions": ["storage", "activeTab", "tabs", "scripting"],
-    "host_permissions": ["https://*.youtube.com/*"],
-    "background": {
-        "service_worker": "src/workers/background.js"
-    },
-    "content_scripts": [
-        {
-            "matches": ["https://*.youtube.com/*"],
-            "js": ["src/scripts/contentScript.js"],
-            "run_at": "document_start"
-        },
-        {
-            "matches": ["https://*.youtube.com/*"],
-            "css": ["src/styles/style.css"]
-        }
-    ],
-    "web_accessible_resources": [
-        {
-            "resources": [
-                "src/templates/playlist.html",
-                "src/templates/popup.html"
-            ],
-            "matches": ["https://*.youtube.com/*"]
-        }
-    ],
-    "action": {
-        "default_icon": {
-            "16": "assets/icon16.png",
-            "24": "assets/icon24.png",
-            "32": "assets/icon32.png"
-        },
-        "default_title": "ShareTube"
+  "manifest_version": 3,
+  "version": "0.1.0",
+  "version_name": "0.1 alpha (Oly)",
+  "name": "ShareTube",
+  "short_name": "ST",
+  "description": "Share and sync YouTube videos with friends",
+  "permissions": ["storage", "activeTab", "tabs", "scripting", "webNavigation"],
+  "icons": {
+    "16": "assets/icon16.png",
+    "32": "assets/icon32.png",
+    "48": "assets/icon48.png",
+    "128": "assets/icon128.png"
+  },
+  "background": {
+    "service_worker": "./background-script/index.ts"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://*.youtube.com/*"],
+      "js": ["content-script/index.ts"],
+      "run_at": "document_start"
     }
+  ]
 }
