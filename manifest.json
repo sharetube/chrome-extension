@@ -4,7 +4,7 @@
   "version_name": "0.1 alpha (Oly)",
   "name": "ShareTube",
   "short_name": "ST",
-  "description": "Share and sync YouTube videos with friends",
+  "description": "A browser extension thats lets you watch yotube videos with friends in real-time! ",
   "permissions": ["storage", "activeTab", "tabs", "scripting", "webNavigation"],
   "icons": {
     "16": "assets/icon16.png",
