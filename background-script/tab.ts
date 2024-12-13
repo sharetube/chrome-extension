@@ -52,8 +52,34 @@ const regex = /^https:\/\/youtu\.be\/st\/([a-zA-Z0-9.-]{8})$/;
 
 function handleTab(tabId: number, url: string) {
     if (regex.test(url)) {
-        chrome.tabs.update(tabId, {url: `https://www.youtube.com/watch?v=2jNLSmbs8L0`});
-        setPrimaryTab(tabId);
+        checkPrimaryTabExists()
+            .then(exists => {
+                if (exists) {
+                    getPrimaryTab().then(primaryTabId => {
+                        if (primaryTabId !== undefined) {
+                            chrome.tabs.update(primaryTabId, {active: true});
+                            chrome.tabs.onUpdated.addListener(
+                                function listener(updatedTabId, changeInfo) {
+                                    if (
+                                        updatedTabId === tabId &&
+                                        changeInfo.status === 'complete'
+                                    ) {
+                                        chrome.tabs.remove(tabId, () => {
+                                            chrome.tabs.onUpdated.removeListener(listener);
+                                        });
+                                    }
+                                },
+                            );
+                        }
+                    });
+                } else {
+                    chrome.tabs.update(tabId, {url: `https://www.youtube.com/watch?v=2jNLSmbs8L0`});
+                    setPrimaryTab(tabId);
+                }
+            })
+            .catch(error => {
+                console.error('Error checking primary tab existence:', error);
+            });
     }
 }
 
