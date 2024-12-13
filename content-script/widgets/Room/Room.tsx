@@ -4,7 +4,8 @@ import React, {useCallback, useEffect, useState} from 'react';
 const initialUsers = [
     {
         id: '1',
-        avatar: 'https://cdn.forbes.ru/forbes-static/new/2022/04/IMG-10983445-624a99e258c99.jpg',
+        avatar_url:
+            'https://cdn.forbes.ru/forbes-static/new/2022/04/IMG-10983445-624a99e258c99.jpg',
         nickname: 'PashaDurov',
         color: '#FF5722',
         admin: true,
@@ -13,7 +14,7 @@ const initialUsers = [
     },
     {
         id: '2',
-        avatar: 'https://s0.rbk.ru/v6_top_pics/media/img/7/68/756589457932687.jpg',
+        avatar_url: 'https://s0.rbk.ru/v6_top_pics/media/img/7/68/756589457932687.jpg',
         nickname: 'ArtemkaProhor',
         color: '#4CAF50',
         muted: true,
@@ -22,7 +23,7 @@ const initialUsers = [
     },
     {
         id: '3',
-        avatar: 'https://i1.sndcdn.com/artworks-000747843388-q3nc5y-t500x500.jpg',
+        avatar_url: 'https://i1.sndcdn.com/artworks-000747843388-q3nc5y-t500x500.jpg',
         nickname: 'Use(use)',
         color: '#2196F3',
         admin: true,
@@ -31,7 +32,7 @@ const initialUsers = [
     },
     {
         id: '4',
-        avatar: 'https://i.pinimg.com/originals/6d/4d/4d/6d4d4d900546e1337e5e6deb1db3714c.gif',
+        avatar_url: 'https://i.pinimg.com/originals/6d/4d/4d/6d4d4d900546e1337e5e6deb1db3714c.gif',
         nickname: 'Geroin 2',
         color: '#FFC107',
         admin: false,
@@ -40,7 +41,8 @@ const initialUsers = [
     },
     {
         id: '5',
-        avatar: 'https://static.mk.ru/upload/entities/2023/07/10/20/articles/detailPicture/fc/02/20/47/354f1c68ac686f7d1b0cb10be532b284.jpg',
+        avatar_url:
+            'https://static.mk.ru/upload/entities/2023/07/10/20/articles/detailPicture/fc/02/20/47/354f1c68ac686f7d1b0cb10be532b284.jpg',
         nickname: 'EvgenikaPonasenk',
         color: '#9C27B0',
         admin: false,
@@ -51,13 +53,14 @@ const initialUsers = [
         id: '6',
         nickname: 'MishaZAbivch',
         color: '#E91E63',
-        avatar: 'https://media4.giphy.com/media/GRk3GLfzduq1NtfGt5/200w.gif',
+        avatar_url: 'https://media4.giphy.com/media/GRk3GLfzduq1NtfGt5/200w.gif',
         admin: false,
         muted: false,
         online: true,
     },
     {
         id: '7',
+        avatar_url: '',
         nickname: 'Vladik',
         color: '#00BCD4',
         admin: true,
