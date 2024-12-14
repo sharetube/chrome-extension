@@ -1,3 +1,4 @@
+import { colors } from "../../../../constants/colors";
 import Button from "../shared/Button/Button";
 import Input from "../shared/Input/Input";
 import Title from "../shared/Title/Title";
@@ -12,25 +13,6 @@ interface ProfileProps {
     changePage: () => void;
     updateProfile: () => void;
 }
-
-const colors: string[] = [
-    "#E91E63",
-    "#F44336",
-    "#FF5722",
-    "#FF9800",
-    "#FFC107",
-    "#CDDC39",
-    "#7ED01F",
-    "#4CAF50",
-    "#9C27B0",
-    "#673AB7",
-    "#3F51B5",
-    "#3790BB",
-    "#2196F3",
-    "#00BCD4",
-    "#009688",
-    "#A1593E",
-];
 
 const Profile: React.FC<ProfileProps> = ({ user, changePage, updateProfile }) => {
     const [isUsernameChanged, setIsUsernameChanged] = useState<boolean>(false);

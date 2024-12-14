@@ -1,8 +1,8 @@
+import { defaultUser } from "../../../constants/defaultUser";
 import Profile from "./pages/Profile";
 import Room from "./pages/Room";
 import ShareTube from "@shared/ui/ShareTube/ShareTube";
 import React, { useEffect, useState } from "react";
-import { defaultUser } from "types/defaultUser";
 import { user } from "types/user";
 
 const Popup: React.FC = () => {
@@ -34,11 +34,7 @@ const Popup: React.FC = () => {
 
     const changePage = () => setIsProfileEdit(!isProfileEdit);
 
-    const [user, setUser] = useState<user | defaultUser>({
-        avatar_url: "",
-        color: "",
-        username: "User",
-    });
+    const [user, setUser] = useState<user>(defaultUser);
 
     const getProfile = () => {
         chrome.runtime.sendMessage({ action: "getProfile" }, response => {
@@ -56,7 +52,7 @@ const Popup: React.FC = () => {
 
     useEffect(() => {
         const handleMessage = (message: any) => {
-            if (message.action === "profileSet") {
+            if (message.action === "profile_updated") {
                 getProfile();
             }
         };
