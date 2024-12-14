@@ -1,12 +1,5 @@
-import type { defaultUser } from "types/defaultUser";
+import { defaultUser } from "../constants/defaultUser";
 import type { user } from "types/user";
-
-// Default user when installed extension
-const defaultUser: defaultUser = {
-    color: "#FFC107",
-    avatar_url: "",
-    username: "User",
-};
 
 // Function to set default user profile
 const setDefaultUserProfile = (callback?: () => void) => {
@@ -48,37 +41,41 @@ chrome.runtime.onInstalled.addListener(() => {
 
 const tabsRequestingProfile: number[] = [];
 
-const notifyTabsProfileSet = () => {
+const notifyTabsProfileUpdated = () => {
     tabsRequestingProfile.forEach(tabId => {
-        chrome.tabs.sendMessage(tabId, { action: "profileSet" });
+        chrome.tabs.sendMessage(tabId, { action: "profile_updated" });
     });
 };
 
 // Message handlers
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (message.action === "updateProfile") {
-        const profile: user = message.data;
-        notifyTabsProfileSet();
-        chrome.storage.sync.set({ "st-profile": profile }, () => {
-            if (chrome.runtime.lastError) {
-                sendResponse({ success: false, error: chrome.runtime.lastError });
-            } else {
-                sendResponse({ success: true });
+    switch (message.action) {
+        case "updateProfile":
+            const profile: user = message.data;
+            notifyTabsProfileUpdated();
+            chrome.storage.sync.set({ "st-profile": profile }, () => {
+                if (chrome.runtime.lastError) {
+                    sendResponse({ success: false, error: chrome.runtime.lastError });
+                } else {
+                    sendResponse({ success: true });
+                }
+            });
+            break;
+        case "getProfile":
+            if (sender.tab && sender.tab.id !== undefined) {
+                tabsRequestingProfile.push(sender.tab.id);
             }
-        });
-        return true;
-    } else if (message.action === "getProfile") {
-        if (sender.tab && sender.tab.id !== undefined) {
-            tabsRequestingProfile.push(sender.tab.id);
-        }
-        getUserProfile(profile => {
-            if (profile) {
-                console.log("Profile data retrieved:", profile);
-                sendResponse({ success: true, data: profile });
-            } else {
-                sendResponse({ success: false, error: "Error getting profile" });
-            }
-        });
-        return true;
+            getUserProfile(profile => {
+                if (profile) {
+                    console.log("Profile data retrieved:", profile);
+                    sendResponse({ success: true, data: profile });
+                } else {
+                    sendResponse({ success: false, error: "Error getting profile" });
+                }
+            });
+            break;
+        default:
+            console.error("unknown message.action: ", message.action);
+            break;
     }
 });
