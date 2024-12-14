@@ -1,7 +1,6 @@
+import { AdminContext } from "../Admin";
 import log from "@shared/lib/log";
 import { useContext } from "react";
-
-import { AdminContext } from "../Admin";
 
 const useAdmin = () => {
     const context = useContext(AdminContext);

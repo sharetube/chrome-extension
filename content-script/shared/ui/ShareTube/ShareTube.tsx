@@ -1,5 +1,5 @@
-import Icon from '../Icon/Icon';
-import React from 'react';
+import Icon from "../Icon/Icon";
+import React from "react";
 
 const ShareTube: React.FC = () => {
     return (

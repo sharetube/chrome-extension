@@ -1,7 +1,7 @@
-import useVideoData from './hooks/useVideoData';
-import data from './types/data';
-import Trash from '@shared/ui/Trash/Trash';
-import React from 'react';
+import useVideoData from "./hooks/useVideoData";
+import data from "./types/data";
+import Trash from "@shared/ui/Trash/Trash";
+import React from "react";
 
 interface Base {
     videoId: string;
@@ -42,22 +42,22 @@ const LoadingSkeleton: React.FC = () => (
     </li>
 );
 
-const VideoContent: React.FC<VideoProps & {videoData: data}> = ({videoData, ...props}) => (
+const VideoContent: React.FC<VideoProps & { videoData: data }> = ({ videoData, ...props }) => (
     <li
-        title={props.actions ? 'Play video' : undefined}
-        className={`${props.previous ? 'opacity-60 hover:opacity-100' : null} ${props.current ? 'bg-background-active' : null} ${props.actions ? 'hover:cursor-pointer' : null} select-none hover:bg-spec-badge-chip-background group flex items-stretch p-[4px_8px_4px_0]`}
+        title={props.actions ? "Play video" : undefined}
+        className={`${props.previous ? "opacity-60 hover:opacity-100" : null} ${props.current ? "bg-background-active" : null} ${props.actions ? "hover:cursor-pointer" : null} select-none hover:bg-spec-badge-chip-background group flex items-stretch p-[4px_8px_4px_0]`}
     >
         <div className="flex items-stretch">
             <div className="flex">
                 <span className="m-auto w-[24px] p-0 text-center font-secondary text-[1.2rem] font-[400] leading-[1.5rem] text-text-secondary">
                     {props.number ? props.number : null}
-                    {props.current ? '▶' : null}
+                    {props.current ? "▶" : null}
                 </span>
             </div>
             <div>
                 <div
                     className="h-[56px] w-[100px] rounded-lg bg-cover bg-center bg-no-repeat"
-                    style={{backgroundImage: `url(${videoData.thumbnail_url})`}}
+                    style={{ backgroundImage: `url(${videoData.thumbnail_url})` }}
                 ></div>
             </div>
             <article className="p-[0_8px]">
@@ -87,7 +87,7 @@ const VideoContent: React.FC<VideoProps & {videoData: data}> = ({videoData, ...p
 );
 
 const Video: React.FC<VideoProps> = props => {
-    const {loading, videoData} = useVideoData(props.videoId);
+    const { loading, videoData } = useVideoData(props.videoId);
     return loading ? <LoadingSkeleton /> : <VideoContent {...props} videoData={videoData} />;
 };
 

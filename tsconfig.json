@@ -28,5 +28,5 @@
     }
   },
   "include": ["content-script/shared", "vite-env.d.ts", "types/user.ts"],
-  "references": [{"path": "./tsconfig.node.json"}]
+  "references": [{ "path": "./tsconfig.node.json" }]
 }
