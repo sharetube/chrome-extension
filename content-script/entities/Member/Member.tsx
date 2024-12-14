@@ -1,3 +1,4 @@
+import Avatar from '@entities/Avatar/Avatar';
 import useAdmin from '@shared/Context/Admin/hooks/useAdmin';
 import Mute from '@shared/ui/Mute/Mute';
 import Shield from '@shared/ui/Shield/Shield';
@@ -10,7 +11,7 @@ interface MemberProps {
     muted: boolean;
     admin: boolean;
     online: boolean;
-    avatar_url?: string;
+    avatar_url: string;
 }
 
 const Member: React.FC<MemberProps> = ({id, nickname, avatar_url, color, muted, online, admin}) => {
@@ -20,24 +21,7 @@ const Member: React.FC<MemberProps> = ({id, nickname, avatar_url, color, muted, 
         <li
             className={`flex items-center  ${online ? '' : 'opacity-60'} ${is_admin ? 'hover:cursor-pointer' : 'hover:cursor-default'}`}
         >
-            {/* Avatar */}
-            {avatar_url && (
-                <div
-                    className={`rounded-full bg-cover bg-center bg-no-repeat h-[30px] w-[30px] select-none ${online ? '' : 'animate-pulse'}`}
-                    style={{backgroundImage: `url(${avatar_url})`}}
-                ></div>
-            )}
-            {/* Not avatar */}
-            {!avatar_url && (
-                <div
-                    className={`rounded-full bg-cover bg-center bg-no-repeat h-[30px] w-[30px] flex select-none ${online ? '' : 'animate-pulse'}`}
-                    style={{backgroundColor: color}}
-                >
-                    <p className="font-semibold text-[1.4rem] text-center font-secondary m-auto p-0 text-white select-none">
-                        {nickname.slice(0, 1)}
-                    </p>
-                </div>
-            )}
+            <Avatar size="s" url={avatar_url} color={color} letter={nickname.slice(0, 1)} />
             {/* Nickname */}
             <p
                 className={`m-0 p-[0_0_0_8px] text-text-primary font-secondary leading-normal text-[1.25rem] font-medium ${online ? '' : 'animate-pulse'}`}
