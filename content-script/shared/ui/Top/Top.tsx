@@ -1,6 +1,5 @@
-import React from "react";
-
 import Icon from "../Icon/Icon";
+import React from "react";
 
 const Top: React.FC = () => {
     return (

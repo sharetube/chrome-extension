@@ -1,7 +1,7 @@
-import log from '@shared/lib/log';
+import log from "@shared/lib/log";
 
-const add = (videoID: string) => {
-    log('Adding video with ID: ', videoID);
+const add = (videoId: string) => {
+    log("Adding video with ID: ", videoId);
 };
 
 export default add;

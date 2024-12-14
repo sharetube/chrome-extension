@@ -1,4 +1,4 @@
-import {useEffect, useRef} from 'react';
+import { useEffect, useRef } from "react";
 
 function useKey(key: string) {
     const inputRef = useRef<HTMLInputElement>(null);
@@ -11,8 +11,8 @@ function useKey(key: string) {
             }
         };
 
-        window.addEventListener('keydown', handleGlobalKeyDown);
-        return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+        window.addEventListener("keydown", handleGlobalKeyDown);
+        return () => window.removeEventListener("keydown", handleGlobalKeyDown);
     }, [key]);
 
     return inputRef;

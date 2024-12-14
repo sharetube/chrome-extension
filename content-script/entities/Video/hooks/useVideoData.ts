@@ -1,7 +1,7 @@
-import video from '../api/Video';
-import data from '../types/data';
-import log from '@shared/lib/log';
-import {useEffect, useState} from 'react';
+import video from "../api/Video";
+import data from "../types/data";
+import log from "@shared/lib/log";
+import { useEffect, useState } from "react";
 
 const useVideoData = (videoId: string) => {
     const [loading, setLoading] = useState(true);
@@ -14,12 +14,12 @@ const useVideoData = (videoId: string) => {
                 setLoading(false);
             })
             .catch(error => {
-                log('useVideoData', error);
+                log("useVideoData", error);
                 setLoading(false);
             });
     }, [videoId]);
 
-    return {loading, videoData};
+    return { loading, videoData };
 };
 
 export default useVideoData;

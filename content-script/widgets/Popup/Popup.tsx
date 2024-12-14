@@ -1,9 +1,9 @@
-import Profile from './pages/Profile';
-import Room from './pages/Room';
-import ShareTube from '@shared/ui/ShareTube/ShareTube';
-import React, {useEffect, useState} from 'react';
-import {defaultUser} from 'types/defaultUser';
-import {user} from 'types/user';
+import Profile from "./pages/Profile";
+import Room from "./pages/Room";
+import ShareTube from "@shared/ui/ShareTube/ShareTube";
+import React, { useEffect, useState } from "react";
+import { defaultUser } from "types/defaultUser";
+import { user } from "types/user";
 
 const Popup: React.FC = () => {
     const [isExpended, setIsExpended] = useState<boolean>(false);
@@ -13,20 +13,20 @@ const Popup: React.FC = () => {
     };
 
     const handleClick = (e: MouseEvent) => {
-        if ((e.target as HTMLElement).classList.contains('st-popup__content')) return;
+        if ((e.target as HTMLElement).classList.contains("st-popup__content")) return;
         setIsExpended(false);
     };
 
     useEffect(() => {
         if (isExpended) {
-            document.addEventListener('click', handleClick);
+            document.addEventListener("click", handleClick);
         } else {
-            document.removeEventListener('click', handleClick);
+            document.removeEventListener("click", handleClick);
             setIsProfileEdit(false);
         }
 
         return () => {
-            document.removeEventListener('click', handleClick);
+            document.removeEventListener("click", handleClick);
         };
     }, [isExpended]);
 
@@ -35,17 +35,17 @@ const Popup: React.FC = () => {
     const changePage = () => setIsProfileEdit(!isProfileEdit);
 
     const [user, setUser] = useState<user | defaultUser>({
-        avatar_url: '',
-        color: '',
-        username: 'User',
+        avatar_url: "",
+        color: "",
+        username: "User",
     });
 
     const getProfile = () => {
-        chrome.runtime.sendMessage({action: 'getProfile'}, response => {
+        chrome.runtime.sendMessage({ action: "getProfile" }, response => {
             if (response && response.success) {
                 setUser(response.data);
             } else {
-                console.error('Error getting profile:', response.error);
+                console.error("Error getting profile:", response.error);
             }
         });
     };
@@ -56,7 +56,7 @@ const Popup: React.FC = () => {
 
     useEffect(() => {
         const handleMessage = (message: any) => {
-            if (message.action === 'profileSet') {
+            if (message.action === "profileSet") {
                 getProfile();
             }
         };

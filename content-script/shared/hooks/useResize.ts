@@ -38,10 +38,7 @@ const useFullScreenResize = () => {
         handleResize();
 
         return () => {
-            document.removeEventListener(
-                "fullscreenchange",
-                handleFullScreenChange,
-            );
+            document.removeEventListener("fullscreenchange", handleFullScreenChange);
             window.removeEventListener("resize", debouncedHandleResize);
         };
     }, []);

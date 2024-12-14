@@ -1,5 +1,5 @@
-import React from "react";
 import Icon from "../Icon/Icon";
+import React from "react";
 
 const Trash: React.FC = () => {
     return (
