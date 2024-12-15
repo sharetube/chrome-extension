@@ -1,4 +1,6 @@
 import { colors } from "../../../../constants/colors";
+import { ExtensionMessageType } from "../../../../types/extensionMessage";
+import { ContentScriptMessagingClient } from "../../../shared/client/client";
 import Button from "../shared/Button/Button";
 import Input from "../shared/Input/Input";
 import Title from "../shared/Title/Title";
@@ -11,10 +13,9 @@ import { user } from "types/user";
 interface ProfileProps {
     user: user;
     changePage: () => void;
-    updateProfile: () => void;
 }
 
-const Profile: React.FC<ProfileProps> = ({ user, changePage, updateProfile }) => {
+const Profile: React.FC<ProfileProps> = ({ user, changePage }) => {
     const [isUsernameChanged, setIsUsernameChanged] = useState<boolean>(false);
     const [isAvatarUrlChanged, setIsAvatarUrlChanged] = useState<boolean>(false);
     const [isColorChanged, setIsColorChanged] = useState<boolean>(false);
@@ -62,6 +63,7 @@ const Profile: React.FC<ProfileProps> = ({ user, changePage, updateProfile }) =>
         }
     }, [debouncedAvatarUrl]);
 
+    // todo: split into separate functions
     const changeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { value, name } = e.target;
 
@@ -86,14 +88,16 @@ const Profile: React.FC<ProfileProps> = ({ user, changePage, updateProfile }) =>
             color: selectedColor,
         };
 
-        chrome.runtime.sendMessage({ action: "updateProfile", data: updatedUser }, response => {
-            if (response.success) {
-                log("Profile successfully updated", response.data);
-                updateProfile();
-            } else {
-                log("Error updating profile:", response.error);
-            }
-        });
+        ContentScriptMessagingClient.getInstance()
+            .sendMessage(ExtensionMessageType.UPDATE_PROFILE, updatedUser)
+            .then(response => {
+                // console.log("profile update profile res", response);
+                // if (response) {
+                //     log("Profile successfully updated", response.data);
+                // } else {
+                //     log("Error updating profile:", response.error);
+                // }
+            });
 
         setIsColorChanged(false);
         setIsAvatarUrlChanged(false);

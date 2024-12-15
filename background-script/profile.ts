@@ -1,81 +1,55 @@
 import { defaultUser } from "../constants/defaultUser";
+import { ExtensionMessageType } from "../types/extensionMessage";
+import { BackgroundMessagingClient } from "./client";
 import type { user } from "types/user";
 
-// Function to set default user profile
-const setDefaultUserProfile = (callback?: () => void) => {
-    chrome.storage.sync.set({ "st-profile": defaultUser }, () => {
+const messagingClient = BackgroundMessagingClient.getInstance();
+
+const profileKey = "st-profile";
+
+const setUserProfile = (profile: user) => {
+    chrome.storage.sync.set({ "st-profile": profile }, () => {
         if (chrome.runtime.lastError) {
-            console.error("Error setting default profile:", chrome.runtime.lastError);
-        } else {
-            console.log("Default profile set");
-            if (callback) callback();
+            console.error("Error setting profile:", chrome.runtime.lastError);
         }
     });
 };
 
 // Function to get user profile
-const getUserProfile = (callback: (profile: user | null) => void) => {
-    chrome.storage.sync.get("st-profile", items => {
-        if (chrome.runtime.lastError) {
-            console.error("Error getting profile:", chrome.runtime.lastError);
-            callback(null);
-        } else {
-            const data = items as { "st-profile"?: user };
-            if (!data["st-profile"]) {
-                setDefaultUserProfile(() => callback(defaultUser));
+const getUserProfile = (): Promise<user | null> => {
+    return new Promise(resolve => {
+        chrome.storage.sync.get(profileKey, result => {
+            if (!chrome.runtime.lastError && result[profileKey]) {
+                resolve(result[profileKey]);
             } else {
-                callback(data["st-profile"]);
+                resolve(null);
             }
-        }
+        });
     });
 };
 
 // Set defaultUser when the extension is installed or updated, if the profile is missing
 chrome.runtime.onInstalled.addListener(() => {
-    getUserProfile(profile => {
+    getUserProfile().then(profile => {
         if (!profile) {
-            setDefaultUserProfile();
+            setUserProfile(defaultUser);
         }
     });
 });
 
-const tabsRequestingProfile: number[] = [];
-
-const notifyTabsProfileUpdated = () => {
-    tabsRequestingProfile.forEach(tabId => {
-        chrome.tabs.sendMessage(tabId, { action: "profile_updated" });
-    });
+const notifyTabsProfileUpdated = (profile: user) => {
+    messagingClient.broadcastMessage(ExtensionMessageType.PROFILE_UPDATED, profile);
 };
 
-// Message handlers
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    switch (message.action) {
-        case "updateProfile":
-            const profile: user = message.data;
-            notifyTabsProfileUpdated();
-            chrome.storage.sync.set({ "st-profile": profile }, () => {
-                if (chrome.runtime.lastError) {
-                    sendResponse({ success: false, error: chrome.runtime.lastError });
-                } else {
-                    sendResponse({ success: true });
-                }
-            });
-            break;
-        case "getProfile":
-            if (sender.tab && sender.tab.id !== undefined) {
-                tabsRequestingProfile.push(sender.tab.id);
-            }
-            getUserProfile(profile => {
-                if (profile) {
-                    console.log("Profile data retrieved:", profile);
-                    sendResponse({ success: true, data: profile });
-                } else {
-                    sendResponse({ success: false, error: "Error getting profile" });
-                }
-            });
-            break;
-        default:
-            console.error("unknown message.action: ", message.action);
-            break;
+messagingClient.addHandler(ExtensionMessageType.UPDATE_PROFILE, (message, _) => {
+    setUserProfile(message);
+    notifyTabsProfileUpdated(message);
+});
+
+messagingClient.addHandler(ExtensionMessageType.GET_PROFILE, (_, sender): Promise<user | null> => {
+    if (sender.tab?.id !== undefined) {
+        messagingClient.addTab(sender.tab.id);
     }
+
+    return getUserProfile();
 });
