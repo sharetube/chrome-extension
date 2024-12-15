@@ -22,11 +22,18 @@
       "@widgets/*": ["content-script/widgets/*"],
       "@entities/*": ["content-script/entities/*"],
       "@tabs/*": ["content-script/tabs/*"],
-      "@player/*": ["content-script/player/*"],
+      "@player/*": ["content-script/entities/player/*"],
       "components/*": ["content-script/components/*"],
       "types/*": ["types/*"]
     }
   },
-  "include": ["content-script/shared", "vite-env.d.ts", "types/user.ts"],
+  "include": [
+    "content-script/shared",
+    "vite-env.d.ts",
+    "types/user.ts",
+    "content-script/widgets",
+    "background-script",
+    "types/"
+  ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
