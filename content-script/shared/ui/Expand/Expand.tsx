@@ -1,7 +1,6 @@
-import React from "react";
-
 import Icon from "../Icon/Icon";
 import Top from "../Top/Top";
+import React from "react";
 
 interface ExpandProps {
     isExpended: boolean;

@@ -1,6 +1,6 @@
-import React from 'react';
+import React from "react";
 
-type InputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, 'className'>;
+type InputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, "className">;
 
 const Input: React.FC<InputProps> = props => {
     return (

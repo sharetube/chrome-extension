@@ -1,5 +1,5 @@
-import log from '@shared/lib/log';
-import React, {ReactNode, createContext, useEffect, useState} from 'react';
+import log from "@shared/lib/log";
+import React, { ReactNode, createContext, useEffect, useState } from "react";
 
 interface AdminContextType {
     is_admin: boolean;
@@ -13,12 +13,12 @@ interface MyProviderProps {
     children: ReactNode;
 }
 
-const AdminProvider: React.FC<MyProviderProps> = ({children}) => {
+const AdminProvider: React.FC<MyProviderProps> = ({ children }) => {
     const [isAdmin, setIsAdmin] = useState<boolean>(true);
 
     useEffect(() => {}, []);
 
-    return <AdminContext.Provider value={{is_admin: isAdmin}}>{children}</AdminContext.Provider>;
+    return <AdminContext.Provider value={{ is_admin: isAdmin }}>{children}</AdminContext.Provider>;
 };
 
-export {AdminContext, AdminProvider};
+export { AdminContext, AdminProvider };

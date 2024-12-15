@@ -1,4 +1,4 @@
-import data from '../types/data';
+import data from "../types/data";
 
 const video = (id: string, retries: number = 3): Promise<data> => {
     const fetchVideoInfo = (attempt: number): Promise<data> =>

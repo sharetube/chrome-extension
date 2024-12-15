@@ -1,84 +1,55 @@
-import type {defaultUser} from 'types/defaultUser';
-import type {user} from 'types/user';
+import { defaultUser } from "../constants/defaultUser";
+import { ExtensionMessageType } from "../types/extensionMessage";
+import { BackgroundMessagingClient } from "./client";
+import type { user } from "types/user";
 
-// Default user when installed extension
-const defaultUser: defaultUser = {
-    color: '#FFC107',
-    avatar_url: '',
-    username: 'User',
-};
+const messagingClient = BackgroundMessagingClient.getInstance();
 
-// Function to set default user profile
-const setDefaultUserProfile = (callback?: () => void) => {
-    chrome.storage.sync.set({'st-profile': defaultUser}, () => {
+const profileKey = "st-profile";
+
+const setUserProfile = (profile: user) => {
+    chrome.storage.sync.set({ "st-profile": profile }, () => {
         if (chrome.runtime.lastError) {
-            console.error('Error setting default profile:', chrome.runtime.lastError);
-        } else {
-            console.log('Default profile set');
-            if (callback) callback();
+            console.error("Error setting profile:", chrome.runtime.lastError);
         }
     });
 };
 
 // Function to get user profile
-const getUserProfile = (callback: (profile: user | null) => void) => {
-    chrome.storage.sync.get('st-profile', items => {
-        if (chrome.runtime.lastError) {
-            console.error('Error getting profile:', chrome.runtime.lastError);
-            callback(null);
-        } else {
-            const data = items as {'st-profile'?: user};
-            if (!data['st-profile']) {
-                setDefaultUserProfile(() => callback(defaultUser));
+const getUserProfile = (): Promise<user | null> => {
+    return new Promise(resolve => {
+        chrome.storage.sync.get(profileKey, result => {
+            if (!chrome.runtime.lastError && result[profileKey]) {
+                resolve(result[profileKey]);
             } else {
-                callback(data['st-profile']);
+                resolve(null);
             }
-        }
+        });
     });
 };
 
 // Set defaultUser when the extension is installed or updated, if the profile is missing
 chrome.runtime.onInstalled.addListener(() => {
-    getUserProfile(profile => {
+    getUserProfile().then(profile => {
         if (!profile) {
-            setDefaultUserProfile();
+            setUserProfile(defaultUser);
         }
     });
 });
 
-const tabsRequestingProfile: number[] = [];
-
-const notifyTabsProfileSet = () => {
-    tabsRequestingProfile.forEach(tabId => {
-        chrome.tabs.sendMessage(tabId, {action: 'profileSet'});
-    });
+const notifyTabsProfileUpdated = (profile: user) => {
+    messagingClient.broadcastMessage(ExtensionMessageType.PROFILE_UPDATED, profile);
 };
 
-// Message handlers
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (message.action === 'updateProfile') {
-        const profile: user = message.data;
-        notifyTabsProfileSet();
-        chrome.storage.sync.set({'st-profile': profile}, () => {
-            if (chrome.runtime.lastError) {
-                sendResponse({success: false, error: chrome.runtime.lastError});
-            } else {
-                sendResponse({success: true});
-            }
-        });
-        return true;
-    } else if (message.action === 'getProfile') {
-        if (sender.tab && sender.tab.id !== undefined) {
-            tabsRequestingProfile.push(sender.tab.id);
-        }
-        getUserProfile(profile => {
-            if (profile) {
-                console.log('Profile data retrieved:', profile);
-                sendResponse({success: true, data: profile});
-            } else {
-                sendResponse({success: false, error: 'Error getting profile'});
-            }
-        });
-        return true;
+messagingClient.addHandler(ExtensionMessageType.UPDATE_PROFILE, (message, _) => {
+    setUserProfile(message);
+    notifyTabsProfileUpdated(message);
+});
+
+messagingClient.addHandler(ExtensionMessageType.GET_PROFILE, (_, sender): Promise<user | null> => {
+    if (sender.tab?.id !== undefined) {
+        messagingClient.addTab(sender.tab.id);
     }
+
+    return getUserProfile();
 });

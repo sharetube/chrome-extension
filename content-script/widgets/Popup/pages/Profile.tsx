@@ -1,38 +1,21 @@
-import Button from '../shared/Button/Button';
-import Input from '../shared/Input/Input';
-import Title from '../shared/Title/Title';
-import Avatar from '@entities/Avatar/Avatar';
-import log from '@shared/lib/log';
-import Back from '@shared/ui/Back/Back';
-import React, {useEffect, useState} from 'react';
-import {user} from 'types/user';
+import { colors } from "../../../../constants/colors";
+import { ExtensionMessageType } from "../../../../types/extensionMessage";
+import { ContentScriptMessagingClient } from "../../../shared/client/client";
+import Button from "../shared/Button/Button";
+import Input from "../shared/Input/Input";
+import Title from "../shared/Title/Title";
+import Avatar from "@entities/Avatar/Avatar";
+import log from "@shared/lib/log";
+import Back from "@shared/ui/Back/Back";
+import React, { useEffect, useState } from "react";
+import { user } from "types/user";
 
 interface ProfileProps {
     user: user;
     changePage: () => void;
-    updateProfile: () => void;
 }
 
-const colors: string[] = [
-    '#E91E63',
-    '#F44336',
-    '#FF5722',
-    '#FF9800',
-    '#FFC107',
-    '#CDDC39',
-    '#7ED01F',
-    '#4CAF50',
-    '#9C27B0',
-    '#673AB7',
-    '#3F51B5',
-    '#3790BB',
-    '#2196F3',
-    '#00BCD4',
-    '#009688',
-    '#A1593E',
-];
-
-const Profile: React.FC<ProfileProps> = ({user, changePage, updateProfile}) => {
+const Profile: React.FC<ProfileProps> = ({ user, changePage }) => {
     const [isUsernameChanged, setIsUsernameChanged] = useState<boolean>(false);
     const [isAvatarUrlChanged, setIsAvatarUrlChanged] = useState<boolean>(false);
     const [isColorChanged, setIsColorChanged] = useState<boolean>(false);
@@ -80,18 +63,19 @@ const Profile: React.FC<ProfileProps> = ({user, changePage, updateProfile}) => {
         }
     }, [debouncedAvatarUrl]);
 
+    // todo: split into separate functions
     const changeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const {value, name} = e.target;
+        const { value, name } = e.target;
 
-        if (name === 'username') {
+        if (name === "username") {
             const isValid = value.length >= 1 && value.length <= 15;
             setIsValidUsername(isValid);
             setUsername(value);
             setIsUsernameChanged(isValid && value !== user.username);
-        } else if (name === 'avatar_url') {
+        } else if (name === "avatar_url") {
             setAvatarUrl(value);
             setIsAvatarUrlChanged(value !== user.avatar_url);
-        } else if (name === 'color') {
+        } else if (name === "color") {
             setSelectedColor(value);
             setIsColorChanged(value !== user.color);
         }
@@ -104,14 +88,16 @@ const Profile: React.FC<ProfileProps> = ({user, changePage, updateProfile}) => {
             color: selectedColor,
         };
 
-        chrome.runtime.sendMessage({action: 'updateProfile', data: updatedUser}, response => {
-            if (response.success) {
-                log('Profile successfully updated', response.data);
-                updateProfile();
-            } else {
-                log('Error updating profile:', response.error);
-            }
-        });
+        ContentScriptMessagingClient.getInstance()
+            .sendMessage(ExtensionMessageType.UPDATE_PROFILE, updatedUser)
+            .then(response => {
+                // console.log("profile update profile res", response);
+                // if (response) {
+                //     log("Profile successfully updated", response.data);
+                // } else {
+                //     log("Error updating profile:", response.error);
+                // }
+            });
 
         setIsColorChanged(false);
         setIsAvatarUrlChanged(false);
@@ -155,7 +141,7 @@ const Profile: React.FC<ProfileProps> = ({user, changePage, updateProfile}) => {
                         onChange={changeHandler}
                         minLength={1}
                         maxLength={15}
-                        style={{color: selectedColor}}
+                        style={{ color: selectedColor }}
                     ></Input>
                 </div>
                 <div className="m-[0_0_12px]">
@@ -177,10 +163,10 @@ const Profile: React.FC<ProfileProps> = ({user, changePage, updateProfile}) => {
                                 <span
                                     className={`rounded-[8px] inline-block ${
                                         selectedColor === color
-                                            ? 'border-2 border-solid border-text-primary w-[26px] h-[26px]'
-                                            : 'w-[30px] h-[30px]'
+                                            ? "border-2 border-solid border-text-primary w-[26px] h-[26px]"
+                                            : "w-[30px] h-[30px]"
                                     }`}
-                                    style={{backgroundColor: color}}
+                                    style={{ backgroundColor: color }}
                                 ></span>
                             </label>
                         ))}

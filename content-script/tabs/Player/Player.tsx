@@ -8,13 +8,13 @@ import {
     ObserveElementClasslist,
     Player,
     SendPlayerStateManager,
-} from '@player/player';
-import {AdminProvider} from '@shared/Context/Admin/Admin';
-import log from '@shared/lib/log';
-import waitForElement from '@shared/lib/waitForElement';
-import Panel from '@widgets/Panel/Panel';
-import Search from '@widgets/Search/Search';
-import ReactDOM from 'react-dom';
+} from "@player/player";
+import { AdminProvider } from "@shared/Context/Admin/Admin";
+import log from "@shared/lib/log";
+import waitForElement from "@shared/lib/waitForElement";
+import Panel from "@widgets/Panel/Panel";
+import Search from "@widgets/Search/Search";
+import ReactDOM from "react-dom";
 
 // window.addEventListener(
 //     "keydown",
@@ -48,8 +48,8 @@ import ReactDOM from 'react-dom';
 //     true,
 // );
 
-waitForElement('.html5-video-player').then(elem => {
-    waitForElement('video.video-stream.html5-main-video').then(p => {
+waitForElement(".html5-video-player").then(elem => {
+    waitForElement("video.video-stream.html5-main-video").then(p => {
         const player = p as HTMLVideoElement;
         const PlayerInstance = Player.getInstance();
         PlayerInstance.player = player;
@@ -66,7 +66,7 @@ waitForElement('.html5-video-player').then(elem => {
 
         class gg {
             modeUpdate(data: Modes) {
-                log('Mode', data);
+                log("Mode", data);
             }
         }
         const zz = new gg();
@@ -79,7 +79,7 @@ waitForElement('.html5-video-player').then(elem => {
 
         class y {
             update(data: boolean) {
-                log('Loading', data);
+                log("Loading", data);
             }
         }
 
@@ -93,7 +93,7 @@ waitForElement('.html5-video-player').then(elem => {
 
         class tt {
             update(data: boolean) {
-                log('Mute', data);
+                log("Mute", data);
             }
         }
 
@@ -105,36 +105,36 @@ waitForElement('.html5-video-player').then(elem => {
 });
 
 //Remove autoplay button from player
-waitForElement('.ytp-autonav-toggle-button-container').then(elem => {
+waitForElement(".ytp-autonav-toggle-button-container").then(elem => {
     elem!.parentElement!.remove();
 });
 
 // Remove next button from player
-waitForElement('.ytp-next-button.ytp-button')
+waitForElement(".ytp-next-button.ytp-button")
     .then(elem => {
         elem!.remove();
     })
-    .catch(error => log('Failed to remove next button', error));
+    .catch(error => log("Failed to remove next button", error));
 
 // Because clip button must be removed
-waitForElement('#flexible-item-buttons')
+waitForElement("#flexible-item-buttons")
     .then(elem => {
         elem?.remove();
     })
-    .catch(error => log('Failed to remove clip button', error));
+    .catch(error => log("Failed to remove clip button", error));
 
 // Remove clip button
-waitForElement('yt-button-shape#button-shape')
+waitForElement("yt-button-shape#button-shape")
     .then(elem => {
         elem?.remove();
     })
-    .catch(error => log('Failed to shape button', error));
+    .catch(error => log("Failed to shape button", error));
 
 // Render main panel
-waitForElement('#secondary-inner')
+waitForElement("#secondary-inner")
     .then(elem => {
-        Object.assign(elem!.style, {transform: 'scale(0)', zIndex: '-1'});
-        const container = document.createElement('div');
+        Object.assign(elem!.style, { transform: "scale(0)", zIndex: "-1" });
+        const container = document.createElement("div");
         elem?.parentElement?.prepend(container);
         ReactDOM.render(
             <AdminProvider>
@@ -143,10 +143,10 @@ waitForElement('#secondary-inner')
             container,
         );
     })
-    .catch(error => log('Failed to render main panel', error));
+    .catch(error => log("Failed to render main panel", error));
 
 // Render search
-waitForElement('#center')
+waitForElement("#center")
     .then(elem =>
         ReactDOM.render(
             <AdminProvider>
@@ -155,9 +155,9 @@ waitForElement('#center')
             elem,
         ),
     )
-    .catch(error => log('Failed to render input', error));
+    .catch(error => log("Failed to render input", error));
 
 // Remove voice search button
-waitForElement('#voice-search-button')
+waitForElement("#voice-search-button")
     .then(elem => elem?.remove())
-    .catch(error => log('Failed to remove voice search button', error));
+    .catch(error => log("Failed to remove voice search button", error));

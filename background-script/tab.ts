@@ -1,85 +1,52 @@
+import { ExtensionMessageType } from "../types/extensionMessage";
+import { BackgroundMessagingClient } from "./client";
+
 type TabId = number;
 
+const messagingClient = BackgroundMessagingClient.getInstance();
+
 const setPrimaryTab = (tabId: TabId) => {
-    chrome.storage.local.set({'st-primary-tab': tabId}, () => {
-        notifyTabsPrimaryTabSet();
-    });
+    chrome.storage.local.set({ "st-primary-tab": tabId }, notifyTabsPrimaryTabSet);
 };
 
-const getPrimaryTab = (): Promise<TabId> => {
-    return new Promise((resolve, reject) => {
-        chrome.storage.local.get('st-primary-tab', result => {
-            if (chrome.runtime.lastError) {
-                reject(chrome.runtime.lastError);
-            } else {
-                resolve(result['st-primary-tab']);
-            }
-        });
-    });
-};
+function getPrimaryTab(): Promise<number | null> {
+    return chrome.storage.local
+        .get("st-primary-tab")
+        .then(result => (chrome.runtime.lastError ? null : result["st-primary-tab"] || null));
+}
 
-const clearPrimaryTab = () => {
-    chrome.storage.local.remove('st-primary-tab', () => {
-        notifyTabsPrimaryTabUnset();
-    });
-};
+const clearPrimaryTab = () =>
+    chrome.storage.local.remove("st-primary-tab", notifyTabsPrimaryTabUnset);
 
-const checkPrimaryTabExists = async (): Promise<boolean> => {
-    try {
-        const tabId = await getPrimaryTab();
-        return tabId !== undefined;
-    } catch (error) {
-        return false;
-    }
-};
+const notifyTabsPrimaryTabSet = () =>
+    messagingClient.broadcastMessage(ExtensionMessageType.PRIMARY_TAB_SET, null);
 
-const tabsRequestingPrimaryTab: number[] = [];
-
-const notifyTabsPrimaryTabSet = () => {
-    tabsRequestingPrimaryTab.forEach(tabId => {
-        chrome.tabs.sendMessage(tabId, {action: 'primaryTabSet'});
-    });
-};
-
-const notifyTabsPrimaryTabUnset = () => {
-    tabsRequestingPrimaryTab.forEach(tabId => {
-        chrome.tabs.sendMessage(tabId, {action: 'primaryTabUnset'});
-    });
-};
+const notifyTabsPrimaryTabUnset = () =>
+    messagingClient.broadcastMessage(ExtensionMessageType.PRIMARY_TAB_UNSET, null);
 
 // Join link regex
-const regex = /^https:\/\/youtu\.be\/st\/([a-zA-Z0-9.-]{8})$/;
+const regex = /^https:\/\/(www\.)?youtu\.be\/st\/([a-zA-Z0-9.-]{8})$/;
 
 function handleTab(tabId: number, url: string) {
     if (regex.test(url)) {
-        checkPrimaryTabExists()
-            .then(exists => {
-                if (exists) {
-                    getPrimaryTab().then(primaryTabId => {
-                        if (primaryTabId !== undefined) {
-                            chrome.tabs.update(primaryTabId, {active: true});
-                            chrome.tabs.onUpdated.addListener(
-                                function listener(updatedTabId, changeInfo) {
-                                    if (
-                                        updatedTabId === tabId &&
-                                        changeInfo.status === 'complete'
-                                    ) {
-                                        chrome.tabs.remove(tabId, () => {
-                                            chrome.tabs.onUpdated.removeListener(listener);
-                                        });
-                                    }
-                                },
-                            );
-                        }
-                    });
-                } else {
-                    chrome.tabs.update(tabId, {url: `https://www.youtube.com/watch?v=2jNLSmbs8L0`});
-                    setPrimaryTab(tabId);
-                }
-            })
-            .catch(error => {
-                console.error('Error checking primary tab existence:', error);
-            });
+        getPrimaryTab().then(primaryTabId => {
+            if (primaryTabId) {
+                chrome.tabs.update(primaryTabId, { active: true });
+                chrome.tabs.onUpdated.addListener(function listener(updatedTabId, changeInfo) {
+                    if (updatedTabId === tabId && changeInfo.status === "complete") {
+                        chrome.tabs.remove(tabId, () =>
+                            chrome.tabs.onUpdated.removeListener(listener),
+                        );
+                    }
+                });
+            } else {
+                setPrimaryTab(tabId);
+            }
+        });
+    } else {
+        console.log("Not a join link");
+        chrome.tabs.update(tabId, { url: `https://www.youtube.com/watch?v=2jNLSmbs8L0` });
+        setPrimaryTab(tabId);
     }
 }
 
@@ -89,11 +56,11 @@ chrome.webNavigation.onBeforeNavigate.addListener(
             handleTab(details.tabId, details.url);
         }
     },
-    {url: [{hostSuffix: 'youtu.be'}]},
+    { url: [{ hostSuffix: "youtu.be" }] },
 );
 
 function createTab(videoId: string) {
-    chrome.tabs.create({url: `https://youtube.com/watch?v=${videoId}`}, tab => {
+    chrome.tabs.create({ url: `https://youtube.com/watch?v=${videoId}` }, tab => {
         if (tab.id) setPrimaryTab(tab.id);
         notifyTabsPrimaryTabSet();
     });
@@ -107,34 +74,41 @@ chrome.tabs.onRemoved.addListener(tabId => {
     });
 });
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (message.action === 'checkPrimaryTabExists') {
-        if (sender.tab && sender.tab.id !== undefined) {
-            tabsRequestingPrimaryTab.push(sender.tab.id);
+messagingClient.addHandler(ExtensionMessageType.SWITCH_TO_PRIMARY_TAB, () => {
+    getPrimaryTab().then(primaryTabId => {
+        if (primaryTabId) {
+            chrome.tabs.update(primaryTabId, { active: true });
         }
-        checkPrimaryTabExists().then(exists => {
-            sendResponse({exists});
-        });
-        return true;
-    } else if (message.action === 'createNewTab') {
-        const videoId = message.videoId;
-        createTab(videoId);
-        return true;
-    } else if (message.action === 'moveToPrimaryTab') {
-        getPrimaryTab().then(primaryTabId => {
-            if (primaryTabId !== undefined) {
-                chrome.tabs.update(primaryTabId, {active: true});
+    });
+});
+
+messagingClient.addHandler(ExtensionMessageType.IS_PRIMARY_TAB, (_, sender): Promise<boolean> => {
+    return getPrimaryTab().then(primaryTabId => {
+        if (sender.tab?.id !== undefined) {
+            messagingClient.addTab(sender.tab.id);
+            const res = primaryTabId === sender.tab?.id;
+            return res;
+        }
+
+        return false;
+    });
+});
+
+messagingClient.addHandler(
+    ExtensionMessageType.CHECK_PRIMARY_TAB_EXISTS,
+    (_, sender): Promise<boolean> => {
+        return getPrimaryTab().then(primaryTabId => {
+            if (sender.tab?.id !== undefined) {
+                messagingClient.addTab(sender.tab.id);
+                return primaryTabId !== null;
             }
+
+            return false;
         });
-        return true;
-    } else if (message.action === 'isPrimaryTab') {
-        if (sender.tab) {
-            getPrimaryTab().then(primaryTabId => {
-                sendResponse({isPrimary: primaryTabId === sender!.tab!.id});
-            });
-        } else {
-            sendResponse({isPrimary: false});
-        }
-        return true;
-    }
+    },
+);
+
+messagingClient.addHandler(ExtensionMessageType.CREATE_ROOM, (payload, sender) => {
+    const videoId = payload.videoId;
+    createTab(videoId);
 });

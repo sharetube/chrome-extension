@@ -4,10 +4,10 @@ const validate = (url: string): Promise<string> =>
         const match = url.match(regex);
         if (match && match[2].length === 11) {
             fetch(`https://www.youtube.com/oembed?url=${url}`)
-                .then(res => (res.status === 200 ? resolve(match[2]) : reject('Invalid URL')))
-                .catch(() => reject('Invalid URL'));
+                .then(res => (res.status === 200 ? resolve(match[2]) : reject("Invalid URL")))
+                .catch(() => reject("Invalid URL"));
         } else {
-            reject('Invalid URL');
+            reject("Invalid URL");
         }
     });
 
