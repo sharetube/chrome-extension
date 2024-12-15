@@ -1,74 +1,61 @@
-import Profile from './pages/Profile';
-import Room from './pages/Room';
-import ShareTube from '@shared/ui/ShareTube/ShareTube';
-import React, {useEffect, useState} from 'react';
-import {defaultUser} from 'types/defaultUser';
-import {user} from 'types/user';
+import { defaultUser } from "../../../constants/defaultUser";
+import { ExtensionMessageType } from "../../../types/extensionMessage";
+import { ContentScriptMessagingClient } from "../../shared/client/client";
+import Profile from "./pages/Profile";
+import Room from "./pages/Room";
+import ShareTube from "@shared/ui/ShareTube/ShareTube";
+import React, { useEffect, useState } from "react";
+import { user } from "types/user";
 
 const Popup: React.FC = () => {
-    const [isExpended, setIsExpended] = useState<boolean>(false);
+    const [isExpanded, setIsExpended] = useState<boolean>(false);
 
     const expandChange = () => {
-        setIsExpended(!isExpended);
+        setIsExpended(!isExpanded);
     };
 
     const handleClick = (e: MouseEvent) => {
-        if ((e.target as HTMLElement).classList.contains('st-popup__content')) return;
+        if ((e.target as HTMLElement).classList.contains("st-popup__content")) return;
         setIsExpended(false);
     };
 
     useEffect(() => {
-        if (isExpended) {
-            document.addEventListener('click', handleClick);
+        if (isExpanded) {
+            document.addEventListener("click", handleClick);
         } else {
-            document.removeEventListener('click', handleClick);
+            document.removeEventListener("click", handleClick);
             setIsProfileEdit(false);
         }
 
         return () => {
-            document.removeEventListener('click', handleClick);
+            document.removeEventListener("click", handleClick);
         };
-    }, [isExpended]);
+    }, [isExpanded]);
 
     const [isProfileEdit, setIsProfileEdit] = useState<boolean>(false);
 
     const changePage = () => setIsProfileEdit(!isProfileEdit);
 
-    const [user, setUser] = useState<user | defaultUser>({
-        avatar_url: '',
-        color: '',
-        username: 'User',
-    });
-
-    const getProfile = () => {
-        chrome.runtime.sendMessage({action: 'getProfile'}, response => {
-            if (response && response.success) {
-                setUser(response.data);
-            } else {
-                console.error('Error getting profile:', response.error);
-            }
-        });
-    };
+    const [user, setUser] = useState<user>(defaultUser);
 
     useEffect(() => {
-        getProfile();
-    }, [isExpended]);
+        ContentScriptMessagingClient.getInstance()
+            .sendMessage(ExtensionMessageType.GET_PROFILE, null)
+            .then(payload => {
+                console.log("get profile", payload);
+                setUser(payload);
+            });
+    }, [isExpanded]);
 
     useEffect(() => {
-        const handleMessage = (message: any) => {
-            if (message.action === 'profileSet') {
-                getProfile();
-            }
-        };
-
-        chrome.runtime.onMessage.addListener(handleMessage);
-
-        return () => {
-            chrome.runtime.onMessage.removeListener(handleMessage);
-        };
+        ContentScriptMessagingClient.getInstance().addHandler(
+            ExtensionMessageType.PROFILE_UPDATED,
+            (payload: user) => {
+                console.log("profile updated", payload);
+                setUser(payload);
+            },
+        );
     }, []);
-
-    const updateProfile = getProfile;
 
     return (
         <div className="st-popup h-[40px] w-[40px] box-border relative m-[0_8px_0_0]">
@@ -80,20 +67,14 @@ const Popup: React.FC = () => {
                     <ShareTube />
                 </div>
             </div>
-            {isExpended && (
+            {isExpanded && (
                 <div
                     className="st-popup__content box-border w-[300px] rounded-[12px] bg-spec-menu-background absolute right-0 top-[40px] z-[2300]"
                     onClick={e => {
                         e.stopPropagation();
                     }}
                 >
-                    {isProfileEdit && (
-                        <Profile
-                            changePage={changePage}
-                            updateProfile={updateProfile}
-                            user={user}
-                        />
-                    )}
+                    {isProfileEdit && <Profile changePage={changePage} user={user} />}
                     {!isProfileEdit && <Room changePage={changePage} user={user} />}
                 </div>
             )}
