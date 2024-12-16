@@ -3,7 +3,7 @@ import {
     ExtensionMessage,
     ExtensionMessagePayloadMap,
     ExtensionMessageType,
-} from "../types/extensionMessage";
+} from "types/extensionMessage";
 
 export class BackgroundMessagingClient extends BaseMessagingClient {
     private static _instance: BackgroundMessagingClient;
@@ -22,7 +22,7 @@ export class BackgroundMessagingClient extends BaseMessagingClient {
         tabId: number,
         type: T,
         payload: ExtensionMessagePayloadMap[T],
-    ) {
+    ): void {
         const message: ExtensionMessage<T> = { type, payload };
         chrome.tabs.sendMessage(tabId, message);
     }
@@ -30,30 +30,30 @@ export class BackgroundMessagingClient extends BaseMessagingClient {
     public broadcastMessage<T extends ExtensionMessageType>(
         type: T,
         payload: ExtensionMessagePayloadMap[T],
-    ) {
+    ): void {
         const message: ExtensionMessage<T> = { type, payload };
         this._tabIds.forEach(tabId => {
             chrome.tabs.sendMessage(tabId, message);
         });
     }
 
-    public addTab(tabId: number) {
+    public addTab(tabId: number): void {
         this._tabIds.add(tabId);
     }
 
-    public removeTab(tabId: number) {
+    public removeTab(tabId: number): void {
         this._tabIds.delete(tabId);
     }
 
-    public get tabIds() {
+    public get tabIds(): Set<number> {
         return this._tabIds;
     }
 
-    public get primaryTab() {
+    public get primaryTab(): number {
         return this._primaryTabId;
     }
 
-    public set primaryTab(tabID: number) {
-        this._primaryTabId = tabID;
+    public set primaryTab(tabId: number) {
+        this._primaryTabId = tabId;
     }
 }

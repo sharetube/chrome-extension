@@ -1,7 +1,6 @@
+import autoprefixer from "autoprefixer";
+import tailwindcss from "tailwindcss";
+
 export default {
-  plugins: {
-    tailwindcss: {},
-    autoprefixer: {},
-    ...(process.env.NODE_ENV === "production" ? { cssnano: {} } : {}),
-  },
+  plugins: [tailwindcss, autoprefixer],
 };
