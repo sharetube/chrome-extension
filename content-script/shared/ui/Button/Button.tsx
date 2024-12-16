@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     /**
@@ -16,13 +16,13 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 // Wrapper for icons
-const Button: React.FC<ButtonProps> = ({children, onClick, className, ...rest}) => {
+const Button: React.FC<ButtonProps> = ({ children, onClick, className, ...rest }) => {
     return (
         <button
             onClick={onClick}
             className={
-                (className ? ` ${className}` : '') +
-                ' m-0 box-border flex h-[40px] w-[36px] border-none bg-transparent p-0 text-text-primary hover:cursor-pointer'
+                (className ? ` ${className}` : "") +
+                " m-0 box-border flex h-[40px] w-[36px] border-none bg-transparent p-0 text-text-primary hover:cursor-pointer"
             }
             {...rest}
         >

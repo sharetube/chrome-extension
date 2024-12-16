@@ -284,8 +284,7 @@ class State {
     private calculateState(state: PlayerStateWithTimestamp): PlayerState {
         const time = Date.now();
         const deltaTime = time - state.timestamp;
-        const currentTime =
-            state.currentTime + (deltaTime * state.playbackRate) / 1000;
+        const currentTime = state.currentTime + (deltaTime * state.playbackRate) / 1000;
         return {
             isPlaying: state.isPlaying,
             currentTime: currentTime,
@@ -398,10 +397,7 @@ class ObserveElementClasslist implements Subject<DOMTokenList> {
         const element = this._element;
         this._observer = new MutationObserver(mutations => {
             mutations.forEach(mutation => {
-                if (
-                    mutation.type === "attributes" &&
-                    mutation.attributeName === "class"
-                ) {
+                if (mutation.type === "attributes" && mutation.attributeName === "class") {
                     this.notifyObservers(element!.classList);
                 }
             });

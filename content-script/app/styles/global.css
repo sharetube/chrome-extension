@@ -14,8 +14,8 @@
     --st-spec-outline: var(--yt-spec-outline);
     --st-spec-wordmark-text: var(--yt-spec-wordmark-text);
     /* Fonts */
-    --st-font-primary: 'YouTube Sans', 'Roboto', sans-serif;
-    --st-font-secondary: 'Roboto', 'Arial', sans-serif;
+    --st-font-primary: "YouTube Sans", "Roboto", sans-serif;
+    --st-font-secondary: "Roboto", "Arial", sans-serif;
     /* Text colors */
     --st-text-primary: var(--yt-spec-text-primary);
     --st-text-secondary: var(--yt-spec-text-secondary);
