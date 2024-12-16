@@ -1,51 +1,51 @@
-import Video from '@entities/Video/Video';
-import useAdmin from '@shared/Context/Admin/hooks/useAdmin';
-import React, {useState} from 'react';
+import Video from "@entities/Video/Video";
+import useAdmin from "@shared/Context/Admin/hooks/useAdmin";
+import React, { useState } from "react";
 
 const Playlist: React.FC = () => {
-    const [previous, setPrevious] = useState<{id: string}>({
-        id: 'eNvUS-6PTbs',
+    const [previous, setPrevious] = useState<{ id: string }>({
+        id: "eNvUS-6PTbs",
     });
 
-    const [current, serCurrent] = useState<{id: string}>({
-        id: 'u4tpkwkiSDg',
+    const [current, serCurrent] = useState<{ id: string }>({
+        id: "u4tpkwkiSDg",
     });
 
-    const [videos, setVideos] = useState<{id: string}[]>([
+    const [videos, setVideos] = useState<{ id: string }[]>([
         {
-            id: 'JTvcpdfGUtQ',
+            id: "JTvcpdfGUtQ",
         },
         {
-            id: '1PNS8Iytt0o',
+            id: "1PNS8Iytt0o",
         },
         {
-            id: 'WJ0rVFr8wLU',
+            id: "WJ0rVFr8wLU",
         },
         {
-            id: '6Fd3NPLiac8',
+            id: "6Fd3NPLiac8",
         },
         {
-            id: 'JTvcpdfGUtQ',
+            id: "JTvcpdfGUtQ",
         },
         {
-            id: 'JTvcpdfGUtQ',
+            id: "JTvcpdfGUtQ",
         },
         {
-            id: '1PNS8Iytt0o',
+            id: "1PNS8Iytt0o",
         },
         {
-            id: 'WJ0rVFr8wLU',
+            id: "WJ0rVFr8wLU",
         },
         {
-            id: '6Fd3NPLiac8',
+            id: "6Fd3NPLiac8",
         },
         {
-            id: 'JTvcpdfGUtQ',
+            id: "JTvcpdfGUtQ",
         },
     ]);
 
     // Get global admin status
-    const {is_admin} = useAdmin();
+    const { is_admin } = useAdmin();
 
     return (
         <ul className="st-playlist m-0">

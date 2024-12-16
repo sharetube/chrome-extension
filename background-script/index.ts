@@ -1,2 +1,2 @@
-import './profile.ts';
-import './tab.ts';
+import "./profile.ts";
+import "./tab.ts";

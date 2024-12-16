@@ -16,6 +16,7 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "baseUrl": ".",
+    "allowImportingTsExtensions": true,
     "paths": {
       "@app/*": ["content-script/app/*"],
       "@shared/*": ["content-script/shared/*"],
@@ -24,9 +25,19 @@
       "@tabs/*": ["content-script/tabs/*"],
       "@player/*": ["content-script/player/*"],
       "components/*": ["content-script/components/*"],
-      "types/*": ["types/*"]
+      "types/*": ["types/*"],
+      "constants/*": ["constants/*"]
     }
   },
-  "include": ["content-script/shared", "vite-env.d.ts", "types/user.ts"],
-  "references": [{"path": "./tsconfig.node.json"}]
+  "include": [
+    "content-script/**/*.ts",
+    "content-script/**/*.tsx",
+    "background-script/**/*.ts",
+    "background-script/**/*.tsx",
+    "shared/**/*.ts",
+    "constants/**/*.ts",
+    "vite-env.d.ts"
+  ],
+  "exclude": ["node_modules", "dist"],
+  "references": [{ "path": "./tsconfig.node.json" }]
 }

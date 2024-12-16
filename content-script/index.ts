@@ -1,8 +1,8 @@
-import './app/styles/global.css';
-import './tabs/All/All.tsx';
+import { ExtensionMessageType } from "../types/extensionMessage.ts";
+import "./app/styles/global.css";
+import { ContentScriptMessagingClient } from "./shared/client/client.ts";
+import "./tabs/All/All.tsx";
 
-chrome.runtime.sendMessage({action: 'isPrimaryTab'}, responce => {
-    if (responce.isPrimary) {
-        import('./tabs/Player/Player.tsx');
-    }
-});
+ContentScriptMessagingClient.getInstance()
+    .sendMessage(ExtensionMessageType.IS_PRIMARY_TAB, null)
+    .then(response => response && import("./tabs/Player/Player.tsx"));

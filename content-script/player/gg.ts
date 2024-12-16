@@ -61,8 +61,7 @@ class Player {
     }
 
     private set state(state: PlayerState) {
-        const { isPlaying, currentTime, playbackRate } =
-            this.calculateState(state);
+        const { isPlaying, currentTime, playbackRate } = this.calculateState(state);
         isPlaying ? this._player!.play() : this._player!.pause();
         Object.assign(this._player!, { currentTime, playbackRate });
     }
@@ -73,9 +72,7 @@ class Player {
 
     private addEventListeners() {
         ["play", "pause", "ratechange", "qualitychange"].forEach(event =>
-            this._player.addEventListener(event, () =>
-                this.sendState(this.state),
-            ),
+            this._player.addEventListener(event, () => this.sendState(this.state)),
         );
     }
 

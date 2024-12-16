@@ -1,88 +1,91 @@
-import {user} from '../../../../types/user';
-import Button from '../shared/Button/Button';
-import Input from '../shared/Input/Input';
-import Title from '../shared/Title/Title';
-import Avatar from '@entities/Avatar/Avatar';
-import validate from '@shared/api/validateVideo';
-import Next from '@shared/ui/Next/Next';
-import React, {useEffect, useState} from 'react';
+import Button from "../shared/Button/Button";
+import Input from "../shared/Input/Input";
+import Title from "../shared/Title/Title";
+import Avatar from "@entities/Avatar/Avatar";
+import validate from "@shared/api/validateVideo";
+import { ContentScriptMessagingClient } from "@shared/client/client";
+import Next from "@shared/ui/Next/Next";
+import React, { useEffect, useState } from "react";
+import { ExtensionMessageType } from "types/extensionMessage";
+import { user } from "types/user";
 
 interface RoomProps {
     changePage: () => void;
     user: user;
 }
 
-const Room: React.FC<RoomProps> = ({user, changePage}) => {
+const Room: React.FC<RoomProps> = ({ user, changePage }) => {
     const [isRoom, setIsRoom] = useState<boolean>(true);
 
     useEffect(() => {
-        chrome.runtime.sendMessage({action: 'checkPrimaryTabExists'}, response => {
-            if (response.exists) {
+        ContentScriptMessagingClient.getInstance()
+            .sendMessage(ExtensionMessageType.CHECK_PRIMARY_TAB_EXISTS, null)
+            .then(response => {
+                setIsRoom(response);
+                setIsNavigateButtonDisabled(!response);
+            });
+        ContentScriptMessagingClient.getInstance().addHandler(
+            ExtensionMessageType.PRIMARY_TAB_SET,
+            () => {
                 setIsRoom(true);
                 setIsNavigateButtonDisabled(false);
-            } else {
+            },
+        );
+
+        ContentScriptMessagingClient.getInstance().addHandler(
+            ExtensionMessageType.PRIMARY_TAB_UNSET,
+            () => {
                 setIsRoom(false);
                 setIsNavigateButtonDisabled(true);
-            }
-        });
-        const messageListener = (message: any) => {
-            if (message.action === 'primaryTabSet') {
-                setIsRoom(true);
-                setIsNavigateButtonDisabled(false);
-            } else if (message.action === 'primaryTabUnset') {
-                setIsRoom(false);
-                setIsNavigateButtonDisabled(true);
-            }
-        };
-
-        chrome.runtime.onMessage.addListener(messageListener);
-
-        return () => {
-            chrome.runtime.onMessage.removeListener(messageListener);
-        };
+            },
+        );
     }, []);
 
-    const [inputValue, setInputValue] = useState('');
-    const [isButtonDisabled, setIsButtonDisabled] = useState(true);
+    const [videoURLValue, setInputValue] = useState("");
+    const [videoId, setVideoId] = useState("");
+    const [isCreateRoomButtonDisabled, setIsButtonDisabled] = useState(true);
     const [isNavigateButtonDisabled, setIsNavigateButtonDisabled] = useState(true);
 
-    const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleVideoURLChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const value = event.target.value;
         setInputValue(value);
 
         if (value.length >= 16) {
-            validate(value).then(isValid => {
-                setIsButtonDisabled(!isValid);
+            validate(value).then(videoId => {
+                setVideoId(videoId);
+                setIsButtonDisabled(!videoId);
             });
         }
     };
 
-    const handleButtonClick = () => {
-        const urlPattern =
-            /^(https:\/\/www\.youtube\.com\/watch\?v=|https:\/\/youtu\.be\/)([a-zA-Z0-9_-]{11})$/;
-        const match = inputValue.match(urlPattern);
-        if (match && match[2]) {
-            setInputValue('');
-            const videoId = match[2];
-            chrome.runtime.sendMessage({action: 'createNewTab', videoId});
+    const handleCreateRoomButtonClick = () => {
+        //? maybe redundant check because if videoId is undefined, button will be disabled
+        if (videoId) {
+            setInputValue("");
+            ContentScriptMessagingClient.getInstance().sendMessage(
+                ExtensionMessageType.CREATE_ROOM,
+                { videoId },
+            );
         }
     };
 
-    const moveToTab = () => {
-        chrome.runtime.sendMessage({action: 'moveToPrimaryTab'});
+    const switchToPrimaryTab = () => {
+        ContentScriptMessagingClient.getInstance().sendMessage(
+            ExtensionMessageType.SWITCH_TO_PRIMARY_TAB,
+            null,
+        );
     };
 
     const [isPrimaryTab, setIsPrimaryTab] = useState(true);
     useEffect(() => {
-        chrome.runtime.sendMessage({action: 'isPrimaryTab'}, responce => {
-            if (responce.isPrimary) {
-                setIsPrimaryTab(true);
-            } else {
-                setIsPrimaryTab(false);
-            }
-        });
+        ContentScriptMessagingClient.getInstance()
+            .sendMessage(ExtensionMessageType.IS_PRIMARY_TAB, null)
+            .then(response => {
+                setIsPrimaryTab(response);
+            });
     }, [isPrimaryTab]);
 
+    // TODO: add button to create room with current video (maybe not in even popup)
     return (
         <React.Fragment>
             <header className="p-4 border-t-0 border-r-0 border-l-0 border-b border-solid border-spec-outline">
@@ -91,7 +94,7 @@ const Room: React.FC<RoomProps> = ({user, changePage}) => {
                 </h1>
             </header>
             <section
-                className={`p-[16px_25px_16px_16px] flex items-center justify-between ${isPrimaryTab ? '' : 'border-t-0 border-r-0 border-l-0 border-b border-solid border-spec-outline'}  hover:cursor-pointer`}
+                className={`p-[16px_25px_16px_16px] flex items-center justify-between ${isPrimaryTab ? "" : "border-t-0 border-r-0 border-l-0 border-b border-solid border-spec-outline"}  hover:cursor-pointer`}
                 onClick={changePage}
                 title="ShareTube profile"
             >
@@ -104,7 +107,7 @@ const Room: React.FC<RoomProps> = ({user, changePage}) => {
                     />
                     <h2
                         className="text-[16px] leading-[22px] font-normal font-secondary"
-                        style={{color: user.color}}
+                        style={{ color: user.color }}
                     >
                         {user.username}
                     </h2>
@@ -115,7 +118,7 @@ const Room: React.FC<RoomProps> = ({user, changePage}) => {
             </section>
             {isRoom && !isPrimaryTab && (
                 <section className="flex items-center justify-center p-[16px]">
-                    <Button disabled={isNavigateButtonDisabled} onClick={moveToTab}>
+                    <Button disabled={isNavigateButtonDisabled} onClick={switchToPrimaryTab}>
                         Navigate to player tab
                     </Button>
                 </section>
@@ -123,9 +126,12 @@ const Room: React.FC<RoomProps> = ({user, changePage}) => {
             {!isRoom && (
                 <section className="p-[16px]">
                     <Title>Initial video</Title>
-                    <Input value={inputValue} onChange={handleInputChange} />
+                    <Input value={videoURLValue} onChange={handleVideoURLChange} />
                     <div className="m-[32px_0_0]">
-                        <Button onClick={handleButtonClick} disabled={isButtonDisabled}>
+                        <Button
+                            onClick={handleCreateRoomButtonClick}
+                            disabled={isCreateRoomButtonDisabled}
+                        >
                             Create room
                         </Button>
                     </div>
