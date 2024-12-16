@@ -8,15 +8,17 @@ import React, { useEffect, useState } from "react";
 import { user } from "types/user";
 
 const Popup: React.FC = () => {
-    const [isExpanded, setIsExpended] = useState<boolean>(false);
+    const [isExpanded, setIsExpanded] = useState<boolean>(false);
+    const [isProfileEdit, setIsProfileEdit] = useState<boolean>(false);
+    const [user, setUser] = useState<user>(defaultUser);
 
     const expandChange = () => {
-        setIsExpended(!isExpanded);
+        setIsExpanded(!isExpanded);
     };
 
     const handleClick = (e: MouseEvent) => {
         if ((e.target as HTMLElement).classList.contains("st-popup__content")) return;
-        setIsExpended(false);
+        setIsExpanded(false);
     };
 
     useEffect(() => {
@@ -32,26 +34,20 @@ const Popup: React.FC = () => {
         };
     }, [isExpanded]);
 
-    const [isProfileEdit, setIsProfileEdit] = useState<boolean>(false);
-
     const changePage = () => setIsProfileEdit(!isProfileEdit);
-
-    const [user, setUser] = useState<user>(defaultUser);
 
     useEffect(() => {
         ContentScriptMessagingClient.getInstance()
             .sendMessage(ExtensionMessageType.GET_PROFILE, null)
             .then(payload => {
-                console.log("get profile", payload);
                 setUser(payload);
             });
-    }, [isExpanded]);
+    }, []);
 
     useEffect(() => {
         ContentScriptMessagingClient.getInstance().addHandler(
             ExtensionMessageType.PROFILE_UPDATED,
             (payload: user) => {
-                console.log("profile updated", payload);
                 setUser(payload);
             },
         );

@@ -5,8 +5,4 @@ import "./tabs/All/All.tsx";
 
 ContentScriptMessagingClient.getInstance()
     .sendMessage(ExtensionMessageType.IS_PRIMARY_TAB, null)
-    .then(response => {
-        if (response) {
-            import("./tabs/Player/Player.tsx");
-        }
-    });
+    .then(response => response && import("./tabs/Player/Player.tsx"));
