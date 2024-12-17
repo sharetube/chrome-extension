@@ -1,3 +1,4 @@
+import { video, videoID } from "./video";
 import { profile } from "types/profile";
 
 export enum ExtensionMessageType {
@@ -15,12 +16,11 @@ export enum ExtensionMessageType {
     ADMIN_STATUS_UPDATED = "ADMIN_STATUS_UPDATED",
     GET_PLAYLIST = "GET_PLAYLIST",
     PLAYLIST_UPDATED = "PLAYLIST_UPDATED",
+    UPDATE_PLAYLIST = "UPDATE_PLAYLIST",
     GET_USERS = "GET_USERS",
     USERS_UPDATED = "USERS_UPDATED",
     ADD_VIDEO = "ADD_VIDEO",
 }
-
-type videoID = string;
 
 export interface CrateRoomPayload {
     videoId: string;
@@ -41,6 +41,7 @@ export type ExtensionMessagePayloadMap = {
     [ExtensionMessageType.ADMIN_STATUS_UPDATED]: null;
     [ExtensionMessageType.GET_PLAYLIST]: null;
     [ExtensionMessageType.PLAYLIST_UPDATED]: null;
+    [ExtensionMessageType.UPDATE_PLAYLIST]: video[];
     [ExtensionMessageType.GET_USERS]: null;
     [ExtensionMessageType.USERS_UPDATED]: null;
     [ExtensionMessageType.ADD_VIDEO]: videoID;
