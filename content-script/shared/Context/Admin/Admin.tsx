@@ -1,5 +1,6 @@
-import log from "@shared/lib/log";
+import { ContentScriptMessagingClient } from "@shared/client/client";
 import React, { ReactNode, createContext, useEffect, useState } from "react";
+import { ExtensionMessageType } from "types/extensionMessage";
 
 interface AdminContextType {
     is_admin: boolean;
@@ -14,9 +15,24 @@ interface MyProviderProps {
 }
 
 const AdminProvider: React.FC<MyProviderProps> = ({ children }) => {
-    const [isAdmin, setIsAdmin] = useState<boolean>(true);
+    const [isAdmin, setIsAdmin] = useState<boolean>(false);
 
-    useEffect(() => {}, []);
+    useEffect(() => {
+        ContentScriptMessagingClient.getInstance()
+            .sendMessage(ExtensionMessageType.GET_ADMIN_STATUS, null)
+            .then(payload => {
+                setIsAdmin(payload);
+            });
+    }, []);
+
+    useEffect(() => {
+        ContentScriptMessagingClient.getInstance().addHandler(
+            ExtensionMessageType.ADMIN_STATUS_UPDATED,
+            payload => {
+                setIsAdmin(payload!);
+            },
+        );
+    }, []);
 
     return <AdminContext.Provider value={{ is_admin: isAdmin }}>{children}</AdminContext.Provider>;
 };

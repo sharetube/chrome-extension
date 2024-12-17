@@ -1,80 +1,16 @@
 import Member from "@entities/Member/Member";
+import { ContentScriptMessagingClient } from "@shared/client/client";
 import React, { useCallback, useEffect, useState } from "react";
-
-const initialUsers = [
-    {
-        id: "1",
-        avatar_url:
-            "https://cdn.forbes.ru/forbes-static/new/2022/04/IMG-10983445-624a99e258c99.jpg",
-        nickname: "PashaDurov",
-        color: "#FF5722",
-        admin: true,
-        muted: false,
-        online: true,
-    },
-    {
-        id: "2",
-        avatar_url: "https://s0.rbk.ru/v6_top_pics/media/img/7/68/756589457932687.jpg",
-        nickname: "ArtemkaProhor",
-        color: "#4CAF50",
-        muted: true,
-        admin: false,
-        online: true,
-    },
-    {
-        id: "3",
-        avatar_url: "https://i1.sndcdn.com/artworks-000747843388-q3nc5y-t500x500.jpg",
-        nickname: "Use(use)",
-        color: "#2196F3",
-        admin: true,
-        muted: true,
-        online: false,
-    },
-    {
-        id: "4",
-        avatar_url: "https://i.pinimg.com/originals/6d/4d/4d/6d4d4d900546e1337e5e6deb1db3714c.gif",
-        nickname: "Geroin 2",
-        color: "#FFC107",
-        admin: false,
-        muted: true,
-        online: true,
-    },
-    {
-        id: "5",
-        avatar_url:
-            "https://static.mk.ru/upload/entities/2023/07/10/20/articles/detailPicture/fc/02/20/47/354f1c68ac686f7d1b0cb10be532b284.jpg",
-        nickname: "EvgenikaPonasenk",
-        color: "#9C27B0",
-        admin: false,
-        muted: false,
-        online: false,
-    },
-    {
-        id: "6",
-        nickname: "MishaZAbivch",
-        color: "#E91E63",
-        avatar_url: "https://media4.giphy.com/media/GRk3GLfzduq1NtfGt5/200w.gif",
-        admin: false,
-        muted: false,
-        online: true,
-    },
-    {
-        id: "7",
-        avatar_url: "",
-        nickname: "Vladik",
-        color: "#00BCD4",
-        admin: true,
-        muted: true,
-        online: true,
-    },
-];
+import { ExtensionMessageType } from "types/extensionMessage";
+import { user } from "types/user";
 
 interface RoomProps {
     callback: (usersCount: number) => void;
 }
 
 const Room: React.FC<RoomProps> = ({ callback }) => {
-    const [users, setUsers] = useState(initialUsers);
+    const [users, setUsers] = useState<user[]>([]);
+    const [loading, setLoading] = useState(true);
 
     const memoizedCallback = useCallback(() => {
         callback(users.length);
@@ -83,6 +19,33 @@ const Room: React.FC<RoomProps> = ({ callback }) => {
     useEffect(() => {
         memoizedCallback();
     }, [memoizedCallback]);
+
+    useEffect(() => {
+        ContentScriptMessagingClient.getInstance()
+            .sendMessage(ExtensionMessageType.GET_USERS, null)
+            .then(payload => {
+                setUsers(payload);
+                setLoading(false);
+            });
+    }, []);
+
+    useEffect(() => {
+        const handler = (payload: user[] | null): void => {
+            payload && setUsers(payload);
+            setLoading(false);
+        };
+
+        const messagingClient = ContentScriptMessagingClient.getInstance();
+        messagingClient.addHandler(ExtensionMessageType.USERS_UPDATED, handler);
+
+        return () => {
+            messagingClient.removeHandler(ExtensionMessageType.USERS_UPDATED);
+        };
+    }, []);
+
+    if (loading) {
+        return <div className="h-[100px]">Loading...</div>;
+    }
 
     return (
         <ul className="st-room grid grid-cols-2 gap-[16px_0] p-[10px_12px] m-0 select-none">

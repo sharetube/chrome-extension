@@ -1,4 +1,4 @@
-import { BackgroundMessagingClient } from "./client";
+import { BackgroundMessagingClient } from "./api/ExtensionClient";
 import { ExtensionMessageType } from "types/extensionMessage";
 
 type TabId = number;
