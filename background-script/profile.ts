@@ -1,5 +1,5 @@
 import { BackgroundMessagingClient } from "./api/ExtensionClient";
-import { defaultUser } from "constants/defualtProfile";
+import { defaultProfile } from "constants/defaultProfile";
 import { ExtensionMessageType } from "types/extensionMessage";
 import type { profile } from "types/profile";
 
@@ -22,7 +22,7 @@ const getUserProfile = (): Promise<profile | null> =>
 
 chrome.runtime.onInstalled.addListener(async () => {
     const profile = await getUserProfile();
-    if (!profile) setUserProfile(defaultUser);
+    if (!profile) setUserProfile(defaultProfile);
 });
 
 const notifyTabsProfileUpdated = (profile: profile) =>
