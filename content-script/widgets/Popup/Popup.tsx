@@ -2,7 +2,7 @@ import Profile from "./pages/Profile";
 import Room from "./pages/Room";
 import { ContentScriptMessagingClient } from "@shared/client/client";
 import ShareTube from "@shared/ui/ShareTube/ShareTube";
-import { defaultUser } from "constants/defaultUser";
+import { defualtProfile } from "constants/defualtProfile";
 import React, { useEffect, useState } from "react";
 import { ExtensionMessageType } from "types/extensionMessage";
 import { profile } from "types/profile";
@@ -10,7 +10,7 @@ import { profile } from "types/profile";
 const Popup: React.FC = () => {
     const [isExpanded, setIsExpanded] = useState<boolean>(false);
     const [isProfileEdit, setIsProfileEdit] = useState<boolean>(false);
-    const [user, setUser] = useState<profile>(defaultUser);
+    const [user, setUser] = useState<profile>(defualtProfile);
 
     const expandChange = () => {
         setIsExpanded(!isExpanded);
@@ -22,16 +22,13 @@ const Popup: React.FC = () => {
     };
 
     useEffect(() => {
-        if (isExpanded) {
-            document.addEventListener("click", handleClick);
-        } else {
-            document.removeEventListener("click", handleClick);
-            setIsProfileEdit(false);
-        }
+        const toggleClickListener = isExpanded
+            ? document.addEventListener
+            : document.removeEventListener;
+        toggleClickListener("click", handleClick);
+        if (!isExpanded) setIsProfileEdit(false);
 
-        return () => {
-            document.removeEventListener("click", handleClick);
-        };
+        return () => document.removeEventListener("click", handleClick);
     }, [isExpanded]);
 
     const changePage = () => setIsProfileEdit(!isProfileEdit);
@@ -39,7 +36,7 @@ const Popup: React.FC = () => {
     useEffect(() => {
         ContentScriptMessagingClient.getInstance()
             .sendMessage(ExtensionMessageType.GET_PROFILE, null)
-            .then(payload => {
+            .then((payload: profile) => {
                 setUser(payload);
             });
     }, []);
@@ -47,7 +44,7 @@ const Popup: React.FC = () => {
     useEffect(() => {
         ContentScriptMessagingClient.getInstance().addHandler(
             ExtensionMessageType.PROFILE_UPDATED,
-            payload => {
+            (payload: profile) => {
                 setUser(payload);
             },
         );
@@ -70,8 +67,11 @@ const Popup: React.FC = () => {
                         e.stopPropagation();
                     }}
                 >
-                    {isProfileEdit && <Profile changePage={changePage} user={user} />}
-                    {!isProfileEdit && <Room changePage={changePage} user={user} />}
+                    {isProfileEdit ? (
+                        <Profile changePage={changePage} user={user} />
+                    ) : (
+                        <Room changePage={changePage} user={user} />
+                    )}
                 </div>
             )}
         </div>
