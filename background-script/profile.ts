@@ -1,5 +1,5 @@
 import { BackgroundMessagingClient } from "./api/ExtensionClient";
-import { defaultUser } from "constants/defaultUser";
+import { defaultUser } from "constants/defualtProfile";
 import { ExtensionMessageType } from "types/extensionMessage";
 import type { profile } from "types/profile";
 
