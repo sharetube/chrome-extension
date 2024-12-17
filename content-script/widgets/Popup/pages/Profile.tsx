@@ -96,7 +96,7 @@ const Profile: React.FC<ProfileProps> = ({ user, changePage }) => {
     };
 
     const setProfile = () => {
-        const updatedUser: profile = {
+        const updateProfile: profile = {
             username: username,
             avatar_url: avatarUrl,
             color: selectedColor,
@@ -104,7 +104,7 @@ const Profile: React.FC<ProfileProps> = ({ user, changePage }) => {
 
         ContentScriptMessagingClient.getInstance().sendMessage(
             ExtensionMessageType.UPDATE_PROFILE,
-            updatedUser,
+            updateProfile,
         );
 
         setIsColorChanged(false);
