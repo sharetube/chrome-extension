@@ -7,11 +7,11 @@ import { ContentScriptMessagingClient } from "@shared/client/client";
 import Next from "@shared/ui/Next/Next";
 import React, { useEffect, useState } from "react";
 import { ExtensionMessageType } from "types/extensionMessage";
-import { user } from "types/user";
+import { profile } from "types/profile";
 
 interface RoomProps {
     changePage: () => void;
-    user: user;
+    user: profile;
 }
 
 const Room: React.FC<RoomProps> = ({ user, changePage }) => {
@@ -85,7 +85,6 @@ const Room: React.FC<RoomProps> = ({ user, changePage }) => {
             });
     }, [isPrimaryTab]);
 
-    // TODO: add button to create room with current video (maybe not in even popup)
     return (
         <React.Fragment>
             <header className="p-4 border-t-0 border-r-0 border-l-0 border-b border-solid border-spec-outline">

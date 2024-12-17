@@ -3,20 +3,13 @@ import useAdmin from "@shared/Context/Admin/hooks/useAdmin";
 import Mute from "@shared/ui/Mute/Mute";
 import Shield from "@shared/ui/Shield/Shield";
 import React from "react";
+import { user } from "types/user";
 
-interface MemberProps {
-    id: string;
-    nickname: string;
-    color: string;
-    muted: boolean;
-    admin: boolean;
-    online: boolean;
-    avatar_url: string;
-}
+type MemberProps = user;
 
 const Member: React.FC<MemberProps> = ({
     id,
-    nickname,
+    username,
     avatar_url,
     color,
     muted,
@@ -29,13 +22,13 @@ const Member: React.FC<MemberProps> = ({
         <li
             className={`flex items-center  ${online ? "" : "opacity-60"} ${is_admin ? "hover:cursor-pointer" : "hover:cursor-default"}`}
         >
-            <Avatar size="s" url={avatar_url} color={color} letter={nickname.slice(0, 1)} />
+            <Avatar size="s" url={avatar_url} color={color} letter={username.slice(0, 1)} />
             {/* Nickname */}
             <p
                 className={`m-0 p-[0_0_0_8px] text-text-primary font-secondary leading-normal text-[1.25rem] font-medium ${online ? "" : "animate-pulse"}`}
                 style={{ color: color }}
             >
-                {nickname}
+                {username}
             </p>
             {/* Icons */}
             <div className="flex items-center">
