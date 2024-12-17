@@ -1,16 +1,16 @@
-import { defaultUser } from "../../../constants/defaultUser";
-import { ExtensionMessageType } from "../../../types/extensionMessage";
-import { ContentScriptMessagingClient } from "../../shared/client/client";
 import Profile from "./pages/Profile";
 import Room from "./pages/Room";
+import { ContentScriptMessagingClient } from "@shared/client/client";
 import ShareTube from "@shared/ui/ShareTube/ShareTube";
+import { defaultUser } from "constants/defaultUser";
 import React, { useEffect, useState } from "react";
-import { user } from "types/user";
+import { ExtensionMessageType } from "types/extensionMessage";
+import { profile } from "types/profile";
 
 const Popup: React.FC = () => {
     const [isExpanded, setIsExpanded] = useState<boolean>(false);
     const [isProfileEdit, setIsProfileEdit] = useState<boolean>(false);
-    const [user, setUser] = useState<user>(defaultUser);
+    const [user, setUser] = useState<profile>(defaultUser);
 
     const expandChange = () => {
         setIsExpanded(!isExpanded);
@@ -47,7 +47,7 @@ const Popup: React.FC = () => {
     useEffect(() => {
         ContentScriptMessagingClient.getInstance().addHandler(
             ExtensionMessageType.PROFILE_UPDATED,
-            (payload: user) => {
+            payload => {
                 setUser(payload);
             },
         );
