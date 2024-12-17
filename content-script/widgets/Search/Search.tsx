@@ -1,22 +1,26 @@
 import validate from "../../shared/api/validateVideo";
-import add from "./api/add";
 import useKey from "./hooks/useKey";
 import useAdmin from "@shared/Context/Admin/hooks/useAdmin";
 import log from "@shared/lib/log";
 import Icon from "@shared/ui/Add/Add";
 import React, { useState } from "react";
+import { ExtensionMessageType } from "types/extensionMessage";
 
 const Search: React.FC = () => {
     const { is_admin } = useAdmin();
     const [inputValue, setInputValue] = useState<string>("");
     const inputRef = useKey("/");
 
+    const add = (videoId: string) => {
+        chrome.runtime.sendMessage({ type: ExtensionMessageType.ADD_VIDEO, payload: videoId });
+    };
+
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) =>
         setInputValue(e.target.value);
+
     const handleAdd = () => {
         validate(inputValue)
             .then(videoId => {
-                log("From search input:", videoId);
                 add(videoId);
                 setInputValue("");
             })

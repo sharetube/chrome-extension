@@ -38,4 +38,8 @@ export abstract class BaseMessagingClient {
     public addHandler<T extends ExtensionMessageType>(type: T, handler: MessageHandler<T>): void {
         this.handlers.set(type, handler);
     }
+
+    public removeHandler<T extends ExtensionMessageType>(type: T): void {
+        this.handlers.delete(type);
+    }
 }

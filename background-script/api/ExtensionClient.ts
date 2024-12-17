@@ -1,4 +1,4 @@
-import { BaseMessagingClient } from "../shared/baseClient";
+import { BaseMessagingClient } from "../../shared/baseExtensionClient";
 import {
     ExtensionMessage,
     ExtensionMessagePayloadMap,

@@ -39,7 +39,7 @@ const Panel: React.FC = () => {
                         <Button>
                             <Members />
                         </Button>
-                        <p className="m-[0_0_-2px] p-0 text-text-primary font-primary leading-[1.6rem] text-[1.4rem] font-semibold hover:cursor-pointer">
+                        <p className="m-[0_0_-2px] p-0 text-text-primary font-primary leading-[1.6rem] text-[1.4rem] font-semibold hover:cursor-pointer select-none">
                             {userCount > 0 && `Members (${userCount})`}
                         </p>
                         <Button>

@@ -7,10 +7,10 @@ import Title from "../shared/Title/Title";
 import Avatar from "@entities/Avatar/Avatar";
 import Back from "@shared/ui/Back/Back";
 import React, { useEffect, useState } from "react";
-import { user } from "types/user";
+import { profile } from "types/profile";
 
 interface ProfileProps {
-    user: user;
+    user: profile;
     changePage: () => void;
 }
 
@@ -96,7 +96,7 @@ const Profile: React.FC<ProfileProps> = ({ user, changePage }) => {
     };
 
     const setProfile = () => {
-        const updatedUser: user = {
+        const updatedUser: profile = {
             username: username,
             avatar_url: avatarUrl,
             color: selectedColor,
