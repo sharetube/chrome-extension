@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "target": "ESNext",
+    "module": "ESNext",
     "useDefineForClassFields": true,
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "allowJs": false,
@@ -9,7 +10,6 @@
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
-    "module": "ESNext",
     "moduleResolution": "Node",
     "resolveJsonModule": true,
     "isolatedModules": true,
@@ -26,7 +26,8 @@
       "@player/*": ["content-script/player/*"],
       "components/*": ["content-script/components/*"],
       "types/*": ["types/*"],
-      "constants/*": ["constants/*"]
+      "constants/*": ["constants/*"],
+      "config": ["config.ts"]
     }
   },
   "include": [
@@ -35,9 +36,8 @@
     "background-script/**/*.ts",
     "background-script/**/*.tsx",
     "shared/**/*.ts",
-    "constants/**/*.ts",
-    "vite-env.d.ts"
+    "constants/**/*.ts"
   ],
-  "exclude": ["node_modules", "dist"],
+  "exclude": ["node_modules", "dist", ".yarn", ".husky", ".vscode"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

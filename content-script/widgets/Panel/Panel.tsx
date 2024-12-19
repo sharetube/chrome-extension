@@ -7,6 +7,8 @@ import Share from "@shared/ui/Share/Share";
 import Playlist from "@widgets/Playlist/Playlist";
 import Room from "@widgets/Room/Room";
 import React, { useState } from "react";
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
 
 const Panel: React.FC = () => {
     const { isFullScreen, height } = useResize();
@@ -54,7 +56,9 @@ const Panel: React.FC = () => {
                 <Room callback={setUserCount} />
             </div>
             <div className="flex-grow overflow-y-auto">
-                <Playlist />
+                <DndProvider backend={HTML5Backend}>
+                    <Playlist />
+                </DndProvider>
             </div>
         </div>
     );

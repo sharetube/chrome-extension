@@ -2,7 +2,7 @@ import Profile from "./pages/Profile";
 import Room from "./pages/Room";
 import { ContentScriptMessagingClient } from "@shared/client/client";
 import ShareTube from "@shared/ui/ShareTube/ShareTube";
-import { defualtProfile } from "constants/defualtProfile";
+import { defaultProfile } from "constants/defaultProfile";
 import React, { useEffect, useState } from "react";
 import { ExtensionMessageType } from "types/extensionMessage";
 import { profile } from "types/profile";
@@ -10,7 +10,7 @@ import { profile } from "types/profile";
 const Popup: React.FC = () => {
     const [isExpanded, setIsExpanded] = useState<boolean>(false);
     const [isProfileEdit, setIsProfileEdit] = useState<boolean>(false);
-    const [user, setUser] = useState<profile>(defualtProfile);
+    const [user, setUser] = useState<profile>(defaultProfile);
 
     const expandChange = () => {
         setIsExpanded(!isExpanded);
@@ -22,13 +22,18 @@ const Popup: React.FC = () => {
     };
 
     useEffect(() => {
-        const toggleClickListener = isExpanded
-            ? document.addEventListener
-            : document.removeEventListener;
-        toggleClickListener("click", handleClick);
-        if (!isExpanded) setIsProfileEdit(false);
+        const handleDocumentClick = (e: MouseEvent) => handleClick(e);
 
-        return () => document.removeEventListener("click", handleClick);
+        if (isExpanded) {
+            document.addEventListener("click", handleDocumentClick);
+        } else {
+            document.removeEventListener("click", handleDocumentClick);
+            setIsProfileEdit(false);
+        }
+
+        return () => {
+            document.removeEventListener("click", handleDocumentClick);
+        };
     }, [isExpanded]);
 
     const changePage = () => setIsProfileEdit(!isProfileEdit);

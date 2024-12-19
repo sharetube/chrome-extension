@@ -6,6 +6,7 @@
   "short_name": "ST",
   "description": "A browser extension thats lets you watch yotube videos with friends in real-time! ",
   "permissions": ["storage", "activeTab", "tabs", "scripting", "webNavigation"],
+  "minimum_chrome_version": "116",
   "icons": {
     "16": "assets/icon16.png",
     "32": "assets/icon32.png",

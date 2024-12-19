@@ -1,19 +1,21 @@
-import { BackgroundMessagingClient } from "./api/ExtensionClient";
-import { defaultUser } from "constants/defualtProfile";
+import { BackgroundMessagingClient } from "./ExtensionClient";
+import { updateProfile } from "./server";
+import { defaultProfile } from "constants/defaultProfile";
 import { ExtensionMessageType } from "types/extensionMessage";
 import type { profile } from "types/profile";
 
 const messagingClient = BackgroundMessagingClient.getInstance();
 const profileKey = "st-profile";
 
-const setUserProfile = (profile: profile) => {
+export const setUserProfile = (profile: profile) => {
     chrome.storage.sync.set({ [profileKey]: profile }, () => {
+        updateProfile(profile);
         if (chrome.runtime.lastError)
             console.error("Error setting profile:", chrome.runtime.lastError);
     });
 };
 
-const getUserProfile = (): Promise<profile | null> =>
+export const getUserProfile = (): Promise<profile> =>
     new Promise(resolve => {
         chrome.storage.sync.get(profileKey, result => {
             resolve(!chrome.runtime.lastError && result[profileKey] ? result[profileKey] : null);
@@ -22,7 +24,7 @@ const getUserProfile = (): Promise<profile | null> =>
 
 chrome.runtime.onInstalled.addListener(async () => {
     const profile = await getUserProfile();
-    if (!profile) setUserProfile(defaultUser);
+    if (!profile) setUserProfile(defaultProfile);
 });
 
 const notifyTabsProfileUpdated = (profile: profile) =>
