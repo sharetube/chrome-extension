@@ -1,11 +1,7 @@
 import config from "config";
 import type { profile } from "types/profile";
-import {
-    FromServerMessagePayloadMap,
-    FromServerMessageType,
-    ToServerMessagePayloadMap,
-    ToServerMessageType,
-} from "types/serverMessage";
+import { FromServerMessagePayloadMap, FromServerMessageType, ToServerMessagePayloadMap, ToServerMessageType } from "types/serverMessage";
+
 
 const { baseUrl } = config.api;
 
@@ -20,10 +16,13 @@ type MessageHandler<T extends FromServerMessageType> = (
 
 class ServerClient {
     private static instance: ServerClient;
-    private _ws: WebSocket | null = null;
-    private _handlers: Map<FromServerMessageType, MessageHandler<any>> = new Map();
+    private _ws: WebSocket | null;
+    private _handlers: Map<FromServerMessageType, MessageHandler<any>>;
 
-    private constructor() {}
+    private constructor() {
+        this._handlers = new Map();
+        this._ws = null;
+    }
 
     public static getInstance(): ServerClient {
         return (ServerClient.instance ??= new ServerClient());
@@ -72,7 +71,7 @@ class ServerClient {
     }
 
     public close() {
-        this._ws?.close();
+        this._ws && this._ws.close();
     }
 
     private init(url: string) {
