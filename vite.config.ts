@@ -16,6 +16,7 @@ export default defineConfig({
             "@player": "/content-script/player",
             constants: "/constants",
             types: "/types",
+            config: "config.ts",
         },
     },
     assetsInclude: ["**/*.png"],

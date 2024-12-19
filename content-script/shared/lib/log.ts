@@ -1,8 +1,10 @@
 /**
  * Handle debug log
  */
+import config from "config";
+
 const log = (...args: any[]): void => {
-    import.meta.env.DEBUG && console.log(...args);
+    config.debug && console.log(...args);
 };
 
 export default log;

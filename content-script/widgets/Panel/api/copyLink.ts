@@ -1,11 +1,14 @@
-import log from "@shared/lib/log";
+import { ContentScriptMessagingClient } from "@shared/client/client";
+import { ExtensionMessageType } from "types/extensionMessage";
 
-// Fetch link from the server and copy it to the clipboard
-//TODO: Add fetch
 const copyLink = () => {
-    const link = "https://sharetube.io/room/123456";
-    navigator.clipboard.writeText(link);
-    log("Link copied to clipboard:", link);
+    let link: string = "";
+    ContentScriptMessagingClient.getInstance()
+        .sendMessage(ExtensionMessageType.COPY_LINK, null)
+        .then(payload => {
+            link = `https://youtu.be/st/${payload}`;
+            navigator.clipboard.writeText(link);
+        });
 };
 
 export default copyLink;

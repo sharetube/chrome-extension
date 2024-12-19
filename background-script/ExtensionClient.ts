@@ -1,4 +1,4 @@
-import { BaseMessagingClient } from "../../shared/baseExtensionClient";
+import { BaseMessagingClient } from "../shared/baseExtensionClient";
 import {
     ExtensionMessage,
     ExtensionMessagePayloadMap,
@@ -25,6 +25,15 @@ export class BackgroundMessagingClient extends BaseMessagingClient {
     ): void {
         const message: ExtensionMessage<T> = { type, payload };
         chrome.tabs.sendMessage(tabId, message);
+        console.log(message);
+    }
+
+    public sendMessageToPrimaryTab<T extends ExtensionMessageType>(
+        type: T,
+        payload: ExtensionMessagePayloadMap[T],
+    ): void {
+        const message: ExtensionMessage<T> = { type, payload };
+        chrome.tabs.sendMessage(this._primaryTabId, message);
     }
 
     public broadcastMessage<T extends ExtensionMessageType>(
@@ -35,6 +44,7 @@ export class BackgroundMessagingClient extends BaseMessagingClient {
         this._tabIds.forEach(tabId => {
             chrome.tabs.sendMessage(tabId, message);
         });
+        console.log(message);
     }
 
     public addTab(tabId: number): void {
