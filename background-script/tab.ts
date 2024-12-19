@@ -1,31 +1,41 @@
-import { BackgroundMessagingClient } from "./api/ExtensionClient";
+import { BackgroundMessagingClient } from "./ExtensionClient";
+import ServerClient from "./ServerClient";
+import { getUserProfile } from "./profile";
 import { ExtensionMessageType } from "types/extensionMessage";
+
+const server = ServerClient.getInstance();
 
 type TabId = number;
 const messagingClient = BackgroundMessagingClient.getInstance();
-const regex = /^https:\/\/(www\.)?youtu\.be\/st\/([a-zA-Z0-9.-]{8})$/;
+const inviteLinkRegex = /^https:\/\/(www\.)?youtu\.be\/st\/([a-zA-Z0-9.-]{8})$/;
 
-const setPrimaryTab = (tabId: TabId) => {
+export const setPrimaryTab = (tabId: TabId) => {
+    messagingClient.primaryTab = tabId;
     chrome.storage.local.set({ "st-primary-tab": tabId }, notifyTabsPrimaryTabSet);
 };
 
-const getPrimaryTab = (): Promise<number | null> =>
+export const getPrimaryTab = (): Promise<number | null> =>
     chrome.storage.local
         .get("st-primary-tab")
         .then(result => (chrome.runtime.lastError ? null : result["st-primary-tab"] || null));
 
-const clearPrimaryTab = () =>
+export const clearPrimaryTab = () => {
+    server.close();
     chrome.storage.local.remove("st-primary-tab", notifyTabsPrimaryTabUnset);
+};
 
-const notifyTabsPrimaryTabSet = () =>
+export const notifyTabsPrimaryTabSet = () =>
     messagingClient.broadcastMessage(ExtensionMessageType.PRIMARY_TAB_SET, null);
 
-const notifyTabsPrimaryTabUnset = () =>
+export const notifyTabsPrimaryTabUnset = () =>
     messagingClient.broadcastMessage(ExtensionMessageType.PRIMARY_TAB_UNSET, null);
 
 const handleTab = (tabId: number, url: string) => {
-    if (regex.test(url)) {
+    const match = url.match(inviteLinkRegex);
+    if (match && match[2].length === 8) {
+        console.log("match!", match);
         getPrimaryTab().then(primaryTabId => {
+            console.log("pti", primaryTabId);
             if (primaryTabId) {
                 chrome.tabs.update(primaryTabId, { active: true });
                 chrome.tabs.onUpdated.addListener(function listener(updatedTabId, changeInfo) {
@@ -36,13 +46,13 @@ const handleTab = (tabId: number, url: string) => {
                     }
                 });
             } else {
-                setPrimaryTab(tabId);
+                getUserProfile().then(profile => {
+                    console.log("join", profile);
+                    server.join(profile, match[2]);
+                    setPrimaryTab(tabId);
+                });
             }
         });
-    } else {
-        console.log("Not a join link");
-        chrome.tabs.update(tabId, { url: `https://www.youtube.com/watch?v=2jNLSmbs8L0` });
-        setPrimaryTab(tabId);
     }
 };
 
@@ -54,9 +64,8 @@ chrome.webNavigation.onBeforeNavigate.addListener(
 );
 
 const createTab = (videoId: string) => {
-    chrome.tabs.create({ url: `https://youtube.com/watch?v=${videoId}` }, tab => {
-        if (tab.id) setPrimaryTab(tab.id);
-        notifyTabsPrimaryTabSet();
+    getUserProfile().then(profile => {
+        server.create(profile, videoId);
     });
 };
 

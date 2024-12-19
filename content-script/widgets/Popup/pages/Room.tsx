@@ -18,6 +18,7 @@ const Room: React.FC<RoomProps> = ({ user, changePage }) => {
     const [isRoom, setIsRoom] = useState<boolean>(true);
 
     useEffect(() => {
+        console.log("Room mounted");
         ContentScriptMessagingClient.getInstance()
             .sendMessage(ExtensionMessageType.CHECK_PRIMARY_TAB_EXISTS, null)
             .then(response => {
@@ -27,6 +28,7 @@ const Room: React.FC<RoomProps> = ({ user, changePage }) => {
         ContentScriptMessagingClient.getInstance().addHandler(
             ExtensionMessageType.PRIMARY_TAB_SET,
             () => {
+                console.log("SET");
                 setIsRoom(true);
                 setIsNavigateButtonDisabled(false);
             },
@@ -35,6 +37,7 @@ const Room: React.FC<RoomProps> = ({ user, changePage }) => {
         ContentScriptMessagingClient.getInstance().addHandler(
             ExtensionMessageType.PRIMARY_TAB_UNSET,
             () => {
+                console.log("UNSET");
                 setIsRoom(false);
                 setIsNavigateButtonDisabled(true);
             },
