@@ -22,13 +22,18 @@ const Popup: React.FC = () => {
     };
 
     useEffect(() => {
-        const toggleClickListener = isExpanded
-            ? document.addEventListener
-            : document.removeEventListener;
-        toggleClickListener("click", handleClick);
-        if (!isExpanded) setIsProfileEdit(false);
+        const handleDocumentClick = (e: MouseEvent) => handleClick(e);
 
-        return () => document.removeEventListener("click", handleClick);
+        if (isExpanded) {
+            document.addEventListener("click", handleDocumentClick);
+        } else {
+            document.removeEventListener("click", handleDocumentClick);
+            setIsProfileEdit(false);
+        }
+
+        return () => {
+            document.removeEventListener("click", handleDocumentClick);
+        };
     }, [isExpanded]);
 
     const changePage = () => setIsProfileEdit(!isProfileEdit);

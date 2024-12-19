@@ -1,3 +1,4 @@
+import { Member, Playlist } from "./serverMessage";
 import { video, videoID } from "./video";
 import { profile } from "types/profile";
 
@@ -20,6 +21,8 @@ export enum ExtensionMessageType {
     GET_USERS = "GET_USERS",
     USERS_UPDATED = "USERS_UPDATED",
     ADD_VIDEO = "ADD_VIDEO",
+    REMOVE_VIDEO = "REMOVE_VIDEO",
+    COPY_LINK = "COPY_LINK",
 }
 
 export interface CrateRoomPayload {
@@ -40,11 +43,13 @@ export type ExtensionMessagePayloadMap = {
     [ExtensionMessageType.GET_ADMIN_STATUS]: null;
     [ExtensionMessageType.ADMIN_STATUS_UPDATED]: null;
     [ExtensionMessageType.GET_PLAYLIST]: null;
-    [ExtensionMessageType.PLAYLIST_UPDATED]: null;
-    [ExtensionMessageType.UPDATE_PLAYLIST]: video[];
+    [ExtensionMessageType.PLAYLIST_UPDATED]: Playlist;
+    [ExtensionMessageType.UPDATE_PLAYLIST]: Playlist;
     [ExtensionMessageType.GET_USERS]: null;
-    [ExtensionMessageType.USERS_UPDATED]: null;
+    [ExtensionMessageType.USERS_UPDATED]: Member[];
     [ExtensionMessageType.ADD_VIDEO]: videoID;
+    [ExtensionMessageType.REMOVE_VIDEO]: videoID;
+    [ExtensionMessageType.COPY_LINK]: null;
 };
 
 export interface ExtensionMessage<T extends ExtensionMessageType> {

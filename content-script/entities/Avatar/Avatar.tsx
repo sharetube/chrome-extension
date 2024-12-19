@@ -24,7 +24,7 @@ const Avatar: React.FC<AvatarProps> = ({ size = "s", url, letter, color }) => {
     if (url) {
         return (
             <div
-                className={`rounded-full bg-cover border border-solid border-spec-outline ${sizeClass}`}
+                className={`rounded-full bg-cover border bg-center border-solid border-spec-outline ${sizeClass}`}
                 style={{ backgroundImage: `url(${url})` }}
             ></div>
         );
