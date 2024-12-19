@@ -3,6 +3,7 @@ import ServerClient from "./ServerClient";
 import { getUserProfile } from "./profile";
 import { ExtensionMessageType } from "types/extensionMessage";
 
+
 const server = ServerClient.getInstance();
 
 type TabId = number;
@@ -33,21 +34,12 @@ export const notifyTabsPrimaryTabUnset = () =>
 const handleTab = (tabId: number, url: string) => {
     const match = url.match(inviteLinkRegex);
     if (match && match[2].length === 8) {
-        console.log("match!", match);
         getPrimaryTab().then(primaryTabId => {
-            console.log("pti", primaryTabId);
             if (primaryTabId) {
                 chrome.tabs.update(primaryTabId, { active: true });
-                chrome.tabs.onUpdated.addListener(function listener(updatedTabId, changeInfo) {
-                    if (updatedTabId === tabId && changeInfo.status === "complete") {
-                        chrome.tabs.remove(tabId, () =>
-                            chrome.tabs.onUpdated.removeListener(listener),
-                        );
-                    }
-                });
+                chrome.tabs.remove(tabId);
             } else {
                 getUserProfile().then(profile => {
-                    console.log("join", profile);
                     server.join(profile, match[2]);
                     setPrimaryTab(tabId);
                 });
