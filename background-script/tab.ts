@@ -3,7 +3,6 @@ import ServerClient from "./ServerClient";
 import { getUserProfile } from "./profile";
 import { ExtensionMessageType } from "types/extensionMessage";
 
-
 const server = ServerClient.getInstance();
 
 type TabId = number;

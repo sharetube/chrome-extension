@@ -4,12 +4,10 @@
   "version": "1.1.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "prepare": "husky",
     "build": "tsc && vite build",
-    "preview": "vite preview",
     "format": "prettier --write \"**/*.{ts,tsx}\"",
-    "format:check": "prettier --check \"**/*.{ts,tsx}\"",
-    "prepare": "husky"
+    "format:check": "prettier --check \"**/*.{ts,tsx}\""
   },
   "lint-staged": {
     "**/*.{ts,tsx}": "prettier --write"

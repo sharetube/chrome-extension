@@ -91,6 +91,7 @@ export type ToServerMessagePayloadMap = {
 export type FromServerMessagePayloadMap = {
     [FROM.JOINED_ROOM]: {
         jwt: string;
+        joined_member: Member;
         room: {
             room_id: string;
             player: {
