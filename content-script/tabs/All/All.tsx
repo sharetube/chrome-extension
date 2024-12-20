@@ -1,4 +1,3 @@
-import log from "@shared/lib/log";
 import waitForElement from "@shared/lib/waitForElement";
 import Popup from "@widgets/Popup/Popup";
 import ReactDOM from "react-dom";
@@ -10,4 +9,4 @@ waitForElement("#end")
         elem?.prepend(container);
         ReactDOM.render(<Popup />, container);
     })
-    .catch(error => log("Failed to render popup", error));
+    .catch(error => console.error("Failed to render popup", error));

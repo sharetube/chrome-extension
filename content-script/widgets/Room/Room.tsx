@@ -3,7 +3,6 @@ import { ContentScriptMessagingClient } from "@shared/client/client";
 import React, { useCallback, useEffect, useState } from "react";
 import { ExtensionMessageType } from "types/extensionMessage";
 import type { Member as IMember } from "types/serverMessage";
-import { User } from "types/user";
 
 interface RoomProps {
     callback: (usersCount: number) => void;
