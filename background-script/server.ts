@@ -18,6 +18,7 @@ interface State {
     room_id: string;
     members: Member[];
     playlist: Playlist;
+    is_admin: boolean;
 }
 
 const state: State = {
@@ -27,12 +28,14 @@ const state: State = {
         videos: [] as Video[],
         last_video_id: null,
     },
+    is_admin: false,
 };
 
 server.addHandler(FromServerMessageType.JOINED_ROOM, payload => {
     state.playlist = payload.room.playlist;
     state.members = payload.room.members;
     state.room_id = payload.room.room_id;
+    state.is_admin = payload.joined_member.is_admin;
     const video_url = payload.room.player.video_url;
     console.log("JOIN");
     chrome.tabs.create({ url: `https://youtube.com/watch?v=${video_url}` }, tab => {
@@ -75,6 +78,10 @@ server.addHandler(FromServerMessageType.MEMBER_UPDATED, payload => {
     userUpdateHandler(payload.members);
 });
 
+server.addHandler(FromServerMessageType.IS_ADMIN_CHANGED, payload => {
+    message.sendMessageToPrimaryTab(ExtensionMessageType.ADMIN_STATUS_UPDATED, payload.is_admin);
+});
+
 export const updateProfile = (profile: profile) => {
     server.send(ToServerMessageType.UPDATE_PROFILE, profile);
 };
@@ -101,7 +108,14 @@ message.addHandler(ExtensionMessageType.COPY_LINK, () => {
     return state.room_id;
 });
 
-//! Fix this
 message.addHandler(ExtensionMessageType.GET_ADMIN_STATUS, () => {
-    return true;
+    return state.is_admin;
+});
+
+message.addHandler(ExtensionMessageType.PROMOTE_USER, id => {
+    server.send(ToServerMessageType.PROMOTE_MEMBER, { member_id: id });
+});
+
+message.addHandler(ExtensionMessageType.REMOVE_MEMBER, id => {
+    server.send(ToServerMessageType.REMOVE_MEMBER, { member_id: id });
 });

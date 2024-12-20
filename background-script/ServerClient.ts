@@ -9,61 +9,33 @@ import {
 
 const { baseUrl } = config.api;
 
+type MessageHandler<T extends FromServerMessageType> = (
+    payload: FromServerMessagePayloadMap[T],
+) => void;
+
 const buildQueryParams = (params: Record<string, any>): string =>
     Object.entries(params)
         .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
         .join("&");
 
-type MessageHandler<T extends FromServerMessageType> = (
-    payload: FromServerMessagePayloadMap[T],
-) => void;
-
 class ServerClient {
     private static instance: ServerClient;
-    private _ws: WebSocket | null = null;
-    private _handlers: Map<FromServerMessageType, MessageHandler<any>> = new Map();
+    private _ws: WebSocket | null;
+    private _handlers: Map<FromServerMessageType, MessageHandler<any>>;
 
-    private constructor() {}
+    private constructor() {
+        this._handlers = new Map();
+        this._ws = null;
+    }
 
     public static getInstance(): ServerClient {
         return (ServerClient.instance ??= new ServerClient());
     }
 
-    public create(profile: profile, videoUrl: string) {
-        const params = {
-            username: profile.username,
-            color: profile.color,
-            "video-url": videoUrl,
-            ...(profile.avatar_url && { "avatar-url": profile.avatar_url }),
-        };
-
-        const url = `${baseUrl}/api/v1/room/create/ws?${buildQueryParams(params)}`;
-
-        this.init(url);
-    }
-
-    public join(profile: profile, room_id: string) {
-        const params = {
-            username: profile.username,
-            color: profile.color,
-            ...(profile.avatar_url && { "avatar-url": profile.avatar_url }),
-        };
-
-        const url = `${baseUrl}/api/v1/room/${room_id}/join/ws?${buildQueryParams(params)}`;
-
-        this.init(url);
-    }
-
-    public send<T extends ToServerMessageType>(type: T, payload: ToServerMessagePayloadMap[T]) {
-        this._ws && this._ws.send(JSON.stringify({ type: type, payload: payload }));
-        console.log(JSON.stringify(payload));
-    }
-
     // https://developer.chrome.com/docs/extensions/how-to/web-platform/websockets
     private keepAlive() {
         const keepAliveIntervalId = setInterval(() => {
-            const ws = this._ws;
-            if (ws) {
+            if (this._ws) {
                 this.send(ToServerMessageType.ALIVE, null);
             } else {
                 clearInterval(keepAliveIntervalId);
@@ -71,25 +43,67 @@ class ServerClient {
         }, 20 * 1000);
     }
 
-    public close() {
-        this._ws?.close();
-    }
-
     private init(url: string) {
         this._ws = new WebSocket(`wss://${url}`);
-        this.keepAlive();
-        this._ws.onmessage = (message: any) => {
-            const data = JSON.parse(message.data);
-            console.log("onmessage", data);
-            const handler = this._handlers.get(data.type);
-            handler && handler(data.payload);
+        if (
+            this._ws.readyState !== WebSocket.OPEN &&
+            this._ws.readyState !== WebSocket.CONNECTING
+        ) {
+            if (
+                this._ws.readyState !== WebSocket.CLOSED &&
+                this._ws.readyState !== WebSocket.CLOSING
+            )
+                this._ws.close();
+            this._ws = null;
+            return;
+        }
+        this._ws.onerror = event => {
+            console.log("WebSocket error:", event);
         };
-        this._ws.onerror = (err: any) => {
-            console.log(err);
+        this._ws.onclose = event => {
+            console.log("WebSocket closed:", event);
         };
-        this._ws.onclose = (err: any) => {
-            console.log(err);
+        this._ws.onopen = () => {
+            console.log("Open");
+            this.keepAlive();
+            if (this._ws) {
+                this._ws.onmessage = ({ data }) => {
+                    const { type, payload } = JSON.parse(data);
+                    console.log("WebSocket onmessage", { type, payload });
+                    this._handlers.get(type)?.(payload);
+                };
+            }
         };
+    }
+
+    private buildParams({ username, color, avatar_url }: profile, extraParams: object = {}) {
+        return {
+            username,
+            color,
+            ...(avatar_url && { "avatar-url": avatar_url }),
+            ...extraParams,
+        };
+    }
+
+    public create(profile: profile, videoUrl: string) {
+        const params = this.buildParams(profile, { "video-url": videoUrl });
+        this.init(`${baseUrl}/api/v1/room/create/ws?${buildQueryParams(params)}`);
+    }
+
+    public join(profile: profile, room_id: string) {
+        const params = this.buildParams(profile);
+        this.init(`${baseUrl}/api/v1/room/${room_id}/join/ws?${buildQueryParams(params)}`);
+    }
+
+    public send<T extends ToServerMessageType>(type: T, payload: ToServerMessagePayloadMap[T]) {
+        console.log(this._ws, "send");
+        const message = JSON.stringify({ type, payload });
+        this._ws?.send(message);
+        console.log(message);
+    }
+
+    public close() {
+        if (this._ws) this._ws.close();
     }
 
     public addHandler<T extends FromServerMessageType>(type: T, handler: MessageHandler<T>): void {

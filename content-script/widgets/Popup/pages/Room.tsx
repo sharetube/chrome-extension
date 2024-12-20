@@ -62,7 +62,6 @@ const Room: React.FC<RoomProps> = ({ user, changePage }) => {
     };
 
     const handleCreateRoomButtonClick = () => {
-        //? maybe redundant check because if videoId is undefined, button will be disabled
         if (videoId) {
             setInputValue("");
             ContentScriptMessagingClient.getInstance().sendMessage(
