@@ -1,6 +1,5 @@
 import video from "../api/Video";
 import data from "../types/data";
-import log from "@shared/lib/log";
 import { useEffect, useState } from "react";
 
 const useVideoData = (videoId: string) => {
@@ -14,7 +13,7 @@ const useVideoData = (videoId: string) => {
                 setLoading(false);
             })
             .catch(error => {
-                log("useVideoData", error);
+                console.log("useVideoData", error);
                 setLoading(false);
             });
     }, [videoId]);

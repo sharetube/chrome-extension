@@ -1,7 +1,6 @@
 import validate from "../../shared/api/validateVideo";
 import useKey from "./hooks/useKey";
 import useAdmin from "@shared/Context/Admin/hooks/useAdmin";
-import log from "@shared/lib/log";
 import Icon from "@shared/ui/Add/Add";
 import React, { useState } from "react";
 import { ExtensionMessageType } from "types/extensionMessage";
@@ -24,7 +23,7 @@ const Search: React.FC = () => {
                 add(videoId);
                 setInputValue("");
             })
-            .catch(error => log("Error from search input:", error));
+            .catch(error => console.log("Error from search input:", error));
     };
     const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === "Enter") handleAdd();

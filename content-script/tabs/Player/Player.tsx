@@ -10,7 +10,6 @@ import {
     SendPlayerStateManager,
 } from "@player/player";
 import { AdminProvider } from "@shared/Context/Admin/Admin";
-import log from "@shared/lib/log";
 import waitForElement from "@shared/lib/waitForElement";
 import Panel from "@widgets/Panel/Panel";
 import Search from "@widgets/Search/Search";
@@ -66,7 +65,7 @@ waitForElement(".html5-video-player").then(elem => {
 
         class gg {
             modeUpdate(data: Modes) {
-                log("Mode", data);
+                console.log("Mode", data);
             }
         }
         const zz = new gg();
@@ -79,21 +78,21 @@ waitForElement(".html5-video-player").then(elem => {
 
         class y {
             update(data: boolean) {
-                log("Loading", data);
+                console.log("Loading", data);
             }
         }
 
         const yn = new y();
 
         lm.addObserver(yn);
-        log(m.mode);
+        console.log(m.mode);
 
         const gh = new SendPlayerStateManager(PlayerInstance);
         const gz = new Mute(player);
 
         class tt {
             update(data: boolean) {
-                log("Mute", data);
+                console.log("Mute", data);
             }
         }
 
@@ -114,21 +113,21 @@ waitForElement(".ytp-next-button.ytp-button")
     .then(elem => {
         elem!.remove();
     })
-    .catch(error => log("Failed to remove next button", error));
+    .catch(error => console.log("Failed to remove next button", error));
 
 // Because clip button must be removed
 waitForElement("#flexible-item-buttons")
     .then(elem => {
         elem?.remove();
     })
-    .catch(error => log("Failed to remove clip button", error));
+    .catch(error => console.log("Failed to remove clip button", error));
 
 // Remove clip button
 waitForElement("yt-button-shape#button-shape")
     .then(elem => {
         elem?.remove();
     })
-    .catch(error => log("Failed to shape button", error));
+    .catch(error => console.log("Failed to shape button", error));
 
 // Render main panel
 waitForElement("#secondary-inner")
@@ -143,7 +142,7 @@ waitForElement("#secondary-inner")
             container,
         );
     })
-    .catch(error => log("Failed to render main panel", error));
+    .catch(error => console.log("Failed to render main panel", error));
 
 // Render search
 waitForElement("#center")
@@ -155,9 +154,9 @@ waitForElement("#center")
             elem,
         ),
     )
-    .catch(error => log("Failed to render input", error));
+    .catch(error => console.log("Failed to render input", error));
 
 // Remove voice search button
 waitForElement("#voice-search-button")
     .then(elem => elem?.remove())
-    .catch(error => log("Failed to remove voice search button", error));
+    .catch(error => console.log("Failed to remove voice search button", error));

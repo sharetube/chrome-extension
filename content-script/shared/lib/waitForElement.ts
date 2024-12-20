@@ -1,5 +1,3 @@
-import log from "@shared/lib/log";
-
 const waitForElement = (
     selector: string,
     timeout = 10000,
@@ -27,7 +25,7 @@ const waitForElement = (
             const timeoutId = setTimeout(() => {
                 observer.disconnect();
                 if (retryCount > 0) {
-                    log("Retrying...", retryCount);
+                    console.log("Retrying...", retryCount);
                     attempt(retryCount - 1);
                 } else {
                     resolve(null);

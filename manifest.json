@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "version": "0.1.0",
-  "version_name": "0.1 alpha (Oly)",
+  "version": "0.2.0",
+  "version_name": "0.2 alpha (Oly)",
   "name": "ShareTube",
   "short_name": "ST",
   "description": "A browser extension thats lets you watch yotube videos with friends in real-time! ",

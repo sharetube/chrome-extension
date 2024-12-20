@@ -23,6 +23,8 @@ export enum ExtensionMessageType {
     ADD_VIDEO = "ADD_VIDEO",
     REMOVE_VIDEO = "REMOVE_VIDEO",
     COPY_LINK = "COPY_LINK",
+    PROMOTE_USER = "PROMOTE_USER",
+    REMOVE_MEMBER = "REMOVE_MEMBER",
 }
 
 export interface CrateRoomPayload {
@@ -41,7 +43,7 @@ export type ExtensionMessagePayloadMap = {
     [ExtensionMessageType.CREATE_ROOM]: CrateRoomPayload;
     // Room
     [ExtensionMessageType.GET_ADMIN_STATUS]: null;
-    [ExtensionMessageType.ADMIN_STATUS_UPDATED]: null;
+    [ExtensionMessageType.ADMIN_STATUS_UPDATED]: boolean;
     [ExtensionMessageType.GET_PLAYLIST]: null;
     [ExtensionMessageType.PLAYLIST_UPDATED]: Playlist;
     [ExtensionMessageType.UPDATE_PLAYLIST]: Playlist;
@@ -50,6 +52,8 @@ export type ExtensionMessagePayloadMap = {
     [ExtensionMessageType.ADD_VIDEO]: videoID;
     [ExtensionMessageType.REMOVE_VIDEO]: videoID;
     [ExtensionMessageType.COPY_LINK]: null;
+    [ExtensionMessageType.PROMOTE_USER]: string;
+    [ExtensionMessageType.REMOVE_MEMBER]: string;
 };
 
 export interface ExtensionMessage<T extends ExtensionMessageType> {

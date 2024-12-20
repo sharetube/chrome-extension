@@ -29,7 +29,7 @@ const AdminProvider: React.FC<MyProviderProps> = ({ children }) => {
         ContentScriptMessagingClient.getInstance().addHandler(
             ExtensionMessageType.ADMIN_STATUS_UPDATED,
             payload => {
-                setIsAdmin(payload!);
+                setIsAdmin(payload);
             },
         );
     }, []);
