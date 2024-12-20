@@ -102,7 +102,7 @@ const Profile: React.FC<ProfileProps> = ({ user, changePage }) => {
             color: selectedColor,
         };
 
-        ContentScriptMessagingClient.getInstance().sendMessage(
+        ContentScriptMessagingClient.sendMessage(
             ExtensionMessageType.UPDATE_PROFILE,
             updateProfile,
         );

@@ -49,10 +49,7 @@ const LoadingSkeleton: React.FC = () => (
 const VideoContent: React.FC<VideoProps & { videoData: data }> = memo(
     ({ videoData, videoId, ...props }) => {
         const deleteVideo = () =>
-            ContentScriptMessagingClient.getInstance().sendMessage(
-                ExtensionMessageType.REMOVE_VIDEO,
-                videoId,
-            );
+            ContentScriptMessagingClient.sendMessage(ExtensionMessageType.REMOVE_VIDEO, videoId);
         return (
             <li
                 title={props.actions ? "Play video" : undefined}

@@ -6,17 +6,11 @@ import {
 } from "types/extensionMessage";
 
 export class ContentScriptMessagingClient extends BaseMessagingClient {
-    private static _instance: ContentScriptMessagingClient;
-
-    private constructor() {
+    public constructor() {
         super();
     }
 
-    public static getInstance(): ContentScriptMessagingClient {
-        return (ContentScriptMessagingClient._instance ??= new ContentScriptMessagingClient());
-    }
-
-    public async sendMessage<T extends ExtensionMessageType>(
+    public static async sendMessage<T extends ExtensionMessageType>(
         type: T,
         payload: ExtensionMessagePayloadMap[T],
     ): Promise<any> {
