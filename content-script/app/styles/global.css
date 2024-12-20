@@ -5,6 +5,7 @@
     --st-background-active: rgba(255, 0, 0, 0.1);
     --st-background-primary: var(--yt-spec-raised-background);
     --st-background-secondary: var(--yt-spec-menu-background);
+    --st-background-hover: var(--yt-spec-static-overlay-call-to-action-hover);
     /* Colors */
     --st-icon-shape-color: var(--ytd-menu-renderer-button-color, var(--yt-spec-icon-inactive));
     --st-spec-badge-chip-background: var(--yt-spec-badge-chip-background);
@@ -22,4 +23,6 @@
     /* Buttons */
     --st-button-bg: var(--yt-spec-additive-background);
     --st-button-text-disabled: var(--yt-spec-text-disabled);
+    /* Shadow */
+    --st-box-shadow: 0 4px 32px 0 var(--yt-spec-static-overlay-background-light);
 }

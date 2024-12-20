@@ -66,7 +66,7 @@ const Popup: React.FC = () => {
             </div>
             {isExpanded && (
                 <div
-                    className="st-popup__content box-border w-[300px] rounded-[12px] bg-spec-menu-background absolute right-0 top-[40px] z-[2300]"
+                    className="st-popup__content box-border w-[300px] rounded-[12px] bg-spec-menu-background absolute right-0 top-[40px] z-[2300] shadow-box-shadow"
                     onClick={e => {
                         e.stopPropagation();
                     }}
