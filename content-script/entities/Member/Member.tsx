@@ -36,22 +36,22 @@ const Member: React.FC<MemberProps> = memo(
             };
         }, [menu]);
 
-        const openMenu = useCallback(() => {
+        const openMenu = () => {
             if (!is_admin) return;
             setMenu(true);
-        }, [is_admin]);
+        };
 
-        const promote = useCallback(() => {
+        const promote = () => {
             if (!is_admin) return;
             setMenu(false);
             ContentScriptMessagingClient.sendMessage(ExtensionMessageType.PROMOTE_USER, id);
-        }, [is_admin, id]);
+        };
 
-        const kick = useCallback(() => {
+        const kick = () => {
             if (!is_admin) return;
             setMenu(false);
             ContentScriptMessagingClient.sendMessage(ExtensionMessageType.REMOVE_MEMBER, id);
-        }, [is_admin, id]);
+        };
 
         return (
             <li className="relative">
@@ -89,15 +89,13 @@ const Member: React.FC<MemberProps> = memo(
                     <div
                         className="st-member absolute top-[36px] left-0 w-[150px] rounded-lg shadow-box-shadow bg-spec-menu-background z-[2300] p-[8px_0]"
                         onClick={e => {
+                            console.log("Menu clicked");
                             e.stopPropagation();
                         }}
                     >
                         <div className="hover:cursor-pointer hover:bg-spec-button-chip-background-hover">
                             <button
-                                onClick={e => {
-                                    console.log("Promote button clicked");
-                                    promote();
-                                }}
+                                onClick={promote}
                                 className="p-[0_16px] m-0 flex border-none rounded-[8px] bg-transparent items-center w-[24px] h-[36px] "
                             >
                                 <div className="h-[24px] w-[24px] flex items-center justify-center box-border text-text-primary hover:cursor-pointer">
@@ -110,10 +108,7 @@ const Member: React.FC<MemberProps> = memo(
                         </div>
                         <div className="hover:cursor-pointer hover:bg-spec-button-chip-background-hover">
                             <button
-                                onClick={e => {
-                                    console.log("Kick button clicked");
-                                    kick();
-                                }}
+                                onClick={kick}
                                 className="p-[0_16px] m-0 flex border-none rounded-[8px] bg-transparent items-center w-[24px] h-[36px] hover:cursor-pointer"
                             >
                                 <div className="h-[24px] w-[24px] flex items-center justify-center box-border text-text-primary hover:cursor-pointer">

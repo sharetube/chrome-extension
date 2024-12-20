@@ -16,8 +16,7 @@ const Playlist: React.FC = () => {
     useEffect(() => {
         ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_PLAYLIST, null).then(
             payload => {
-                console.log(payload);
-                if (payload) setVideos(payload);
+                setVideos(payload.videos);
             },
         );
 
