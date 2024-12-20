@@ -51,19 +51,13 @@ const Member: React.FC<MemberProps> = ({
     const promote = () => {
         if (!is_admin) return;
         setMenu(false);
-        ContentScriptMessagingClient.getInstance().sendMessage(
-            ExtensionMessageType.PROMOTE_USER,
-            id,
-        );
+        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.PROMOTE_USER, id);
     };
 
     const kick = () => {
         if (!is_admin) return;
         setMenu(false);
-        ContentScriptMessagingClient.getInstance().sendMessage(
-            ExtensionMessageType.REMOVE_MEMBER,
-            id,
-        );
+        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.REMOVE_MEMBER, id);
     };
 
     return (

@@ -32,7 +32,6 @@ export abstract class BaseMessagingClient {
         if (handler) {
             return handler(message.payload, sender);
         }
-        console.error("No handler found for message type: ", message.type);
     }
 
     public addHandler<T extends ExtensionMessageType>(type: T, handler: MessageHandler<T>): void {
