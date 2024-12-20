@@ -22,10 +22,12 @@ class ServerClient {
     private static instance: ServerClient;
     private _ws: WebSocket | null;
     private _handlers: Map<FromServerMessageType, MessageHandler<any>>;
+    private _keepAliveIntervalId: NodeJS.Timeout | null;
 
     private constructor() {
         this._handlers = new Map();
         this._ws = null;
+        this._keepAliveIntervalId = null;
     }
 
     public static getInstance(): ServerClient {
@@ -34,13 +36,20 @@ class ServerClient {
 
     // https://developer.chrome.com/docs/extensions/how-to/web-platform/websockets
     private keepAlive() {
-        const keepAliveIntervalId = setInterval(() => {
+        this._keepAliveIntervalId = setInterval(() => {
             if (this._ws) {
                 this.send(ToServerMessageType.ALIVE, null);
             } else {
-                clearInterval(keepAliveIntervalId);
+                this.clearKeepAlive();
             }
         }, 20 * 1000);
+    }
+
+    private clearKeepAlive() {
+        if (this._keepAliveIntervalId) {
+            clearInterval(this._keepAliveIntervalId);
+            this._keepAliveIntervalId = null;
+        }
     }
 
     private init(url: string) {
@@ -61,6 +70,7 @@ class ServerClient {
             console.log("WebSocket error:", event);
         };
         this._ws.onclose = event => {
+            this.clearKeepAlive();
             console.log("WebSocket closed:", event);
         };
         this._ws.onopen = () => {
