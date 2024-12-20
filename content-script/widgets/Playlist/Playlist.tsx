@@ -11,22 +11,23 @@ const Playlist: React.FC = () => {
     const [videos, setVideos] = useState<IVideo[]>([]);
     const { is_admin } = useAdmin();
 
-    useEffect(() => {
-        const messagingClient = ContentScriptMessagingClient.getInstance();
+    const messageClient = new ContentScriptMessagingClient();
 
-        messagingClient.sendMessage(ExtensionMessageType.GET_PLAYLIST, null).then(payload => {
-            console.log(payload);
-            if (payload) setVideos(payload);
-        });
+    useEffect(() => {
+        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_PLAYLIST, null).then(
+            payload => {
+                setVideos(payload.videos);
+            },
+        );
 
         const handler = (payload: Playlist) => {
             if (payload) setVideos(payload.videos);
         };
 
-        messagingClient.addHandler(ExtensionMessageType.PLAYLIST_UPDATED, handler);
+        messageClient.addHandler(ExtensionMessageType.PLAYLIST_UPDATED, handler);
 
         return () => {
-            messagingClient.removeHandler(ExtensionMessageType.PLAYLIST_UPDATED);
+            messageClient.removeHandler(ExtensionMessageType.PLAYLIST_UPDATED);
         };
     }, []);
 

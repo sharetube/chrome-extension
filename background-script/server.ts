@@ -96,7 +96,7 @@ message.addHandler(ExtensionMessageType.REMOVE_VIDEO, (videoId: string) => {
     server.send(ToServerMessageType.REMOVE_VIDEO, { video_id: videoId });
 });
 
-message.addHandler(ExtensionMessageType.GET_PLAYLIST, () => {
+message.addHandler(ExtensionMessageType.GET_PLAYLIST, (): Playlist => {
     return state.playlist;
 });
 

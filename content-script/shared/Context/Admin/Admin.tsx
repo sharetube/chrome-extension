@@ -17,21 +17,20 @@ interface MyProviderProps {
 const AdminProvider: React.FC<MyProviderProps> = ({ children }) => {
     const [isAdmin, setIsAdmin] = useState<boolean>(false);
 
-    useEffect(() => {
-        ContentScriptMessagingClient.getInstance()
-            .sendMessage(ExtensionMessageType.GET_ADMIN_STATUS, null)
-            .then(payload => {
-                setIsAdmin(payload);
-            });
-    }, []);
+    const messagingClient = new ContentScriptMessagingClient();
 
     useEffect(() => {
-        ContentScriptMessagingClient.getInstance().addHandler(
-            ExtensionMessageType.ADMIN_STATUS_UPDATED,
+        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_ADMIN_STATUS, null).then(
             payload => {
                 setIsAdmin(payload);
             },
         );
+
+        const handler = (payload: boolean) => {
+            setIsAdmin(payload);
+        };
+
+        messagingClient.addHandler(ExtensionMessageType.ADMIN_STATUS_UPDATED, handler);
     }, []);
 
     return <AdminContext.Provider value={{ is_admin: isAdmin }}>{children}</AdminContext.Provider>;

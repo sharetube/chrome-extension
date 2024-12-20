@@ -22,6 +22,9 @@ module.exports = {
         primary: "var(--st-font-primary)",
         secondary: "var(--st-font-secondary)",
       },
+      boxShadow: {
+        "box-shadow": "var(--st-box-shadow)",
+      },
     },
   },
   plugins: [],

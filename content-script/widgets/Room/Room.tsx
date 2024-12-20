@@ -21,13 +21,15 @@ const Room: React.FC<RoomProps> = ({ callback }) => {
     }, [memoizedCallback]);
 
     useEffect(() => {
-        ContentScriptMessagingClient.getInstance()
-            .sendMessage(ExtensionMessageType.GET_USERS, null)
-            .then(payload => {
+        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_USERS, null).then(
+            payload => {
                 setUsers(payload);
                 setLoading(false);
-            });
+            },
+        );
     }, []);
+
+    const messagingClient = new ContentScriptMessagingClient();
 
     useEffect(() => {
         const handler = (payload: IMember[] | null): void => {
@@ -35,7 +37,6 @@ const Room: React.FC<RoomProps> = ({ callback }) => {
             setLoading(false);
         };
 
-        const messagingClient = ContentScriptMessagingClient.getInstance();
         messagingClient.addHandler(ExtensionMessageType.USERS_UPDATED, handler);
 
         return () => {

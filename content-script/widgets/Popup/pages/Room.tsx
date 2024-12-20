@@ -17,31 +17,28 @@ interface RoomProps {
 const Room: React.FC<RoomProps> = ({ user, changePage }) => {
     const [isRoom, setIsRoom] = useState<boolean>(true);
 
+    const MessageClient = new ContentScriptMessagingClient();
+
     useEffect(() => {
         console.log("Room mounted");
-        ContentScriptMessagingClient.getInstance()
-            .sendMessage(ExtensionMessageType.CHECK_PRIMARY_TAB_EXISTS, null)
-            .then(response => {
-                setIsRoom(response);
-                setIsNavigateButtonDisabled(!response);
-            });
-        ContentScriptMessagingClient.getInstance().addHandler(
-            ExtensionMessageType.PRIMARY_TAB_SET,
-            () => {
-                console.log("SET");
-                setIsRoom(true);
-                setIsNavigateButtonDisabled(false);
-            },
-        );
+        ContentScriptMessagingClient.sendMessage(
+            ExtensionMessageType.CHECK_PRIMARY_TAB_EXISTS,
+            null,
+        ).then(response => {
+            setIsRoom(response);
+            setIsNavigateButtonDisabled(!response);
+        });
+        MessageClient.addHandler(ExtensionMessageType.PRIMARY_TAB_SET, () => {
+            console.log("SET");
+            setIsRoom(true);
+            setIsNavigateButtonDisabled(false);
+        });
 
-        ContentScriptMessagingClient.getInstance().addHandler(
-            ExtensionMessageType.PRIMARY_TAB_UNSET,
-            () => {
-                console.log("UNSET");
-                setIsRoom(false);
-                setIsNavigateButtonDisabled(true);
-            },
-        );
+        MessageClient.addHandler(ExtensionMessageType.PRIMARY_TAB_UNSET, () => {
+            console.log("UNSET");
+            setIsRoom(false);
+            setIsNavigateButtonDisabled(true);
+        });
     }, []);
 
     const [videoURLValue, setInputValue] = useState("");
@@ -64,27 +61,21 @@ const Room: React.FC<RoomProps> = ({ user, changePage }) => {
     const handleCreateRoomButtonClick = () => {
         if (videoId) {
             setInputValue("");
-            ContentScriptMessagingClient.getInstance().sendMessage(
-                ExtensionMessageType.CREATE_ROOM,
-                { videoId },
-            );
+            ContentScriptMessagingClient.sendMessage(ExtensionMessageType.CREATE_ROOM, { videoId });
         }
     };
 
     const switchToPrimaryTab = () => {
-        ContentScriptMessagingClient.getInstance().sendMessage(
-            ExtensionMessageType.SWITCH_TO_PRIMARY_TAB,
-            null,
-        );
+        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.SWITCH_TO_PRIMARY_TAB, null);
     };
 
     const [isPrimaryTab, setIsPrimaryTab] = useState(true);
     useEffect(() => {
-        ContentScriptMessagingClient.getInstance()
-            .sendMessage(ExtensionMessageType.IS_PRIMARY_TAB, null)
-            .then(response => {
+        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.IS_PRIMARY_TAB, null).then(
+            response => {
                 setIsPrimaryTab(response);
-            });
+            },
+        );
     }, [isPrimaryTab]);
 
     return (

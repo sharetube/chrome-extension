@@ -21,6 +21,8 @@ const Popup: React.FC = () => {
         setIsExpanded(false);
     };
 
+    const MessageClient = new ContentScriptMessagingClient();
+
     useEffect(() => {
         const handleDocumentClick = (e: MouseEvent) => handleClick(e);
 
@@ -39,20 +41,17 @@ const Popup: React.FC = () => {
     const changePage = () => setIsProfileEdit(!isProfileEdit);
 
     useEffect(() => {
-        ContentScriptMessagingClient.getInstance()
-            .sendMessage(ExtensionMessageType.GET_PROFILE, null)
-            .then((payload: profile) => {
-                setUser(payload);
-            });
-    }, []);
-
-    useEffect(() => {
-        ContentScriptMessagingClient.getInstance().addHandler(
-            ExtensionMessageType.PROFILE_UPDATED,
+        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_PROFILE, null).then(
             (payload: profile) => {
                 setUser(payload);
             },
         );
+    }, []);
+
+    useEffect(() => {
+        MessageClient.addHandler(ExtensionMessageType.PROFILE_UPDATED, (payload: profile) => {
+            setUser(payload);
+        });
     }, []);
 
     return (
@@ -67,7 +66,7 @@ const Popup: React.FC = () => {
             </div>
             {isExpanded && (
                 <div
-                    className="st-popup__content box-border w-[300px] rounded-[12px] bg-spec-menu-background absolute right-0 top-[40px] z-[2300]"
+                    className="st-popup__content box-border w-[300px] rounded-[12px] bg-spec-menu-background absolute right-0 top-[40px] z-[2300] shadow-box-shadow"
                     onClick={e => {
                         e.stopPropagation();
                     }}

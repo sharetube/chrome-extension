@@ -2,7 +2,7 @@ import useVideoData from "./hooks/useVideoData";
 import data from "./types/data";
 import { ContentScriptMessagingClient } from "@shared/client/client";
 import Trash from "@shared/ui/Trash/Trash";
-import React from "react";
+import React, { useCallback } from "react";
 import { memo } from "react";
 import { ExtensionMessageType } from "types/extensionMessage";
 
@@ -48,11 +48,10 @@ const LoadingSkeleton: React.FC = () => (
 
 const VideoContent: React.FC<VideoProps & { videoData: data }> = memo(
     ({ videoData, videoId, ...props }) => {
-        const deleteVideo = () =>
-            ContentScriptMessagingClient.getInstance().sendMessage(
-                ExtensionMessageType.REMOVE_VIDEO,
-                videoId,
-            );
+        const deleteVideo = useCallback(() => {
+            ContentScriptMessagingClient.sendMessage(ExtensionMessageType.REMOVE_VIDEO, videoId);
+        }, [videoId]);
+
         return (
             <li
                 title={props.actions ? "Play video" : undefined}
