@@ -1,5 +1,5 @@
-import { BackgroundMessagingClient } from "./ExtensionClient";
-import ServerClient from "./ServerClient";
+import { BackgroundMessagingClient } from "./clients/ExtensionClient";
+import ServerClient from "./clients/ServerClient";
 import { notifyTabsPrimaryTabSet, setPrimaryTab } from "./tab";
 import { ExtensionMessageType } from "types/extensionMessage";
 import { profile } from "types/profile";
@@ -37,7 +37,6 @@ server.addHandler(FromServerMessageType.JOINED_ROOM, payload => {
     state.room_id = payload.room.room_id;
     state.is_admin = payload.joined_member.is_admin;
     const video_url = payload.room.player.video_url;
-    console.log("JOIN");
     chrome.tabs.create({ url: `https://youtube.com/watch?v=${video_url}` }, tab => {
         if (tab.id) setPrimaryTab(tab.id);
     });
@@ -45,7 +44,6 @@ server.addHandler(FromServerMessageType.JOINED_ROOM, payload => {
 
 const playlistUpdateHandler = (playlist: Playlist): void => {
     state.playlist = playlist;
-    console.log(playlist);
     message.sendMessageToPrimaryTab(ExtensionMessageType.PLAYLIST_UPDATED, playlist);
 };
 
