@@ -51,7 +51,7 @@ const VideoContent: React.FC<VideoProps & { videoData: data }> = memo(
         const deleteVideo = useCallback(() => {
             if (props.current || props.previous || !props.actions) return;
             ContentScriptMessagingClient.sendMessage(ExtensionMessageType.REMOVE_VIDEO, videoId);
-        }, [videoId]);
+        }, [videoId, props.actions, props.current, props.previous]);
 
         const playVideo = useCallback(() => {
             if (props.current || !props.actions) return;
@@ -59,7 +59,7 @@ const VideoContent: React.FC<VideoProps & { videoData: data }> = memo(
                 ExtensionMessageType.UPDATE_PLAYER_VIDEO,
                 videoId,
             );
-        }, [videoId]);
+        }, [videoId, props.actions, props.current]);
 
         return (
             <li
