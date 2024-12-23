@@ -36,22 +36,22 @@ const Member: React.FC<MemberProps> = memo(
             };
         }, [menu]);
 
-        const openMenu = () => {
+        const openMenu = useCallback(() => {
             if (!is_admin) return;
             setMenu(true);
-        };
+        }, [is_admin]);
 
-        const promote = () => {
+        const promote = useCallback(() => {
             if (!is_admin) return;
             setMenu(false);
             ContentScriptMessagingClient.sendMessage(ExtensionMessageType.PROMOTE_USER, id);
-        };
+        }, [id, is_admin]);
 
-        const kick = () => {
+        const kick = useCallback(() => {
             if (!is_admin) return;
             setMenu(false);
             ContentScriptMessagingClient.sendMessage(ExtensionMessageType.REMOVE_MEMBER, id);
-        };
+        }, [id, is_admin]);
 
         return (
             <li className="relative">
