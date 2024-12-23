@@ -1,4 +1,4 @@
-import { BaseMessagingClient } from "../shared/baseExtensionClient";
+import { BaseMessagingClient } from "../../shared/baseExtensionClient";
 import {
     ExtensionMessage,
     ExtensionMessagePayloadMap,
@@ -12,6 +12,7 @@ export class BackgroundMessagingClient extends BaseMessagingClient {
 
     private constructor() {
         super();
+        chrome.tabs.onRemoved.addListener(tabId => this._tabIds.delete(tabId));
     }
 
     public static getInstance(): BackgroundMessagingClient {
@@ -44,7 +45,6 @@ export class BackgroundMessagingClient extends BaseMessagingClient {
         this._tabIds.forEach(tabId => {
             chrome.tabs.sendMessage(tabId, message);
         });
-        console.log(message);
     }
 
     public addTab(tabId: number): void {

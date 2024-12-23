@@ -8,7 +8,7 @@ import {
     ObserveElementClasslist,
     Player,
     SendPlayerStateManager,
-} from "@player/player";
+} from "@player/zz";
 import { AdminProvider } from "@shared/Context/Admin/Admin";
 import waitForElement from "@shared/lib/waitForElement";
 import Panel from "@widgets/Panel/Panel";
@@ -47,61 +47,61 @@ import ReactDOM from "react-dom";
 //     true,
 // );
 
-waitForElement(".html5-video-player").then(elem => {
-    waitForElement("video.video-stream.html5-main-video").then(p => {
-        const player = p as HTMLVideoElement;
-        const PlayerInstance = Player.getInstance();
-        PlayerInstance.player = player;
+// waitForElement(".html5-video-player").then(elem => {
+//     waitForElement("video.video-stream.html5-main-video").then(p => {
+//         const player = p as HTMLVideoElement;
+//         const PlayerInstance = Player.getInstance();
+//         PlayerInstance.player = player;
 
-        const oe = new ObserveElementClasslist(elem as HTMLVideoElement);
+//         const oe = new ObserveElementClasslist(elem as HTMLVideoElement);
 
-        const m = Mode.getInstance();
+//         const m = Mode.getInstance();
 
-        const ad = Ad.getInstance();
-        const l = new Load(player);
+//         const ad = Ad.getInstance();
+//         const l = new Load(player);
 
-        oe.addObserver(ad);
-        oe.addObserver(m);
+//         oe.addObserver(ad);
+//         oe.addObserver(m);
 
-        class gg {
-            modeUpdate(data: Modes) {
-                console.log("Mode", data);
-            }
-        }
-        const zz = new gg();
-        m.addObserver(zz);
+//         class gg {
+//             modeUpdate(data: Modes) {
+//                 console.log("Mode", data);
+//             }
+//         }
+//         const zz = new gg();
+//         m.addObserver(zz);
 
-        const lm = LoadManager.getInstance();
+//         const lm = LoadManager.getInstance();
 
-        ad.addObserver(lm);
-        l.addObserver(lm);
+//         ad.addObserver(lm);
+//         l.addObserver(lm);
 
-        class y {
-            update(data: boolean) {
-                console.log("Loading", data);
-            }
-        }
+//         class y {
+//             update(data: boolean) {
+//                 console.log("Loading", data);
+//             }
+//         }
 
-        const yn = new y();
+//         const yn = new y();
 
-        lm.addObserver(yn);
-        console.log(m.mode);
+//         lm.addObserver(yn);
+//         console.log(m.mode);
 
-        const gh = new SendPlayerStateManager(PlayerInstance);
-        const gz = new Mute(player);
+//         const gh = new SendPlayerStateManager(PlayerInstance);
+//         const gz = new Mute(player);
 
-        class tt {
-            update(data: boolean) {
-                console.log("Mute", data);
-            }
-        }
+//         class tt {
+//             update(data: boolean) {
+//                 console.log("Mute", data);
+//             }
+//         }
 
-        const jj = new tt();
+//         const jj = new tt();
 
-        gz.addObserver(jj);
-        gz.initNotifyObservers();
-    });
-});
+//         gz.addObserver(jj);
+//         gz.initNotifyObservers();
+//     });
+// });
 
 //Remove autoplay button from player
 waitForElement(".ytp-autonav-toggle-button-container").then(elem => {
