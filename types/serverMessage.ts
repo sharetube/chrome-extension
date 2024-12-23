@@ -22,7 +22,7 @@ export enum FromServerMessageType {
     MEMBER_JOINED = "MEMBER_JOINED",
     MEMBER_DISCONNECTED = "MEMBER_DISCONNECTED",
     MEMBER_UPDATED = "MEMBER_UPDATED",
-    IS_ADMIN_CHANGED = "IS_ADMIN_CHANGED",
+    IS_ADMIN_CHANGED = "IS_ADMIN_UPDATED",
 }
 
 const TO = ToServerMessageType;
@@ -45,7 +45,15 @@ export type Member = {
 
 export type Playlist = {
     videos: Video[];
-    last_video_id: Video | null;
+    last_video: Video | null;
+};
+
+export type Player = {
+    video_url: string;
+    playback_rate: number;
+    is_playing: boolean;
+    current_time: number;
+    updated_at: number;
 };
 
 export type ToServerMessagePayloadMap = {
@@ -94,33 +102,16 @@ export type FromServerMessagePayloadMap = {
         joined_member: Member;
         room: {
             room_id: string;
-            player: {
-                video_url: string;
-                playback_rate: number;
-                is_playing: boolean;
-                current_time: number;
-                updated_at: number;
-            };
+            player: Player;
             playlist: Playlist;
             members: Member[];
         };
     };
     [FROM.PLAYER_STATE_UPDATED]: {
-        player: {
-            playback_rate: number;
-            is_playing: boolean;
-            current_time: number;
-            updated_at: number;
-        };
+        player: Player;
     };
     [FROM.PLAYER_VIDEO_UPDATED]: {
-        player: {
-            video_url: string;
-            playback_rate: number;
-            is_playing: boolean;
-            current_time: number;
-            updated_at: number;
-        };
+        player: Player;
         playlist: Playlist;
     };
     [FROM.VIDEO_ADDED]: {
@@ -133,7 +124,7 @@ export type FromServerMessagePayloadMap = {
     };
     [FROM.PLAYLIST_REORDERED]: {
         videos: Video[];
-        last_video_id: Video;
+        last_video: Video;
     };
     [FROM.MEMBER_JOINED]: {
         joined_member: Member;
