@@ -1,5 +1,5 @@
-import { BackgroundMessagingClient } from "./ExtensionClient";
-import ServerClient from "./ServerClient";
+import { BackgroundMessagingClient } from "./clients/ExtensionClient";
+import ServerClient from "./clients/ServerClient";
 import { getUserProfile } from "./profile";
 import { ExtensionMessageType } from "types/extensionMessage";
 
@@ -17,33 +17,46 @@ export const setPrimaryTab = (tabId: TabId) => {
 export const getPrimaryTab = (): Promise<number | null> =>
     chrome.storage.local
         .get("st-primary-tab")
-        .then(result => (chrome.runtime.lastError ? null : result["st-primary-tab"] || null));
+        .then(result => (chrome.runtime.lastError ? null : result["st-primary-tab"] || null))
+        .catch(err => {
+            console.error("Error getting primary tab:", err);
+            return null;
+        });
 
 export const clearPrimaryTab = () => {
     server.close();
-    chrome.storage.local.remove("st-primary-tab", notifyTabsPrimaryTabUnset);
+    chrome.storage.local.remove("st-primary-tab", () => {
+        if (chrome.runtime.lastError) {
+            console.error("Error removing primary tab:", chrome.runtime.lastError);
+        } else {
+            notifyTabsPrimaryTabUnset();
+        }
+    });
 };
 
 export const notifyTabsPrimaryTabSet = () =>
     messagingClient.broadcastMessage(ExtensionMessageType.PRIMARY_TAB_SET, null);
 
-export const notifyTabsPrimaryTabUnset = () =>
-    messagingClient.broadcastMessage(ExtensionMessageType.PRIMARY_TAB_UNSET, null);
+export const notifyTabsPrimaryTabUnset = () => {
+    try {
+        messagingClient.broadcastMessage(ExtensionMessageType.PRIMARY_TAB_UNSET, null);
+    } catch (error) {
+        console.error("Error broadcasting PRIMARY_TAB_UNSET message:", error);
+    }
+};
 
-const handleTab = (tabId: number, url: string) => {
+const handleTab = async (tabId: number, url: string) => {
     const match = url.match(inviteLinkRegex);
-    if (match && match[2].length === 8) {
-        getPrimaryTab().then(primaryTabId => {
-            if (primaryTabId) {
-                chrome.tabs.update(primaryTabId, { active: true });
-                chrome.tabs.remove(tabId);
-            } else {
-                getUserProfile().then(profile => {
-                    server.join(profile, match[2]);
-                    setPrimaryTab(tabId);
-                });
-            }
-        });
+    if (!match || match[2].length !== 8) return;
+
+    const primaryTabId = await getPrimaryTab();
+    if (primaryTabId) {
+        chrome.tabs.update(primaryTabId, { active: true });
+        chrome.tabs.remove(tabId);
+    } else {
+        const profile = await getUserProfile();
+        server.join(profile, match[2]);
+        setPrimaryTab(tabId);
     }
 };
 
@@ -61,9 +74,11 @@ const createTab = (videoId: string) => {
 };
 
 chrome.tabs.onRemoved.addListener(tabId => {
-    getPrimaryTab().then(primaryTabId => {
-        if (primaryTabId === tabId) clearPrimaryTab();
-    });
+    getPrimaryTab()
+        .then(primaryTabId => {
+            if (primaryTabId === tabId) clearPrimaryTab();
+        })
+        .catch(err => console.log(err));
 });
 
 messagingClient.addHandler(ExtensionMessageType.SWITCH_TO_PRIMARY_TAB, () => {

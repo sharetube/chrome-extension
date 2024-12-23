@@ -49,13 +49,23 @@ const LoadingSkeleton: React.FC = () => (
 const VideoContent: React.FC<VideoProps & { videoData: data }> = memo(
     ({ videoData, videoId, ...props }) => {
         const deleteVideo = useCallback(() => {
+            if (props.current || props.previous || !props.actions) return;
             ContentScriptMessagingClient.sendMessage(ExtensionMessageType.REMOVE_VIDEO, videoId);
+        }, [videoId]);
+
+        const playVideo = useCallback(() => {
+            if (props.current || !props.actions) return;
+            ContentScriptMessagingClient.sendMessage(
+                ExtensionMessageType.UPDATE_PLAYER_VIDEO,
+                videoId,
+            );
         }, [videoId]);
 
         return (
             <li
-                title={props.actions ? "Play video" : undefined}
+                title={!props.current && props.actions ? "Play video" : undefined}
                 className={`${props.previous ? "opacity-60 hover:opacity-100" : null} ${props.current ? "bg-background-active" : null} ${props.actions ? "hover:cursor-pointer" : null} select-none hover:bg-spec-badge-chip-background group flex items-stretch p-[4px_8px_4px_0]`}
+                onClick={!props.current && props.actions ? playVideo : undefined}
             >
                 <div className="flex items-stretch">
                     <div className="flex">
@@ -80,7 +90,7 @@ const VideoContent: React.FC<VideoProps & { videoData: data }> = memo(
                     </article>
                 </div>
 
-                {props.actions && !props.previous && (
+                {props.actions && !props.current && !props.previous && (
                     <div className="ml-auto flex items-center justify-self-end hover:cursor-default">
                         <button
                             title="Remove video"

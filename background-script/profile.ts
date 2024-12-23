@@ -1,4 +1,4 @@
-import { BackgroundMessagingClient } from "./ExtensionClient";
+import { BackgroundMessagingClient } from "./clients/ExtensionClient";
 import { updateProfile } from "./server";
 import { defaultProfile } from "constants/defaultProfile";
 import { ExtensionMessageType } from "types/extensionMessage";

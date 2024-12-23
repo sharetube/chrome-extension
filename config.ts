@@ -8,7 +8,7 @@ type Config = {
 const config: Config = {
     debug: true,
     api: {
-        baseUrl: "ebc8-62-60-236-208.ngrok-free.app",
+        baseUrl: "go-game-api.online",
     },
 };
 

@@ -1,5 +1,7 @@
 import { Member, Playlist } from "./serverMessage";
+import { Video } from "./serverMessage";
 import { video, videoID } from "./video";
+import { PlayerState } from "types/player";
 import { profile } from "types/profile";
 
 export enum ExtensionMessageType {
@@ -25,6 +27,15 @@ export enum ExtensionMessageType {
     COPY_LINK = "COPY_LINK",
     PROMOTE_USER = "PROMOTE_USER",
     REMOVE_MEMBER = "REMOVE_MEMBER",
+    // Player
+    UPDATE_PLAYER_STATE = "UPDATE_PLAYER_STATE",
+    PLAYER_STATE_UPDATED = "PLAYER_STATE_UPDATED",
+    PLAYER_VIDEO_UPDATED = "PLAYER_VIDEO_UPDATED",
+    UPDATE_PLAYER_VIDEO = "UPDATE_PLAYER_VIDEO",
+    GET_PLAYER_STATE = "GET_PLAYER_STATE",
+    GET_PLAYER_VIDEO = "GET_PLAYER_VIDEO",
+    GET_PREVIOUS_VIDEO = "GET_PREVIOUS_VIDEO",
+    PREVIOUS_VIDEO_UPDATED = "PREVIOUS_VIDEO_UPDATED",
 }
 
 export interface CrateRoomPayload {
@@ -54,6 +65,15 @@ export type ExtensionMessagePayloadMap = {
     [ExtensionMessageType.COPY_LINK]: null;
     [ExtensionMessageType.PROMOTE_USER]: string;
     [ExtensionMessageType.REMOVE_MEMBER]: string;
+    // Player
+    [ExtensionMessageType.UPDATE_PLAYER_STATE]: PlayerState;
+    [ExtensionMessageType.PLAYER_STATE_UPDATED]: PlayerState;
+    [ExtensionMessageType.UPDATE_PLAYER_VIDEO]: videoID;
+    [ExtensionMessageType.GET_PLAYER_STATE]: null;
+    [ExtensionMessageType.GET_PLAYER_VIDEO]: null;
+    [ExtensionMessageType.PLAYER_VIDEO_UPDATED]: videoID;
+    [ExtensionMessageType.GET_PREVIOUS_VIDEO]: null;
+    [ExtensionMessageType.PREVIOUS_VIDEO_UPDATED]: Video;
 };
 
 export interface ExtensionMessage<T extends ExtensionMessageType> {

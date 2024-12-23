@@ -89,13 +89,15 @@ const Member: React.FC<MemberProps> = memo(
                     <div
                         className="st-member absolute top-[36px] left-0 w-[150px] rounded-lg shadow-box-shadow bg-spec-menu-background z-[2300] p-[8px_0]"
                         onClick={e => {
-                            console.log("Menu clicked");
                             e.stopPropagation();
                         }}
                     >
                         <div className="hover:cursor-pointer hover:bg-spec-button-chip-background-hover">
                             <button
-                                onClick={promote}
+                                onClick={e => {
+                                    e.stopPropagation();
+                                    promote();
+                                }}
                                 className="p-[0_16px] m-0 flex border-none rounded-[8px] bg-transparent items-center w-[24px] h-[36px] "
                             >
                                 <div className="h-[24px] w-[24px] flex items-center justify-center box-border text-text-primary hover:cursor-pointer">
@@ -108,7 +110,10 @@ const Member: React.FC<MemberProps> = memo(
                         </div>
                         <div className="hover:cursor-pointer hover:bg-spec-button-chip-background-hover">
                             <button
-                                onClick={kick}
+                                onClick={e => {
+                                    e.stopPropagation();
+                                    kick();
+                                }}
                                 className="p-[0_16px] m-0 flex border-none rounded-[8px] bg-transparent items-center w-[24px] h-[36px] hover:cursor-pointer"
                             >
                                 <div className="h-[24px] w-[24px] flex items-center justify-center box-border text-text-primary hover:cursor-pointer">
