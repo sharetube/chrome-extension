@@ -63,12 +63,12 @@ class ServerClient {
         this._ws = new WebSocket(`wss://${url}`);
 
         this._ws.addEventListener("error", event => {
-            console.error("WS ERROR:", event);
+            console.log("WS ERROR:", event);
         });
 
         this._ws.addEventListener("close", event => {
             this.clearKeepAlive();
-            console.warn("WS CLOSED", event);
+            console.log("WS CLOSED", event);
         });
 
         this._ws?.addEventListener("open", () => {

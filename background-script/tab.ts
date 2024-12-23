@@ -78,7 +78,7 @@ chrome.tabs.onRemoved.addListener(tabId => {
         .then(primaryTabId => {
             if (primaryTabId === tabId) clearPrimaryTab();
         })
-        .catch(err => console.log("ZV", err));
+        .catch(err => console.log(err));
 });
 
 messagingClient.addHandler(ExtensionMessageType.SWITCH_TO_PRIMARY_TAB, () => {
