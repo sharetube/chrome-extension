@@ -3,12 +3,12 @@ import ServerClient from "./clients/ServerClient";
 import { getUserProfile } from "./profile";
 import { ExtensionMessageType } from "types/extensionMessage";
 
-
 const server = ServerClient.getInstance();
 
 type TabId = number;
 const messagingClient = BackgroundMessagingClient.getInstance();
-const inviteLinkRegex = /^https:\/\/(www\.)?youtu\.be\/st\/([a-zA-Z0-9.-]{8})$/;
+const inviteLinkRegex = /^https:\/\/(www\.)?youtu\.be\/st\/(.+)$/;
+const roomIdRegex = /^[a-zA-Z0-9.-]{8}$/;
 
 export const setPrimaryTab = (tabId: TabId) => {
     messagingClient.primaryTab = tabId;
@@ -68,6 +68,7 @@ export const notifyTabsPrimaryTabUnset = () => {
     }
 };
 
+// todo: refactor
 let targetPrimaryTabId: number | null = null;
 
 export function takeTargetPrimaryTabId(): number | null {
@@ -81,8 +82,23 @@ function setTargetPrimaryTabId(tabId: number) {
 }
 
 const handleTab = async (tabId: number, url: string) => {
-    const match = url.match(inviteLinkRegex);
-    if (!match || match[2].length !== 8) return;
+    const inviteLinkMatch = url.match(inviteLinkRegex);
+    console.log("inviteLinkMatch", inviteLinkMatch);
+    if (!inviteLinkMatch) return;
+
+    const showErrorPage = () => {
+        chrome.tabs.update(tabId, {
+            url: chrome.runtime.getURL("/pages/error.html"),
+        });
+    };
+
+    const roomId = inviteLinkMatch[2];
+    const roomIdMatch = roomId.match(roomIdRegex);
+    console.log("roomIdMatch", roomIdMatch);
+    if (!roomIdMatch) {
+        showErrorPage();
+        return;
+    }
 
     const primaryTabId = await getPrimaryTab();
     console.log("primaryTabId", primaryTabId);
@@ -93,20 +109,19 @@ const handleTab = async (tabId: number, url: string) => {
         const profile = await getUserProfile();
 
         setTargetPrimaryTabId(tabId);
-        // show user loading screen
+        // show loading screen
         chrome.tabs.update(tabId, {
             url: chrome.runtime.getURL("/pages/loading.html"),
         });
 
         server
-            .join(profile, match[2])
+            .join(profile, roomId)
             .then(() => {
-                // ws connected
                 console.log("ws connected");
             })
             .catch(err => {
-                console.error("Error joining:", err);
-                chrome.tabs.update(tabId, { url: "https://youtu.be/st/error" });
+                console.log("ws error", err);
+                showErrorPage();
             });
     }
 };
