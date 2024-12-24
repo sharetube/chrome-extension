@@ -94,7 +94,7 @@ const handleTab = async (tabId: number, url: string) => {
         setTargetPrimaryTabId(tabId);
         // show user loading screen
         chrome.tabs.update(tabId, {
-            url: chrome.runtime.getURL("content-script/static/loading.html"),
+            url: chrome.runtime.getURL("/pages/loading.html"),
         });
     }
 };

@@ -76,7 +76,7 @@ const Room: React.FC<RoomProps> = ({ user, changePage }) => {
                 setIsPrimaryTab(response);
             },
         );
-    }, [isPrimaryTab]);
+    }, []);
 
     return (
         <React.Fragment>
