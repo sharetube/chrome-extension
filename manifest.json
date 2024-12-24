@@ -25,12 +25,13 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["pages/loading.html"],
-      "matches": ["https://*.youtube.com/*", "https://*.youtu.be/*"]
-    },
-    {
-      "resources": ["pages/cat-sleep.gif"],
-      "matches": ["<all_urls>"]
+      "matches": [],
+      "resources": [
+        "pages/error.html",
+        "pages/loading.html",
+        "pages/cat-sleep.gif"
+      ],
+      "use_dynamic_url": false
     }
   ]
 }
