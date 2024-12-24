@@ -12,6 +12,7 @@ export class BackgroundMessagingClient extends BaseMessagingClient {
 
     private constructor() {
         super();
+        // todo: fix
         chrome.tabs.onRemoved.addListener(tabId => this._tabIds.delete(tabId));
     }
 

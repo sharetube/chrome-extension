@@ -21,7 +21,7 @@ const Room: React.FC<RoomProps> = ({ callback }) => {
     }, [memoizedCallback]);
 
     useEffect(() => {
-        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_USERS, null).then(
+        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_MEMBERS, null).then(
             payload => {
                 setUsers(payload);
                 setLoading(false);
@@ -37,10 +37,10 @@ const Room: React.FC<RoomProps> = ({ callback }) => {
             setLoading(false);
         };
 
-        messagingClient.addHandler(ExtensionMessageType.USERS_UPDATED, handler);
+        messagingClient.addHandler(ExtensionMessageType.MEMBERS_UPDATED, handler);
 
         return () => {
-            messagingClient.removeHandler(ExtensionMessageType.USERS_UPDATED);
+            messagingClient.removeHandler(ExtensionMessageType.MEMBERS_UPDATED);
         };
     }, []);
 

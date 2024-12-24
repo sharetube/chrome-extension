@@ -44,7 +44,7 @@ const Member: React.FC<MemberProps> = memo(
         const promote = useCallback(() => {
             if (!is_admin) return;
             setMenu(false);
-            ContentScriptMessagingClient.sendMessage(ExtensionMessageType.PROMOTE_USER, id);
+            ContentScriptMessagingClient.sendMessage(ExtensionMessageType.PROMOTE_MEMBER, id);
         }, [id, is_admin]);
 
         const kick = useCallback(() => {

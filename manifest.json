@@ -22,5 +22,16 @@
       "js": ["content-script/index.ts"],
       "run_at": "document_start"
     }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "content-script/static/loading.html"
+      ],
+      "matches": [
+        "https://*.youtube.com/*",
+        "https://*.youtu.be/*"
+      ]
+    }
   ]
 }
