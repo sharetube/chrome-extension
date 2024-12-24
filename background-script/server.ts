@@ -1,6 +1,6 @@
 import { BackgroundMessagingClient } from "./clients/ExtensionClient";
 import ServerClient from "./clients/ServerClient";
-import { setPrimaryTab } from "./tab";
+import { setPrimaryTab, takeTargetPrimaryTabId } from "./tab";
 import { ExtensionMessageType } from "types/extensionMessage";
 import { profile } from "types/profile";
 import {
@@ -11,7 +11,6 @@ import {
     ToServerMessageType,
     Video,
 } from "types/serverMessage";
-
 
 const server = ServerClient.getInstance();
 const message = BackgroundMessagingClient.getInstance();
@@ -41,9 +40,15 @@ server.addHandler(FromServerMessageType.JOINED_ROOM, payload => {
     state.members = payload.room.members;
     state.room_id = payload.room.room_id;
     state.is_admin = payload.joined_member.is_admin;
-    chrome.tabs.create({ url: `https://youtube.com/watch?v=${state.player.video_url}` }, tab => {
-        if (tab.id) setPrimaryTab(tab.id);
-    });
+
+    const url = `https://youtube.com/watch?v=${state.player.video_url}`;
+    const targetPrimaryTabId = takeTargetPrimaryTabId();
+    if (targetPrimaryTabId) {
+        chrome.tabs.update(targetPrimaryTabId, { url });
+        setPrimaryTab(targetPrimaryTabId);
+    } else {
+        console.error("No target primary tab found");
+    }
 });
 
 const playlistUpdateHandler = (playlist: Playlist): void => {

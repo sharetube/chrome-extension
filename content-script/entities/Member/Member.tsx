@@ -10,7 +10,6 @@ import { memo } from "react";
 import { ExtensionMessageType } from "types/extensionMessage";
 import { Member as IMember } from "types/serverMessage";
 
-
 type MemberProps = IMember;
 
 const Member: React.FC<MemberProps> = memo(
