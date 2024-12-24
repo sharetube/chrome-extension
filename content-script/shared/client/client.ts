@@ -5,7 +5,6 @@ import {
     ExtensionMessageType,
 } from "types/extensionMessage";
 
-
 export class ContentScriptMessagingClient extends BaseMessagingClient {
     public constructor() {
         super();

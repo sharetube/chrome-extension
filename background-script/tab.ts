@@ -3,7 +3,6 @@ import ServerClient from "./clients/ServerClient";
 import { getUserProfile } from "./profile";
 import { ExtensionMessageType } from "types/extensionMessage";
 
-
 const server = ServerClient.getInstance();
 
 type TabId = number;
@@ -95,7 +94,7 @@ const handleTab = async (tabId: number, url: string) => {
         setTargetPrimaryTabId(tabId);
         // show user loading screen
         chrome.tabs.update(tabId, {
-            url: chrome.runtime.getURL("wait.html"),
+            url: chrome.runtime.getURL("content-script/static/loading.html"),
         });
     }
 };
