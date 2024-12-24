@@ -3,6 +3,7 @@ import ServerClient from "./clients/ServerClient";
 import { getUserProfile } from "./profile";
 import { ExtensionMessageType } from "types/extensionMessage";
 
+
 const server = ServerClient.getInstance();
 
 type TabId = number;
@@ -90,12 +91,23 @@ const handleTab = async (tabId: number, url: string) => {
         chrome.tabs.remove(tabId);
     } else {
         const profile = await getUserProfile();
-        server.join(profile, match[2]);
+
         setTargetPrimaryTabId(tabId);
         // show user loading screen
         chrome.tabs.update(tabId, {
             url: chrome.runtime.getURL("content-script/static/loading.html"),
         });
+
+        server
+            .join(profile, match[2])
+            .then(() => {
+                // ws connected
+                console.log("ws connected");
+            })
+            .catch(err => {
+                console.error("Error joining:", err);
+                chrome.tabs.update(tabId, { url: "https://youtu.be/st/error" });
+            });
     }
 };
 
