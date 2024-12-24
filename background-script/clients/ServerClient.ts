@@ -7,7 +7,6 @@ import {
     ToServerMessageType,
 } from "types/serverMessage";
 
-
 const { baseUrl } = config.api;
 
 type MessageHandler<T extends FromServerMessageType> = (
@@ -54,9 +53,7 @@ class ServerClient {
     }
 
     private init(url: string) {
-        if (
-            this._ws && this._ws.readyState === WebSocket.OPEN
-        ) {
+        if (this._ws && this._ws.readyState === WebSocket.OPEN) {
             console.error("ws already open");
             return;
         }
@@ -65,6 +62,7 @@ class ServerClient {
         console.log("WS INIT", url);
 
         this._ws.addEventListener("error", event => {
+            // todo: handle error (wrong invite link, server down, etc)
             console.log("WS ERROR:", event);
         });
 
