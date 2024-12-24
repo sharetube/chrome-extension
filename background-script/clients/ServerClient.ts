@@ -7,6 +7,7 @@ import {
     ToServerMessageType,
 } from "types/serverMessage";
 
+
 const { baseUrl } = config.api;
 
 type MessageHandler<T extends FromServerMessageType> = (
@@ -57,10 +58,12 @@ class ServerClient {
             this._ws &&
             (this._ws.readyState === WebSocket.CLOSING || this._ws.readyState === WebSocket.CLOSED)
         ) {
+            console.error("WS ALREADY INITIALIZED");
             return;
         }
 
         this._ws = new WebSocket(`wss://${url}`);
+        console.log("WS INIT", url);
 
         this._ws.addEventListener("error", event => {
             console.log("WS ERROR:", event);

@@ -4,7 +4,6 @@ import { videoID } from "./video";
 import { PlayerState } from "types/player";
 import { profile } from "types/profile";
 
-
 export enum ExtensionMessageType {
     PRIMARY_TAB_SET = "PRIMARY_TAB_SET",
     PRIMARY_TAB_UNSET = "PRIMARY_TAB_UNSET",

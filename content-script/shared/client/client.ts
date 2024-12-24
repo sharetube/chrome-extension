@@ -5,6 +5,7 @@ import {
     ExtensionMessageType,
 } from "types/extensionMessage";
 
+
 export class ContentScriptMessagingClient extends BaseMessagingClient {
     public constructor() {
         super();
@@ -16,6 +17,7 @@ export class ContentScriptMessagingClient extends BaseMessagingClient {
     ): Promise<any> {
         const message: ExtensionMessage<T> = { type, payload };
         return new Promise(resolve => {
+            console.log("sendMessage", message);
             chrome.runtime.sendMessage(message, (response: any) => {
                 resolve(response);
             });
