@@ -52,36 +52,36 @@ class ServerClient {
         }
     }
 
-    private init(url: string) {
-        if (this._ws && this._ws.readyState === WebSocket.OPEN) {
-            console.error("ws already open");
-            return;
-        }
+    private init(url: string): Promise<void> {
+        return new Promise((resolve, reject) => {
+            if (this._ws && this._ws.readyState === WebSocket.OPEN) {
+                reject(new Error("ws already open"));
+            }
 
-        this._ws = new WebSocket(`wss://${url}`);
-        console.log("WS INIT", url);
+            this._ws = new WebSocket(`wss://${url}`);
 
-        this._ws.addEventListener("error", event => {
-            // todo: handle error (wrong invite link, server down, etc)
-            console.log("WS ERROR:", event);
-        });
+            this._ws.addEventListener("error", event => {
+                this._ws?.close();
+                reject(new Error("ws error"));
+            });
 
-        this._ws.addEventListener("close", event => {
-            this.clearKeepAlive();
-            console.log("WS CLOSED", event);
-        });
+            this._ws.addEventListener("close", event => {
+                this.clearKeepAlive();
+                reject(new Error("ws closed"));
+            });
 
-        this._ws?.addEventListener("open", () => {
-            console.log("WS OPENED");
-            this.keepAlive();
-            this._ws?.addEventListener("message", ({ data }) => {
-                try {
-                    const { type, payload } = JSON.parse(data);
-                    console.log("FROM WS:", { type, payload });
-                    this._handlers.get(type)?.(payload);
-                } catch (error) {
-                    console.error("WS ERROR: Parsing message:", error);
-                }
+            this._ws?.addEventListener("open", () => {
+                this.keepAlive();
+                this._ws?.addEventListener("message", ({ data }) => {
+                    try {
+                        const { type, payload } = JSON.parse(data);
+                        console.log("FROM WS:", { type, payload });
+                        this._handlers.get(type)?.(payload);
+                    } catch (error) {
+                        console.error("WS ERROR: Parsing message:", error);
+                    }
+                });
+                resolve();
             });
         });
     }
@@ -95,14 +95,14 @@ class ServerClient {
         };
     }
 
-    public create(profile: profile, videoUrl: string) {
+    public create(profile: profile, videoUrl: string): Promise<void> {
         const params = this.buildParams(profile, { "video-url": videoUrl });
-        this.init(`${baseUrl}/api/v1/ws/room/create?${buildQueryParams(params)}`);
+        return this.init(`${baseUrl}/api/v1/ws/room/create?${buildQueryParams(params)}`);
     }
 
-    public join(profile: profile, room_id: string) {
+    public join(profile: profile, room_id: string): Promise<void> {
         const params = this.buildParams(profile);
-        this.init(`${baseUrl}/api/v1/ws/room/${room_id}/join?${buildQueryParams(params)}`);
+        return this.init(`${baseUrl}/api/v1/ws/room/${room_id}/join?${buildQueryParams(params)}`);
     }
 
     public send<T extends ToServerMessageType>(type: T, payload: ToServerMessagePayloadMap[T]) {
