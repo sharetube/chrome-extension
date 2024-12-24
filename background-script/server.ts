@@ -12,6 +12,7 @@ import {
     Video,
 } from "types/serverMessage";
 
+
 const server = ServerClient.getInstance();
 const message = BackgroundMessagingClient.getInstance();
 
@@ -64,7 +65,7 @@ server.addHandler(FromServerMessageType.PLAYLIST_REORDERED, payload => {
 });
 
 const userUpdateHandler = (users: Member[]) => {
-    message.sendMessageToPrimaryTab(ExtensionMessageType.USERS_UPDATED, users);
+    message.sendMessageToPrimaryTab(ExtensionMessageType.MEMBERS_UPDATED, users);
 };
 
 server.addHandler(FromServerMessageType.MEMBER_JOINED, payload => {
@@ -97,7 +98,7 @@ server.addHandler(FromServerMessageType.PLAYER_VIDEO_UPDATED, payload => {
     );
     if (payload.playlist.last_video)
         message.sendMessageToPrimaryTab(
-            ExtensionMessageType.PREVIOUS_VIDEO_UPDATED,
+            ExtensionMessageType.LAST_VIDEO_UPDATED,
             payload.playlist.last_video,
         );
     message.sendMessageToPrimaryTab(ExtensionMessageType.UPDATE_PLAYER_STATE, payload.player);
@@ -117,11 +118,11 @@ message.addHandler(ExtensionMessageType.GET_PLAYLIST, (): Playlist => {
     return state.playlist;
 });
 
-message.addHandler(ExtensionMessageType.GET_USERS, (): Member[] => {
+message.addHandler(ExtensionMessageType.GET_MEMBERS, (): Member[] => {
     return state.members;
 });
 
-message.addHandler(ExtensionMessageType.COPY_LINK, () => {
+message.addHandler(ExtensionMessageType.GET_ROOM_ID, () => {
     return state.room_id;
 });
 
@@ -129,7 +130,7 @@ message.addHandler(ExtensionMessageType.GET_ADMIN_STATUS, () => {
     return state.is_admin;
 });
 
-message.addHandler(ExtensionMessageType.PROMOTE_USER, id => {
+message.addHandler(ExtensionMessageType.PROMOTE_MEMBER, id => {
     server.send(ToServerMessageType.PROMOTE_MEMBER, { member_id: id });
 });
 
@@ -152,6 +153,6 @@ message.addHandler(ExtensionMessageType.GET_PLAYER_VIDEO, () => {
     return state.player.video_url;
 });
 
-message.addHandler(ExtensionMessageType.GET_PREVIOUS_VIDEO, () => {
+message.addHandler(ExtensionMessageType.GET_LAST_VIDEO, () => {
     return state.playlist.last_video;
 });

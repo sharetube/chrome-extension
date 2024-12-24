@@ -10,6 +10,7 @@ import { memo } from "react";
 import { ExtensionMessageType } from "types/extensionMessage";
 import { Member as IMember } from "types/serverMessage";
 
+
 type MemberProps = IMember;
 
 const Member: React.FC<MemberProps> = memo(
@@ -44,7 +45,7 @@ const Member: React.FC<MemberProps> = memo(
         const promote = useCallback(() => {
             if (!is_admin) return;
             setMenu(false);
-            ContentScriptMessagingClient.sendMessage(ExtensionMessageType.PROMOTE_USER, id);
+            ContentScriptMessagingClient.sendMessage(ExtensionMessageType.PROMOTE_MEMBER, id);
         }, [id, is_admin]);
 
         const kick = useCallback(() => {

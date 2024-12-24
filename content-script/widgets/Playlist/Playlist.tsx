@@ -7,30 +7,29 @@ import type { Video as IVideo, Playlist } from "types/serverMessage";
 import { videoID } from "types/video";
 
 const Playlist: React.FC = () => {
-    const [previous, setPrevious] = useState<IVideo>();
+    const [last, setLast] = useState<IVideo>();
     const [current, setCurrent] = useState<videoID>();
     const [videos, setVideos] = useState<IVideo[]>([]);
     const { is_admin } = useAdmin();
 
     const messageClient = new ContentScriptMessagingClient();
 
-    // Previous
+    // Last
     useEffect(() => {
-        ContentScriptMessagingClient.sendMessage(
-            ExtensionMessageType.GET_PREVIOUS_VIDEO,
-            null,
-        ).then(payload => {
-            setVideos(payload);
-        });
+        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_LAST_VIDEO, null).then(
+            payload => {
+                setVideos(payload);
+            },
+        );
 
         const handler = (payload: IVideo) => {
-            if (payload) setPrevious(payload);
+            if (payload) setLast(payload);
         };
 
-        messageClient.addHandler(ExtensionMessageType.PREVIOUS_VIDEO_UPDATED, handler);
+        messageClient.addHandler(ExtensionMessageType.LAST_VIDEO_UPDATED, handler);
 
         return () => {
-            messageClient.removeHandler(ExtensionMessageType.PREVIOUS_VIDEO_UPDATED);
+            messageClient.removeHandler(ExtensionMessageType.LAST_VIDEO_UPDATED);
         };
     }, []);
 
@@ -74,9 +73,7 @@ const Playlist: React.FC = () => {
 
     return (
         <ul className="st-playlist m-0">
-            {previous && (
-                <Video videoId={previous.id} videoUrl={previous.url} previous actions={is_admin} />
-            )}
+            {last && <Video videoId={last.id} videoUrl={last.url} last actions={is_admin} />}
             {current && <Video videoId={current} videoUrl={current} current actions={is_admin} />}
             {videos &&
                 videos.length > 0 &&

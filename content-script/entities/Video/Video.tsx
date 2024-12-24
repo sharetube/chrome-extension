@@ -11,27 +11,27 @@ interface Base {
     videoId: string;
     actions: boolean;
     number?: number;
-    previous?: boolean;
+    last?: boolean;
     current?: boolean;
 }
 
-interface Previous extends Base {
-    previous: true;
+interface Last extends Base {
+    last: true;
     current?: never;
     number?: never;
 }
 interface Current extends Base {
     current: true;
-    previous?: never;
+    last?: never;
     number?: never;
 }
 interface Common extends Base {
-    previous?: never;
+    last?: never;
     current?: never;
     number: number;
 }
 
-type VideoProps = Current | Previous | Common;
+type VideoProps = Current | Last | Common;
 
 const LoadingSkeleton: React.FC = () => (
     <li className="flex items-stretch p-[4px_8px_4px_0] animate-pulse">
@@ -49,9 +49,9 @@ const LoadingSkeleton: React.FC = () => (
 const VideoContent: React.FC<VideoProps & { videoData: data }> = memo(
     ({ videoData, videoId, ...props }) => {
         const deleteVideo = useCallback(() => {
-            if (props.current || props.previous || !props.actions) return;
+            if (props.current || props.last || !props.actions) return;
             ContentScriptMessagingClient.sendMessage(ExtensionMessageType.REMOVE_VIDEO, videoId);
-        }, [videoId, props.actions, props.current, props.previous]);
+        }, [videoId, props.actions, props.current, props.last]);
 
         const playVideo = useCallback(() => {
             if (props.current || !props.actions) return;
@@ -64,7 +64,7 @@ const VideoContent: React.FC<VideoProps & { videoData: data }> = memo(
         return (
             <li
                 title={!props.current && props.actions ? "Play video" : undefined}
-                className={`${props.previous ? "opacity-60 hover:opacity-100" : null} ${props.current ? "bg-background-active" : null} ${props.actions ? "hover:cursor-pointer" : null} select-none hover:bg-spec-badge-chip-background group flex items-stretch p-[4px_8px_4px_0]`}
+                className={`${props.last ? "opacity-60 hover:opacity-100" : null} ${props.current ? "bg-background-active" : null} ${props.actions ? "hover:cursor-pointer" : null} select-none hover:bg-spec-badge-chip-background group flex items-stretch p-[4px_8px_4px_0]`}
                 onClick={!props.current && props.actions ? playVideo : undefined}
             >
                 <div className="flex items-stretch">
@@ -90,7 +90,7 @@ const VideoContent: React.FC<VideoProps & { videoData: data }> = memo(
                     </article>
                 </div>
 
-                {props.actions && !props.current && !props.previous && (
+                {props.actions && !props.current && !props.last && (
                     <div className="ml-auto flex items-center justify-self-end hover:cursor-default">
                         <button
                             title="Remove video"
