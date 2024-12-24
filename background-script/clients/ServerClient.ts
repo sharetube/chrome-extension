@@ -55,10 +55,9 @@ class ServerClient {
 
     private init(url: string) {
         if (
-            this._ws &&
-            (this._ws.readyState === WebSocket.CLOSING || this._ws.readyState === WebSocket.CLOSED)
+            this._ws && this._ws.readyState === WebSocket.OPEN
         ) {
-            console.error("WS ALREADY INITIALIZED");
+            console.error("ws already open");
             return;
         }
 
