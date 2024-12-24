@@ -1,8 +1,9 @@
 import { Member, Playlist } from "./serverMessage";
 import { Video } from "./serverMessage";
-import { video, videoID } from "./video";
+import { videoID } from "./video";
 import { PlayerState } from "types/player";
 import { profile } from "types/profile";
+
 
 export enum ExtensionMessageType {
     PRIMARY_TAB_SET = "PRIMARY_TAB_SET",
@@ -20,12 +21,12 @@ export enum ExtensionMessageType {
     GET_PLAYLIST = "GET_PLAYLIST",
     PLAYLIST_UPDATED = "PLAYLIST_UPDATED",
     UPDATE_PLAYLIST = "UPDATE_PLAYLIST",
-    GET_USERS = "GET_USERS",
-    USERS_UPDATED = "USERS_UPDATED",
+    GET_MEMBERS = "GET_MEMBERS",
+    MEMBERS_UPDATED = "MEMBERS_UPDATED",
     ADD_VIDEO = "ADD_VIDEO",
     REMOVE_VIDEO = "REMOVE_VIDEO",
-    COPY_LINK = "COPY_LINK",
-    PROMOTE_USER = "PROMOTE_USER",
+    GET_ROOM_ID = "GET_ROOM_ID",
+    PROMOTE_MEMBER = "PROMOTE_MEMBER",
     REMOVE_MEMBER = "REMOVE_MEMBER",
     // Player
     UPDATE_PLAYER_STATE = "UPDATE_PLAYER_STATE",
@@ -34,8 +35,8 @@ export enum ExtensionMessageType {
     UPDATE_PLAYER_VIDEO = "UPDATE_PLAYER_VIDEO",
     GET_PLAYER_STATE = "GET_PLAYER_STATE",
     GET_PLAYER_VIDEO = "GET_PLAYER_VIDEO",
-    GET_PREVIOUS_VIDEO = "GET_PREVIOUS_VIDEO",
-    PREVIOUS_VIDEO_UPDATED = "PREVIOUS_VIDEO_UPDATED",
+    GET_LAST_VIDEO = "GET_LAST_VIDEO",
+    LAST_VIDEO_UPDATED = "LAST_VIDEO_UPDATED",
 }
 
 export interface CrateRoomPayload {
@@ -58,12 +59,12 @@ export type ExtensionMessagePayloadMap = {
     [ExtensionMessageType.GET_PLAYLIST]: null;
     [ExtensionMessageType.PLAYLIST_UPDATED]: Playlist;
     [ExtensionMessageType.UPDATE_PLAYLIST]: Playlist;
-    [ExtensionMessageType.GET_USERS]: null;
-    [ExtensionMessageType.USERS_UPDATED]: Member[];
+    [ExtensionMessageType.GET_MEMBERS]: null;
+    [ExtensionMessageType.MEMBERS_UPDATED]: Member[];
     [ExtensionMessageType.ADD_VIDEO]: videoID;
     [ExtensionMessageType.REMOVE_VIDEO]: videoID;
-    [ExtensionMessageType.COPY_LINK]: null;
-    [ExtensionMessageType.PROMOTE_USER]: string;
+    [ExtensionMessageType.GET_ROOM_ID]: null;
+    [ExtensionMessageType.PROMOTE_MEMBER]: string;
     [ExtensionMessageType.REMOVE_MEMBER]: string;
     // Player
     [ExtensionMessageType.UPDATE_PLAYER_STATE]: PlayerState;
@@ -72,8 +73,8 @@ export type ExtensionMessagePayloadMap = {
     [ExtensionMessageType.GET_PLAYER_STATE]: null;
     [ExtensionMessageType.GET_PLAYER_VIDEO]: null;
     [ExtensionMessageType.PLAYER_VIDEO_UPDATED]: videoID;
-    [ExtensionMessageType.GET_PREVIOUS_VIDEO]: null;
-    [ExtensionMessageType.PREVIOUS_VIDEO_UPDATED]: Video;
+    [ExtensionMessageType.GET_LAST_VIDEO]: null;
+    [ExtensionMessageType.LAST_VIDEO_UPDATED]: Video;
 };
 
 export interface ExtensionMessage<T extends ExtensionMessageType> {

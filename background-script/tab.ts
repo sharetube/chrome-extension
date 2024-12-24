@@ -56,7 +56,6 @@ const handleTab = async (tabId: number, url: string) => {
     } else {
         const profile = await getUserProfile();
         server.join(profile, match[2]);
-        setPrimaryTab(tabId);
     }
 };
 

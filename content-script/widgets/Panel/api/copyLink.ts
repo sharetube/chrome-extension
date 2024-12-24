@@ -3,10 +3,12 @@ import { ExtensionMessageType } from "types/extensionMessage";
 
 const copyLink = () => {
     let link: string = "";
-    ContentScriptMessagingClient.sendMessage(ExtensionMessageType.COPY_LINK, null).then(payload => {
-        link = `https://youtu.be/st/${payload}`;
-        navigator.clipboard.writeText(link);
-    });
+    ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_ROOM_ID, null).then(
+        payload => {
+            link = `https://youtu.be/st/${payload}`;
+            navigator.clipboard.writeText(link);
+        },
+    );
 };
 
 export default copyLink;
