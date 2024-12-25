@@ -20,17 +20,14 @@
     {
       "matches": ["https://*.youtube.com/*"],
       "js": ["content-script/index.ts"],
-      "run_at": "document_start"
+      "run_at": "document_start",
+      "world": "ISOLATED"
     }
   ],
   "web_accessible_resources": [
     {
       "matches": [],
-      "resources": [
-        "pages/error.html",
-        "pages/loading.html",
-        "pages/cat-sleep.gif"
-      ],
+      "resources": ["pages/error.html", "pages/loading.html", "pages/cat-sleep.gif"],
       "use_dynamic_url": false
     }
   ]
