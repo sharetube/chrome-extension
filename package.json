@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "prepare": "husky",
-    "build": "tsc && vite build && python tools/fix-world-main-scripts.py dist",
+    "build": "tsc && vite build",
     "format": "prettier --write \"**/*.{ts,tsx}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx}\""
   },
