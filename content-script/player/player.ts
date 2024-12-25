@@ -2,13 +2,38 @@ import { ContentScriptMessagingClient } from "@shared/client/client";
 import { ExtensionMessageType } from "types/extensionMessage";
 import { PlayerElement, PlayerState } from "types/player";
 
-class isAdmin {}
+interface WatchEndpoint {
+    videoId: string;
+}
 
-class State {
+interface A extends HTMLAnchorElement {
+    data: { watchEndpoint: WatchEndpoint };
+}
+
+class Player {
     private _p: PlayerElement;
+    private _ContentScriptMessagingClient: ContentScriptMessagingClient;
 
-    protected constructor(player: PlayerElement) {
+    public constructor(player: PlayerElement) {
         this._p = player;
+        this._ContentScriptMessagingClient = new ContentScriptMessagingClient();
+        this.init();
+    }
+
+    private init() {
+        this._ContentScriptMessagingClient.addHandler(
+            ExtensionMessageType.PLAYER_VIDEO_UPDATED,
+            (videoId: string) => this.setVideo(videoId),
+        );
+
+        this._ContentScriptMessagingClient.addHandler(
+            ExtensionMessageType.PLAYER_STATE_UPDATED,
+            (state: PlayerState) => (this.state = state),
+        );
+    }
+
+    private setVideo(videoId: string) {
+        window.postMessage({ type: "SKIP", data: videoId }, "*");
     }
 
     public set state(state: PlayerState) {
@@ -38,54 +63,4 @@ class State {
     }
 }
 
-type PlaylistUpdatedCallback = (msg: ExtensionMessageType.PLAYER_STATE_UPDATED) => void;
-
-class MessageClient extends ContentScriptMessagingClient {
-    private callback: PlaylistUpdatedCallback;
-
-    public constructor(f: PlaylistUpdatedCallback) {
-        super();
-        this.callback = f;
-    }
-
-    public sendState(state: PlayerState): void {
-        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.UPDATE_PLAYER_STATE, state);
-    }
-}
-
-abstract class Events {
-    private _p: PlayerElement;
-
-    protected constructor(player: PlayerElement) {
-        this._p = player;
-        this.init();
-    }
-
-    private init() {
-        this._p.addEventListener("play", () => {
-            this.update();
-        });
-
-        this._p.addEventListener("pause", () => {
-            this.update();
-        });
-
-        this._p.addEventListener("seeked", () => {
-            this.update();
-        });
-
-        this._p.addEventListener("ratechange", () => {
-            this.update();
-        });
-    }
-
-    public update(): void {}
-}
-
-class EventsManager extends Events {
-    public constructor(player: PlayerElement) {
-        super(player);
-    }
-
-    public update(): void {}
-}
+export default Player;
