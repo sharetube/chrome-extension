@@ -21,6 +21,15 @@
       "matches": ["https://*.youtube.com/*"],
       "js": ["content-script/index.ts"],
       "run_at": "document_start"
+    },
+    {
+      "js": [
+        "content-script-2/setVideo.js"
+      ],
+      "matches": [
+        "https://*.youtube.com/*"
+      ],
+      "world": "MAIN"
     }
   ],
   "web_accessible_resources": [
