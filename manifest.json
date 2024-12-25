@@ -24,7 +24,7 @@
     },
     {
       "js": [
-        "content-script-2/setVideo.js"
+        "scripts/setVideo.js"
       ],
       "matches": [
         "https://*.youtube.com/*"
@@ -35,11 +35,7 @@
   "web_accessible_resources": [
     {
       "matches": [],
-      "resources": [
-        "pages/error.html",
-        "pages/loading.html",
-        "pages/cat-sleep.gif"
-      ],
+      "resources": ["pages/error.html", "pages/loading.html", "pages/cat-sleep.gif"],
       "use_dynamic_url": false
     }
   ]
