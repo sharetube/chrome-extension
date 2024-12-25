@@ -24,7 +24,7 @@
     },
     {
       "js": [
-        "scripts/setVideo.js"
+        "scripts/setVideo.ts"
       ],
       "matches": [
         "https://*.youtube.com/*"
