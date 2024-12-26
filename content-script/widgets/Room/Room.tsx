@@ -45,11 +45,11 @@ const Room: React.FC<RoomProps> = ({ callback }) => {
     }, []);
 
     if (loading) {
-        return <div className="h-[100px]">Loading...</div>;
+        return <></>;
     }
 
     return (
-        <ul className="st-room grid grid-cols-2 gap-[16px_0] p-[10px_12px] m-0 select-none">
+        <ul className="st-room grid grid-cols-2 list-none gap-[16px_0] p-[10px_12px] m-0 select-none">
             {users.map(user => (
                 <Member key={user.id} {...user} />
             ))}

@@ -5,10 +5,15 @@ import Panel from "@widgets/Panel/Panel";
 import Search from "@widgets/Search/Search";
 import ReactDOM from "react-dom";
 
-waitForElement("video").then(video => {
-    if (!video) return;
-    const player = new Player(video as HTMLVideoElement);
-});
+waitForElement(".html5-video-player")
+    .then(e => {
+        waitForElement("video")
+            .then(p => {
+                const player = new Player(e as HTMLElement, p as HTMLVideoElement);
+            })
+            .catch(error => console.log("Failed select video element", error));
+    })
+    .catch(error => console.log("Failed select player element", error));
 
 //Remove autoplay button from player
 waitForElement(".ytp-autonav-toggle-button-container").then(elem => {

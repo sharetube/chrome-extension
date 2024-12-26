@@ -1,6 +1,7 @@
 import data from "../types/data";
 
 const video = (id: string, retries: number = 3): Promise<data> => {
+    console.log("video", id);
     const fetchVideoInfo = (attempt: number): Promise<data> =>
         fetch(`https://www.youtube.com/oembed?url=https://youtube.com/watch?v=${id}`)
             .then(res => res.json())

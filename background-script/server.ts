@@ -2,6 +2,7 @@ import { BackgroundMessagingClient } from "./clients/ExtensionClient";
 import ServerClient from "./clients/ServerClient";
 import { setPrimaryTab, takeTargetPrimaryTabId } from "./tab";
 import { ExtensionMessageType } from "types/extensionMessage";
+import { PlayerState } from "types/player";
 import { profile } from "types/profile";
 import {
     FromServerMessageType,
@@ -89,6 +90,19 @@ server.addHandler(FromServerMessageType.IS_ADMIN_CHANGED, payload => {
     message.sendMessageToPrimaryTab(ExtensionMessageType.ADMIN_STATUS_UPDATED, payload.is_admin);
 });
 
+server.addHandler(FromServerMessageType.PLAYER_UPDATED, payload => {
+    state.player = payload.player;
+
+    message.sendMessageToPrimaryTab(ExtensionMessageType.PLAYER_STATE_UPDATED, payload.player);
+
+    if (payload.player.video_url !== state.player.video_url) {
+        message.sendMessageToPrimaryTab(
+            ExtensionMessageType.PLAYER_VIDEO_UPDATED,
+            payload.player.video_url,
+        );
+    }
+});
+
 export const updateProfile = (profile: profile) => {
     server.send(ToServerMessageType.UPDATE_PROFILE, profile);
 };
@@ -106,7 +120,6 @@ server.addHandler(FromServerMessageType.PLAYER_VIDEO_UPDATED, payload => {
             ExtensionMessageType.LAST_VIDEO_UPDATED,
             payload.playlist.last_video,
         );
-    message.sendMessageToPrimaryTab(ExtensionMessageType.UPDATE_PLAYER_STATE, payload.player);
 });
 
 // Message
@@ -160,4 +173,16 @@ message.addHandler(ExtensionMessageType.GET_PLAYER_VIDEO, () => {
 
 message.addHandler(ExtensionMessageType.GET_LAST_VIDEO, () => {
     return state.playlist.last_video;
+});
+
+message.addHandler(ExtensionMessageType.UPDATE_MUTED, (muted: boolean) => {
+    server.send(ToServerMessageType.UPDATE_MUTED, { is_muted: muted });
+});
+
+message.addHandler(ExtensionMessageType.UPDATE_PLAYER_STATE, state => {
+    server.send(ToServerMessageType.UPDATE_PLAYER_STATE, state);
+});
+
+message.addHandler(ExtensionMessageType.UPDATE_READY, ready => {
+    server.send(ToServerMessageType.UPDATE_READY, { is_ready: ready });
 });
