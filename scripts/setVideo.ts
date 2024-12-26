@@ -23,5 +23,3 @@ window.addEventListener("message", event => {
         skip(data);
     }
 });
-
-console.log("gg");

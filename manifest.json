@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "version": "0.2.0",
-  "version_name": "0.2 alpha (Oly)",
+  "version": "0.3.0",
+  "version_name": "0.3 beta (Oly)",
   "name": "ShareTube",
   "short_name": "ST",
   "description": "A browser extension thats lets you watch yotube videos with friends in real-time! ",
@@ -23,12 +23,8 @@
       "run_at": "document_start"
     },
     {
-      "js": [
-        "scripts/setVideo.ts"
-      ],
-      "matches": [
-        "https://*.youtube.com/*"
-      ],
+      "js": ["scripts/setVideo.ts"],
+      "matches": ["https://*.youtube.com/*"],
       "world": "MAIN"
     }
   ],

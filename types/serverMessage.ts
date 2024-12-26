@@ -14,7 +14,6 @@ export enum ToServerMessageType {
 
 export enum FromServerMessageType {
     JOINED_ROOM = "JOINED_ROOM",
-    PLAYER_STATE_UPDATED = "PLAYER_STATE_UPDATED",
     PLAYER_VIDEO_UPDATED = "PLAYER_VIDEO_UPDATED",
     VIDEO_ADDED = "VIDEO_ADDED",
     VIDEO_REMOVED = "VIDEO_REMOVED",
@@ -23,6 +22,7 @@ export enum FromServerMessageType {
     MEMBER_DISCONNECTED = "MEMBER_DISCONNECTED",
     MEMBER_UPDATED = "MEMBER_UPDATED",
     IS_ADMIN_CHANGED = "IS_ADMIN_UPDATED",
+    PLAYER_UPDATED = "PLAYER_UPDATED",
 }
 
 const TO = ToServerMessageType;
@@ -107,9 +107,6 @@ export type FromServerMessagePayloadMap = {
             members: Member[];
         };
     };
-    [FROM.PLAYER_STATE_UPDATED]: {
-        player: Player;
-    };
     [FROM.PLAYER_VIDEO_UPDATED]: {
         player: Player;
         playlist: Playlist;
@@ -140,6 +137,9 @@ export type FromServerMessagePayloadMap = {
     };
     [FROM.IS_ADMIN_CHANGED]: {
         is_admin: boolean;
+    };
+    [FROM.PLAYER_UPDATED]: {
+        player: Player;
     };
 };
 
