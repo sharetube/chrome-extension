@@ -3,6 +3,7 @@ import {
     ExtensionMessagePayloadMap,
     ExtensionMessageType,
 } from "../types/extensionMessage";
+import { log } from "./log";
 
 type MessageHandler<T extends ExtensionMessageType> = (
     payload: ExtensionMessagePayloadMap[T],
@@ -30,6 +31,7 @@ export abstract class BaseMessagingClient {
     ): Promise<any> {
         const handler = this.handlers.get(message.type);
         if (handler) {
+            log(`handling incoming message: type: ${message.type}, payload: `, message.payload);
             return handler(message.payload, sender);
         }
     }

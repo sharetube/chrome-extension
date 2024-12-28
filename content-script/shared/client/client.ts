@@ -1,4 +1,5 @@
 import { BaseMessagingClient } from "../../../shared/baseExtensionClient";
+import { log } from "shared/log";
 import {
     ExtensionMessage,
     ExtensionMessagePayloadMap,
@@ -16,7 +17,7 @@ export class ContentScriptMessagingClient extends BaseMessagingClient {
     ): Promise<any> {
         const message: ExtensionMessage<T> = { type, payload };
         return new Promise(resolve => {
-            console.log("sendMessage", message);
+            log("sending message to bg worker", message);
             chrome.runtime.sendMessage(message, (response: any) => {
                 resolve(response);
             });

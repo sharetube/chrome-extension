@@ -9,6 +9,7 @@ waitForElement(".html5-video-player")
     .then(e => {
         waitForElement("video")
             .then(p => {
+                console.log("Player found");
                 const player = new Player(e as HTMLElement, p as HTMLVideoElement);
             })
             .catch(error => console.log("Failed select video element", error));
