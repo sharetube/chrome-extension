@@ -2,14 +2,15 @@ import Member from "@entities/Member/Member";
 import { ContentScriptMessagingClient } from "@shared/client/client";
 import React, { useCallback, useEffect, useState } from "react";
 import { ExtensionMessageType } from "types/extensionMessage";
-import type { Member as IMember } from "types/serverMessage";
+import { MemberType } from "types/member.type";
 
 interface RoomProps {
     callback: (usersCount: number) => void;
 }
 
+//? rename to MemberList
 const Room: React.FC<RoomProps> = ({ callback }) => {
-    const [users, setUsers] = useState<IMember[]>([]);
+    const [users, setUsers] = useState<MemberType[]>([]);
     const [loading, setLoading] = useState(true);
 
     const memoizedCallback = useCallback(() => {
@@ -32,7 +33,7 @@ const Room: React.FC<RoomProps> = ({ callback }) => {
     const messagingClient = new ContentScriptMessagingClient();
 
     useEffect(() => {
-        const handler = (payload: IMember[] | null): void => {
+        const handler = (payload: MemberType[] | null): void => {
             payload && setUsers(payload);
             setLoading(false);
         };

@@ -1,3 +1,7 @@
+import { MemberType } from "./member.type";
+import { PlayerType } from "./player.type";
+import { PlaylistType, VideoType } from "./video.type";
+
 export enum ToServerMessageType {
     UPDATE_PROFILE = "UPDATE_PROFILE",
     PROMOTE_MEMBER = "PROMOTE_MEMBER",
@@ -28,32 +32,11 @@ export enum FromServerMessageType {
 const TO = ToServerMessageType;
 const FROM = FromServerMessageType;
 
-export type Video = {
-    id: string;
-    url: string;
-};
-
-export type Member = {
-    id: string;
-    username: string;
-    color: string;
-    avatar_url: string;
-    is_ready: boolean;
-    is_admin: boolean;
-    is_muted: boolean;
-};
-
-export type Playlist = {
-    videos: Video[];
-    last_video: Video | null;
-};
-
-export type Player = {
-    video_url: string;
-    playback_rate: number;
-    is_playing: boolean;
-    current_time: number;
-    updated_at: number;
+export type Room = {
+    room_id: string;
+    player: PlayerType;
+    playlist: PlaylistType;
+    members: MemberType[];
 };
 
 export type ToServerMessagePayloadMap = {
@@ -75,7 +58,7 @@ export type ToServerMessagePayloadMap = {
         video_id: string;
     };
     [TO.REORDER_PLAYLIST]: {
-        videos: Video[];
+        videos: VideoType[];
     };
     [TO.UPDATE_READY]: {
         is_ready: boolean;
@@ -99,47 +82,42 @@ export type ToServerMessagePayloadMap = {
 export type FromServerMessagePayloadMap = {
     [FROM.JOINED_ROOM]: {
         jwt: string;
-        joined_member: Member;
-        room: {
-            room_id: string;
-            player: Player;
-            playlist: Playlist;
-            members: Member[];
-        };
+        joined_member: MemberType;
+        room: Room;
     };
     [FROM.PLAYER_VIDEO_UPDATED]: {
-        player: Player;
-        playlist: Playlist;
+        player: PlayerType;
+        playlist: PlaylistType;
     };
     [FROM.VIDEO_ADDED]: {
-        added_video: Video;
-        playlist: Playlist;
+        added_video: VideoType;
+        playlist: PlaylistType;
     };
     [FROM.VIDEO_REMOVED]: {
         removed_video_id: string;
-        playlist: Playlist;
+        playlist: PlaylistType;
     };
     [FROM.PLAYLIST_REORDERED]: {
-        videos: Video[];
-        last_video: Video;
+        videos: VideoType[];
+        last_video: VideoType;
     };
     [FROM.MEMBER_JOINED]: {
-        joined_member: Member;
-        members: Member[];
+        joined_member: MemberType;
+        members: MemberType[];
     };
     [FROM.MEMBER_DISCONNECTED]: {
         disconnected_member_id: string;
-        members: Member[];
+        members: MemberType[];
     };
     [FROM.MEMBER_UPDATED]: {
-        updated_member: Member;
-        members: Member[];
+        updated_member: MemberType;
+        members: MemberType[];
     };
     [FROM.IS_ADMIN_CHANGED]: {
         is_admin: boolean;
     };
     [FROM.PLAYER_UPDATED]: {
-        player: Player;
+        player: PlayerType;
     };
 };
 

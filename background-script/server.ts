@@ -2,63 +2,59 @@ import { BackgroundMessagingClient } from "./clients/ExtensionClient";
 import ServerClient from "./clients/ServerClient";
 import { setPrimaryTab, takeTargetPrimaryTabId } from "./tab";
 import { ExtensionMessageType } from "types/extensionMessage";
-import { PlayerState } from "types/player";
-import { profile } from "types/profile";
-import {
-    FromServerMessageType,
-    Member,
-    Player,
-    Playlist,
-    ToServerMessageType,
-    Video,
-} from "types/serverMessage";
+import { MemberType } from "types/member.type";
+import { ProfileType } from "types/profile.type";
+import { FromServerMessageType, Room, ToServerMessageType } from "types/serverMessage";
+import { PlaylistType } from "types/video.type";
 
 const server = ServerClient.getInstance();
-const message = BackgroundMessagingClient.getInstance();
+const bgMessagingClient = BackgroundMessagingClient.getInstance();
 
 interface State {
-    player: Player;
-    room_id: string;
-    members: Member[];
-    playlist: Playlist;
+    room: Room;
     is_admin: boolean;
 }
 
 const state: State = {
-    player: {} as Player,
-    room_id: "",
-    members: [] as Member[],
-    playlist: {
-        videos: [] as Video[],
-        last_video: null,
-    },
     is_admin: false,
+    room: {
+        room_id: "",
+        playlist: {
+            videos: [],
+            last_video: null,
+        },
+        player: {
+            video_url: "",
+            current_time: 0,
+            is_playing: false,
+            playback_rate: 1,
+            updated_at: 0,
+        },
+        members: [],
+    },
 };
 
 server.addHandler(FromServerMessageType.JOINED_ROOM, payload => {
-    state.player = payload.room.player;
-    state.playlist = payload.room.playlist;
-    state.members = payload.room.members;
-    state.room_id = payload.room.room_id;
+    console.log("joined room", payload.room);
+    state.room = payload.room;
     state.is_admin = payload.joined_member.is_admin;
 
-    const url = `https://youtube.com/watch?v=${state.player.video_url}`;
+    const videoPageLink = `https://youtube.com/watch?v=${state.room.player.video_url}`;
     const targetPrimaryTabId = takeTargetPrimaryTabId();
     if (targetPrimaryTabId) {
-        chrome.tabs.update(targetPrimaryTabId, { url });
+        chrome.tabs.update(targetPrimaryTabId, { url: videoPageLink });
         setPrimaryTab(targetPrimaryTabId);
     } else {
         console.error("No target primary tab found");
     }
 });
 
-const playlistUpdateHandler = (playlist: Playlist): void => {
-    state.playlist = playlist;
-    message.sendMessageToPrimaryTab(ExtensionMessageType.PLAYLIST_UPDATED, playlist);
+const playlistUpdateHandler = (playlist: PlaylistType): void => {
+    state.room.playlist = playlist;
+    bgMessagingClient.sendMessageToPrimaryTab(ExtensionMessageType.PLAYLIST_UPDATED, playlist);
 };
 
 server.addHandler(FromServerMessageType.VIDEO_REMOVED, payload => {
-    console.log(payload);
     playlistUpdateHandler(payload.playlist);
 });
 
@@ -70,8 +66,8 @@ server.addHandler(FromServerMessageType.PLAYLIST_REORDERED, payload => {
     playlistUpdateHandler(payload);
 });
 
-const userUpdateHandler = (users: Member[]) => {
-    message.sendMessageToPrimaryTab(ExtensionMessageType.MEMBERS_UPDATED, users);
+const userUpdateHandler = (users: MemberType[]) => {
+    bgMessagingClient.sendMessageToPrimaryTab(ExtensionMessageType.MEMBERS_UPDATED, users);
 };
 
 server.addHandler(FromServerMessageType.MEMBER_JOINED, payload => {
@@ -87,36 +83,46 @@ server.addHandler(FromServerMessageType.MEMBER_UPDATED, payload => {
 });
 
 server.addHandler(FromServerMessageType.IS_ADMIN_CHANGED, payload => {
-    message.sendMessageToPrimaryTab(ExtensionMessageType.ADMIN_STATUS_UPDATED, payload.is_admin);
+    bgMessagingClient.sendMessageToPrimaryTab(
+        ExtensionMessageType.ADMIN_STATUS_UPDATED,
+        payload.is_admin,
+    );
 });
 
 server.addHandler(FromServerMessageType.PLAYER_UPDATED, payload => {
-    state.player = payload.player;
+    state.room.player = payload.player;
 
-    message.sendMessageToPrimaryTab(ExtensionMessageType.PLAYER_STATE_UPDATED, payload.player);
+    bgMessagingClient.sendMessageToPrimaryTab(
+        ExtensionMessageType.PLAYER_STATE_UPDATED,
+        payload.player,
+    );
 
-    if (payload.player.video_url !== state.player.video_url) {
-        message.sendMessageToPrimaryTab(
+    //? indicates loss of player_video_updated msg, should also get updated playlist
+    if (payload.player.video_url !== state.room.player.video_url) {
+        bgMessagingClient.sendMessageToPrimaryTab(
             ExtensionMessageType.PLAYER_VIDEO_UPDATED,
             payload.player.video_url,
         );
     }
 });
 
-export const updateProfile = (profile: profile) => {
+export const updateProfile = (profile: ProfileType) => {
     server.send(ToServerMessageType.UPDATE_PROFILE, profile);
 };
 
 server.addHandler(FromServerMessageType.PLAYER_VIDEO_UPDATED, payload => {
-    state.playlist = payload.playlist;
-    state.player = payload.player;
-    message.sendMessageToPrimaryTab(ExtensionMessageType.PLAYLIST_UPDATED, payload.playlist);
-    message.sendMessageToPrimaryTab(
+    state.room.playlist = payload.playlist;
+    state.room.player = payload.player;
+    bgMessagingClient.sendMessageToPrimaryTab(
+        ExtensionMessageType.PLAYLIST_UPDATED,
+        payload.playlist,
+    );
+    bgMessagingClient.sendMessageToPrimaryTab(
         ExtensionMessageType.PLAYER_VIDEO_UPDATED,
         payload.player.video_url,
     );
     if (payload.playlist.last_video)
-        message.sendMessageToPrimaryTab(
+        bgMessagingClient.sendMessageToPrimaryTab(
             ExtensionMessageType.LAST_VIDEO_UPDATED,
             payload.playlist.last_video,
         );
@@ -124,65 +130,74 @@ server.addHandler(FromServerMessageType.PLAYER_VIDEO_UPDATED, payload => {
 
 // Message
 
-message.addHandler(ExtensionMessageType.ADD_VIDEO, (videoUrl: string) => {
+bgMessagingClient.addHandler(ExtensionMessageType.ADD_VIDEO, (videoUrl: string) => {
     server.send(ToServerMessageType.ADD_VIDEO, { video_url: videoUrl });
 });
 
-message.addHandler(ExtensionMessageType.REMOVE_VIDEO, (videoId: string) => {
+bgMessagingClient.addHandler(ExtensionMessageType.REMOVE_VIDEO, (videoId: string) => {
     server.send(ToServerMessageType.REMOVE_VIDEO, { video_id: videoId });
 });
 
-message.addHandler(ExtensionMessageType.GET_PLAYLIST, (): Playlist => {
-    return state.playlist;
+bgMessagingClient.addHandler(ExtensionMessageType.GET_PLAYLIST, (): PlaylistType => {
+    return state.room.playlist;
 });
 
-message.addHandler(ExtensionMessageType.GET_MEMBERS, (): Member[] => {
-    return state.members;
+bgMessagingClient.addHandler(ExtensionMessageType.GET_MEMBERS, (): MemberType[] => {
+    return state.room.members;
 });
 
-message.addHandler(ExtensionMessageType.GET_ROOM_ID, () => {
-    return state.room_id;
+bgMessagingClient.addHandler(ExtensionMessageType.GET_ROOM_ID, () => {
+    return state.room.room_id;
 });
 
-message.addHandler(ExtensionMessageType.GET_ADMIN_STATUS, () => {
+bgMessagingClient.addHandler(ExtensionMessageType.GET_ADMIN_STATUS, () => {
     return state.is_admin;
 });
 
-message.addHandler(ExtensionMessageType.PROMOTE_MEMBER, id => {
+bgMessagingClient.addHandler(ExtensionMessageType.PROMOTE_MEMBER, id => {
     server.send(ToServerMessageType.PROMOTE_MEMBER, { member_id: id });
 });
 
-message.addHandler(ExtensionMessageType.REMOVE_MEMBER, id => {
+bgMessagingClient.addHandler(ExtensionMessageType.REMOVE_MEMBER, id => {
     server.send(ToServerMessageType.REMOVE_MEMBER, { member_id: id });
 });
 
-message.addHandler(ExtensionMessageType.UPDATE_PLAYER_VIDEO, payload => {
+bgMessagingClient.addHandler(ExtensionMessageType.SKIP_CURRENT_VIDEO, () => {
     server.send(ToServerMessageType.UPDATE_PLAYER_VIDEO, {
-        video_id: payload,
+        video_id: state.room.playlist.videos[0].id,
         updated_at: Date.now(),
     });
 });
 
-message.addHandler(ExtensionMessageType.GET_PLAYER_STATE, () => {
-    return state.player;
+bgMessagingClient.addHandler(ExtensionMessageType.UPDATE_PLAYER_VIDEO, payload => {
+    server.send(ToServerMessageType.UPDATE_PLAYER_VIDEO, {
+        video_id: payload,
+        // todo: get updated_at with payload
+        updated_at: Date.now(),
+    });
 });
 
-message.addHandler(ExtensionMessageType.GET_PLAYER_VIDEO, () => {
-    return state.player.video_url;
+bgMessagingClient.addHandler(ExtensionMessageType.GET_PLAYER_STATE, () => {
+    return state.room.player;
 });
 
-message.addHandler(ExtensionMessageType.GET_LAST_VIDEO, () => {
-    return state.playlist.last_video;
+bgMessagingClient.addHandler(ExtensionMessageType.GET_PLAYER_VIDEO_URL, () => {
+    console.log("getting player video url", state.room.player.video_url);
+    return state.room.player.video_url;
 });
 
-message.addHandler(ExtensionMessageType.UPDATE_MUTED, (muted: boolean) => {
+bgMessagingClient.addHandler(ExtensionMessageType.GET_LAST_VIDEO, () => {
+    return state.room.playlist.last_video;
+});
+
+bgMessagingClient.addHandler(ExtensionMessageType.UPDATE_MUTED, (muted: boolean) => {
     server.send(ToServerMessageType.UPDATE_MUTED, { is_muted: muted });
 });
 
-message.addHandler(ExtensionMessageType.UPDATE_PLAYER_STATE, state => {
+bgMessagingClient.addHandler(ExtensionMessageType.UPDATE_PLAYER_STATE, state => {
     server.send(ToServerMessageType.UPDATE_PLAYER_STATE, state);
 });
 
-message.addHandler(ExtensionMessageType.UPDATE_READY, ready => {
+bgMessagingClient.addHandler(ExtensionMessageType.UPDATE_READY, ready => {
     server.send(ToServerMessageType.UPDATE_READY, { is_ready: ready });
 });

@@ -20,17 +20,18 @@ export const getPrimaryTab = (): Promise<number | null> =>
         .get("st-primary-tab")
         .then(result => {
             if (chrome.runtime.lastError) return null;
-            return result["st-primary-tab"] || null;
+            const primaryTabId = result["st-primary-tab"] || null;
+            if (!primaryTabId) return null;
             //? check if tab exist
-            // return chrome.tabs.get(primaryTabId).then(tab => {
-            //     if (chrome.runtime.lastError) {
-            //         console.log("Primary tab does not exist:", chrome.runtime.lastError.message);
-            //         return null;
-            //     } else {
-            //         console.log("Primary tab exists:", tab);
-            //         return primaryTabId;
-            //     }
-            // });
+            return chrome.tabs.get(primaryTabId).then(tab => {
+                if (chrome.runtime.lastError) {
+                    console.log("Primary tab does not exist:", chrome.runtime.lastError.message);
+                    return null;
+                } else {
+                    console.log("Primary tab exists:", tab);
+                    return primaryTabId;
+                }
+            });
         })
         .catch(err => {
             console.error("Error getting primary tab:", err);
@@ -115,7 +116,7 @@ const handleTab = async (tabId: number, url: string) => {
         });
 
         server
-            .join(profile, roomId)
+            .joinRoom(profile, roomId)
             .then(() => {
                 console.log("ws connected");
             })
@@ -132,12 +133,6 @@ chrome.webNavigation.onBeforeNavigate.addListener(
     },
     { url: [{ hostSuffix: "youtu.be" }] },
 );
-
-const createTab = (videoId: string) => {
-    getUserProfile().then(profile => {
-        server.create(profile, videoId);
-    });
-};
 
 chrome.tabs.onRemoved.addListener(tabId => {
     getPrimaryTab()
@@ -166,7 +161,7 @@ messagingClient.addHandler(
 );
 
 messagingClient.addHandler(
-    ExtensionMessageType.CHECK_PRIMARY_TAB_EXISTS,
+    ExtensionMessageType.IS_PRIMARY_TAB_EXISTS,
     (_, sender): Promise<boolean> =>
         getPrimaryTab().then(primaryTabId => {
             if (sender.tab?.id !== undefined) {
@@ -177,8 +172,10 @@ messagingClient.addHandler(
         }),
 );
 
-messagingClient.addHandler(ExtensionMessageType.CREATE_ROOM, (payload, sender) => {
-    console.log("CREATE_ROOM", payload);
+messagingClient.addHandler(ExtensionMessageType.CREATE_ROOM, async (payload, sender) => {
     if (sender.tab?.id !== undefined) setTargetPrimaryTabId(sender.tab.id);
-    createTab(payload.videoId);
+    const profile = await getUserProfile();
+    server.createRoom(profile, payload.videoUrl).then(() => {
+        console.log("room created");
+    });
 });

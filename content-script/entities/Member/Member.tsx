@@ -8,9 +8,9 @@ import Shield from "@shared/ui/Shield/Shield";
 import React, { useCallback, useEffect } from "react";
 import { memo } from "react";
 import { ExtensionMessageType } from "types/extensionMessage";
-import { Member as IMember } from "types/serverMessage";
+import { MemberType } from "types/member.type";
 
-type MemberProps = IMember;
+type MemberProps = MemberType;
 
 const Member: React.FC<MemberProps> = ({
     id,

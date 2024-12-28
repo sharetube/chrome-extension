@@ -1,9 +1,9 @@
 import data from "../types/data";
 
-const video = (id: string, retries: number = 3): Promise<data> => {
-    console.log("video", id);
+// todo: rename
+const video = (url: string, retries: number = 3): Promise<data> => {
     const fetchVideoInfo = (attempt: number): Promise<data> =>
-        fetch(`https://www.youtube.com/oembed?url=https://youtube.com/watch?v=${id}`)
+        fetch(`https://www.youtube.com/oembed?url=https://youtube.com/watch?v=${url}`)
             .then(res => res.json())
             .then(data => ({
                 title: data.title,

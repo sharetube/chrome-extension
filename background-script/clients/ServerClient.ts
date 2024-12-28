@@ -1,5 +1,5 @@
 import config from "config";
-import type { profile } from "types/profile";
+import { ProfileType } from "types/profile.type";
 import {
     FromServerMessagePayloadMap,
     FromServerMessageType,
@@ -58,15 +58,18 @@ class ServerClient {
                 reject(new Error("ws already open"));
             }
 
-            this._ws = new WebSocket(`wss://${url}`);
+            console.log("ws connecting to ", url);
+            this._ws = new WebSocket(url);
 
             this._ws.addEventListener("error", event => {
                 this._ws?.close();
+                console.log("WS ERROR", event);
                 reject(new Error("ws error"));
             });
 
             this._ws.addEventListener("close", event => {
                 this.clearKeepAlive();
+                console.log("WS CLOSED", event);
                 reject(new Error("ws closed"));
             });
 
@@ -75,18 +78,20 @@ class ServerClient {
                 this._ws?.addEventListener("message", ({ data }) => {
                     try {
                         const { type, payload } = JSON.parse(data);
-                        console.log("FROM WS:", { type, payload });
+                        console.log(`FROM WS: type: ${type}, payload:`, payload);
                         this._handlers.get(type)?.(payload);
                     } catch (error) {
                         console.error("WS ERROR: Parsing message:", error);
                     }
                 });
+
+                console.log("ws connected");
                 resolve();
             });
         });
     }
 
-    private buildParams({ username, color, avatar_url }: profile, extraParams: object = {}) {
+    private buildParams({ username, color, avatar_url }: ProfileType, extraParams: object = {}) {
         return {
             username,
             color,
@@ -95,24 +100,29 @@ class ServerClient {
         };
     }
 
-    public create(profile: profile, videoUrl: string): Promise<void> {
+    public createRoom(profile: ProfileType, videoUrl: string): Promise<void> {
         const params = this.buildParams(profile, { "video-url": videoUrl });
-        return this.init(`${baseUrl}/api/v1/ws/room/create?${buildQueryParams(params)}`);
+        console.log("ws creating room with params:", params);
+        // todo: implement WSConnectionURLBuilder
+        return this.init(`ws://${baseUrl}/api/v1/ws/room/create?${buildQueryParams(params)}`);
     }
 
-    public join(profile: profile, room_id: string): Promise<void> {
+    public joinRoom(profile: ProfileType, room_id: string): Promise<void> {
         const params = this.buildParams(profile);
-        return this.init(`${baseUrl}/api/v1/ws/room/${room_id}/join?${buildQueryParams(params)}`);
+        console.log("ws joining room with params:", params);
+        return this.init(
+            `ws://${baseUrl}/api/v1/ws/room/${room_id}/join?${buildQueryParams(params)}`,
+        );
     }
 
     public send<T extends ToServerMessageType>(type: T, payload: ToServerMessagePayloadMap[T]) {
         const message = JSON.stringify({ type, payload });
+        console.log(`TO WS: type: ${type}, payload: `, payload);
         this._ws?.send(message);
-        console.log("TO WS:", { type, payload });
     }
 
     public close() {
-        if (this._ws) this._ws.close();
+        this._ws?.close();
     }
 
     public addHandler<T extends FromServerMessageType>(type: T, handler: MessageHandler<T>): void {

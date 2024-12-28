@@ -1,3 +1,5 @@
+import { log } from "shared/log";
+
 type VE = HTMLVideoElement;
 
 interface IAdmin extends Subject<boolean> {
@@ -331,7 +333,7 @@ class SendPlayerState implements Observer<boolean> {
     }
 
     public update() {
-        console.log(this.State!.state);
+        log("SendPlayerState.update()", this.State!.state);
     }
 }
 
@@ -464,7 +466,7 @@ class Mode implements IMode {
     }
 
     private notifyObservers(data: Modes): void {
-        console.log(data);
+        console.log("notifyObservers", data);
         for (const observer of this.observers) {
             observer.modeUpdate(data);
         }

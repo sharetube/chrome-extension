@@ -1,3 +1,4 @@
+// todo: rename to getVideoIdFromURL and do len logic here
 const validate = (url: string): Promise<string> =>
     new Promise((resolve, reject) => {
         const regex = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|\?v=)([^#\&\?]*).*/;
