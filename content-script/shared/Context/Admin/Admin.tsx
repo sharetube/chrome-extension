@@ -20,7 +20,7 @@ const AdminProvider: React.FC<MyProviderProps> = ({ children }) => {
     const messagingClient = new ContentScriptMessagingClient();
 
     useEffect(() => {
-        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_ADMIN_STATUS, null).then(
+        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_IS_ADMIN).then(
             payload => {
                 setIsAdmin(payload);
             },

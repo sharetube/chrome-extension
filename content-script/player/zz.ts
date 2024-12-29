@@ -1,3 +1,5 @@
+import { log } from "shared/log";
+
 type VE = HTMLVideoElement;
 
 interface IAdmin extends Subject<boolean> {
@@ -321,7 +323,6 @@ export { State };
 
 class SendPlayerState implements Observer<boolean> {
     private _player: VE | null = null;
-    private _state: PlayerStateWithTimestamp | {} = {};
 
     private State: State | null = null;
 
@@ -331,7 +332,7 @@ class SendPlayerState implements Observer<boolean> {
     }
 
     public update() {
-        console.log(this.State!.state);
+        log("SendPlayerState.update()", this.State!.state);
     }
 }
 
@@ -464,7 +465,7 @@ class Mode implements IMode {
     }
 
     private notifyObservers(data: Modes): void {
-        console.log(data);
+        console.log("notifyObservers", data);
         for (const observer of this.observers) {
             observer.modeUpdate(data);
         }
@@ -512,12 +513,12 @@ interface AdObserver {
     adUpdate(data: boolean): void;
 }
 
-interface AdSubject<T> {
-    addObserver(observer: AdObserver): void;
+interface AdSubject {
+    addObserver(obsrver: AdObserver): void;
     removeObserver(observer: AdObserver): void;
 }
 
-interface IAd extends Observer<DOMTokenList>, AdSubject<boolean> {
+interface IAd extends Observer<DOMTokenList>, AdSubject {
     ad_showing: boolean;
     addObserver(observer: AdObserver): void;
     removeObserver(observer: AdObserver): void;

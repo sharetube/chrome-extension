@@ -1,4 +1,5 @@
 import { BaseMessagingClient } from "../../shared/baseExtensionClient";
+import { PrimaryTabStorage } from "background-script/primaryTabStorage";
 import {
     ExtensionMessage,
     ExtensionMessagePayloadMap,
@@ -8,11 +9,11 @@ import {
 export class BackgroundMessagingClient extends BaseMessagingClient {
     private static _instance: BackgroundMessagingClient;
     private _tabIds: Set<number> = new Set();
-    private _primaryTabId: number = 0;
+    private _primatyTabStorage: PrimaryTabStorage;
 
-    private constructor() {
+    constructor() {
         super();
-        chrome.tabs.onRemoved.addListener(tabId => this._tabIds.delete(tabId));
+        this._primatyTabStorage = PrimaryTabStorage.getInstance();
     }
 
     public static getInstance(): BackgroundMessagingClient {
@@ -26,22 +27,30 @@ export class BackgroundMessagingClient extends BaseMessagingClient {
     ): void {
         const message: ExtensionMessage<T> = { type, payload };
         chrome.tabs.sendMessage(tabId, message);
-        console.log(message);
+        console.log(`sending message to tab ${tabId}`, message);
     }
 
-    public sendMessageToPrimaryTab<T extends ExtensionMessageType>(
+    public async sendMessageToPrimaryTab<T extends ExtensionMessageType>(
         type: T,
         payload: ExtensionMessagePayloadMap[T],
-    ): void {
+    ): Promise<void> {
+        const primaryTabId = await this._primatyTabStorage.get();
+        if (!primaryTabId) {
+            console.error("Error trying send to primary tab: no primary tab found");
+            return;
+        }
+
         const message: ExtensionMessage<T> = { type, payload };
-        chrome.tabs.sendMessage(this._primaryTabId, message);
+        console.log("sending message to primary tab", message);
+        chrome.tabs.sendMessage(primaryTabId, message);
     }
 
     public broadcastMessage<T extends ExtensionMessageType>(
         type: T,
-        payload: ExtensionMessagePayloadMap[T],
+        payload?: ExtensionMessagePayloadMap[T],
     ): void {
         const message: ExtensionMessage<T> = { type, payload };
+        console.log("broadcasting message to all tabs", message);
         this._tabIds.forEach(tabId => {
             chrome.tabs.sendMessage(tabId, message);
         });
@@ -55,15 +64,7 @@ export class BackgroundMessagingClient extends BaseMessagingClient {
         this._tabIds.delete(tabId);
     }
 
-    public get tabIds(): Set<number> {
-        return this._tabIds;
-    }
-
-    public get primaryTab(): number {
-        return this._primaryTabId;
-    }
-
-    public set primaryTab(tabId: number) {
-        this._primaryTabId = tabId;
+    public tabExists(tabId: number): boolean {
+        return this._tabIds.has(tabId);
     }
 }
