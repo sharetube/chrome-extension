@@ -6,7 +6,6 @@ import MemberIcon from "@shared/ui/Member/Member";
 import Mute from "@shared/ui/Mute/Mute";
 import Shield from "@shared/ui/Shield/Shield";
 import React, { useCallback, useEffect } from "react";
-import { memo } from "react";
 import { ExtensionMessageType } from "types/extensionMessage";
 import { MemberType } from "types/member.type";
 

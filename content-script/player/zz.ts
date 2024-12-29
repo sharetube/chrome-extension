@@ -323,7 +323,6 @@ export { State };
 
 class SendPlayerState implements Observer<boolean> {
     private _player: VE | null = null;
-    private _state: PlayerStateWithTimestamp | {} = {};
 
     private State: State | null = null;
 
@@ -514,12 +513,12 @@ interface AdObserver {
     adUpdate(data: boolean): void;
 }
 
-interface AdSubject<T> {
-    addObserver(observer: AdObserver): void;
+interface AdSubject {
+    addObserver(obsrver: AdObserver): void;
     removeObserver(observer: AdObserver): void;
 }
 
-interface IAd extends Observer<DOMTokenList>, AdSubject<boolean> {
+interface IAd extends Observer<DOMTokenList>, AdSubject {
     ad_showing: boolean;
     addObserver(observer: AdObserver): void;
     removeObserver(observer: AdObserver): void;
