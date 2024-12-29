@@ -15,7 +15,7 @@ const Playlist: React.FC = () => {
 
     // Last
     useEffect(() => {
-        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_LAST_VIDEO, null).then(
+        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_LAST_VIDEO).then(
             payload => {
                 setVideos(payload);
             },
@@ -32,12 +32,11 @@ const Playlist: React.FC = () => {
 
     // Current
     useEffect(() => {
-        ContentScriptMessagingClient.sendMessage(
-            ExtensionMessageType.GET_PLAYER_VIDEO_URL,
-            null,
-        ).then(payload => {
-            setCurrentVideoUrl(payload);
-        });
+        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_PLAYER_VIDEO_URL).then(
+            payload => {
+                setCurrentVideoUrl(payload);
+            },
+        );
 
         messageClient.addHandler(ExtensionMessageType.PLAYER_VIDEO_UPDATED, (payload: string) => {
             if (payload) setCurrentVideoUrl(payload);
@@ -50,7 +49,7 @@ const Playlist: React.FC = () => {
 
     // Playlist
     useEffect(() => {
-        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_PLAYLIST, null).then(
+        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_PLAYLIST).then(
             payload => {
                 setVideos(payload.videos);
             },

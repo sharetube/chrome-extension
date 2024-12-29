@@ -22,12 +22,10 @@ const Room: React.FC<RoomProps> = ({ callback }) => {
     }, [memoizedCallback]);
 
     useEffect(() => {
-        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_MEMBERS, null).then(
-            payload => {
-                setUsers(payload);
-                setLoading(false);
-            },
-        );
+        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_MEMBERS).then(payload => {
+            setUsers(payload);
+            setLoading(false);
+        });
     }, []);
 
     const messagingClient = new ContentScriptMessagingClient();

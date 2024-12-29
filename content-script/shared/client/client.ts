@@ -13,7 +13,7 @@ export class ContentScriptMessagingClient extends BaseMessagingClient {
 
     public static async sendMessage<T extends ExtensionMessageType>(
         type: T,
-        payload: ExtensionMessagePayloadMap[T],
+        payload?: ExtensionMessagePayloadMap[T],
     ): Promise<any> {
         const message: ExtensionMessage<T> = { type, payload };
         return new Promise(resolve => {
