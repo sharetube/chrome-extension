@@ -3,14 +3,15 @@ import { AdminProvider } from "@shared/Context/Admin/Admin";
 import waitForElement from "@shared/lib/waitForElement";
 import Panel from "@widgets/Panel/Panel";
 import Search from "@widgets/Search/Search";
-import ReactDOM from "react-dom";
+import React from "react";
+import ReactDOM from "react-dom/client";
 
 waitForElement(".html5-video-player")
     .then(e => {
         waitForElement("video")
             .then(p => {
                 console.log("Player found");
-                const player = new Player(e as HTMLElement, p as HTMLVideoElement);
+                new Player(e as HTMLElement, p as HTMLVideoElement);
             })
             .catch(error => console.log("Failed select video element", error));
     })
@@ -48,25 +49,26 @@ waitForElement("#secondary-inner")
         Object.assign(elem!.style, { transform: "scale(0)", zIndex: "-1" });
         const container = document.createElement("div");
         elem?.parentElement?.prepend(container);
-        ReactDOM.render(
+
+        const root = ReactDOM.createRoot(container); // Use createRoot
+        root.render(
             <AdminProvider>
                 <Panel />
             </AdminProvider>,
-            container,
         );
     })
     .catch(error => console.log("Failed to render main panel", error));
 
 // Render search
 waitForElement("#center")
-    .then(elem =>
-        ReactDOM.render(
+    .then(elem => {
+        const root = ReactDOM.createRoot(elem!); // Use createRoot
+        root.render(
             <AdminProvider>
                 <Search />
             </AdminProvider>,
-            elem,
-        ),
-    )
+        );
+    })
     .catch(error => console.log("Failed to render input", error));
 
 // Remove voice search button

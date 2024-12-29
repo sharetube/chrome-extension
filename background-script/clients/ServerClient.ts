@@ -13,7 +13,7 @@ type MessageHandler<T extends FromServerMessageType> = (
     payload: FromServerMessagePayloadMap[T],
 ) => void;
 
-const buildQueryParams = (params: Record<string, string | number>): string =>
+const buildQueryParams = (params: Record<string, string>): string =>
     Object.entries(params)
         .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
         .join("&");
@@ -21,7 +21,7 @@ const buildQueryParams = (params: Record<string, string | number>): string =>
 class ServerClient {
     private static instance: ServerClient;
     private _ws: WebSocket | null;
-    private _handlers: Map<FromServerMessageType, MessageHandler<FromServerMessageType>>;
+    private _handlers: Map<FromServerMessageType, MessageHandler<any>>;
     private _keepAliveIntervalId: NodeJS.Timeout | null;
 
     private constructor() {
@@ -91,11 +91,11 @@ class ServerClient {
         });
     }
 
-    private buildParams({ username, color, avatar_url }: ProfileType, extraParams: object = {}) {
+    private buildParams(profile: ProfileType, extraParams: object = {}) {
         return {
-            username,
-            color,
-            ...(avatar_url && { "avatar-url": avatar_url }),
+            username: profile.username,
+            color: profile.color,
+            ...(profile.avatar_url && { "avatar-url": profile.avatar_url }),
             ...extraParams,
         };
     }
@@ -117,8 +117,8 @@ class ServerClient {
 
     public send<T extends ToServerMessageType>(type: T, payload: ToServerMessagePayloadMap[T]) {
         const message = JSON.stringify({ type, payload });
-        console.log(`TO WS: type: ${type}, payload: `, payload);
         this._ws?.send(message);
+        console.log("TO WS:", { type, payload });
     }
 
     public close() {

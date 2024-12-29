@@ -51,13 +51,31 @@ class Player {
         // State handle
         this._p.addEventListener("play", this.handlePlay.bind(this));
         this._p.addEventListener("pause", this.handlePause.bind(this));
-        this._p.addEventListener("seeked", this.handleSeeked.bind(this));
+        this._p.addEventListener("seeking", this.handleSeeked.bind(this));
         this._p.addEventListener("ratechange", this.handleRatechange.bind(this));
         // Loading handle
         this._p.addEventListener("waiting", this.handleWaiting.bind(this));
         this._p.addEventListener("playing", this.handlePlaying.bind(this));
         this._p.addEventListener("loadeddata", this.handleLoadedData.bind(this));
         this._p.addEventListener("ended", this.handleEnded.bind(this));
+
+        console.log("event listeners added");
+        this._p.addEventListener("audioprocess", () => console.log("audioprocess"));
+        this._p.addEventListener("canplay", () => console.log("canplay"));
+        this._p.addEventListener("canplaythrough", () => console.log("canplaythrough"));
+        this._p.addEventListener("complete", () => console.log("complete"));
+        this._p.addEventListener("durationchange", () => console.log("durationchange"));
+        this._p.addEventListener("emptied", () => console.log("emptied"));
+        this._p.addEventListener("error", () => console.log("error"));
+        this._p.addEventListener("loadedmetadata", () => console.log("loadedmetadata"));
+        this._p.addEventListener("loadstart", () => console.log("loadstart"));
+        this._p.addEventListener("playing", () => console.log("playing"));
+        this._p.addEventListener("progress", () => console.log("progress"));
+        this._p.addEventListener("ratechange", () => console.log("ratechange"));
+        this._p.addEventListener("seeked", () => console.log("seeked"));
+        this._p.addEventListener("stalled", () => console.log("stalled"));
+        this._p.addEventListener("suspend", () => console.log("suspend"));
+        this._p.addEventListener("timeupdate", () => console.log("timeupdate"));
     }
 
     private fetchState() {
@@ -303,8 +321,6 @@ class Player {
         if (this._mode === mode) return;
         this._mode = mode;
     }
-
-    // Online handle
 
     private handleOnline(): void {
         log("handle online");
