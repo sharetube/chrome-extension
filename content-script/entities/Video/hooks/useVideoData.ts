@@ -2,21 +2,21 @@ import video from "../api/Video";
 import data from "../types/data";
 import { useEffect, useState } from "react";
 
-const useVideoData = (videoId: string) => {
+const useVideoData = (videoUrl: string) => {
     const [loading, setLoading] = useState(true);
     const [videoData, setVideoData] = useState<data>({} as data);
 
     useEffect(() => {
-        video(videoId)
+        video(videoUrl)
             .then(data => {
                 setVideoData(data);
                 setLoading(false);
             })
             .catch(error => {
-                console.log("useVideoData", error);
+                console.error("useVideoData", error);
                 setLoading(false);
             });
-    }, [videoId]);
+    }, [videoUrl]);
 
     return { loading, videoData };
 };

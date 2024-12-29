@@ -2,14 +2,15 @@ import Member from "@entities/Member/Member";
 import { ContentScriptMessagingClient } from "@shared/client/client";
 import React, { useCallback, useEffect, useState } from "react";
 import { ExtensionMessageType } from "types/extensionMessage";
-import type { Member as IMember } from "types/serverMessage";
+import { MemberType } from "types/member.type";
 
 interface RoomProps {
     callback: (usersCount: number) => void;
 }
 
+//? rename to MemberList
 const Room: React.FC<RoomProps> = ({ callback }) => {
-    const [users, setUsers] = useState<IMember[]>([]);
+    const [users, setUsers] = useState<MemberType[]>([]);
     const [loading, setLoading] = useState(true);
 
     const memoizedCallback = useCallback(() => {
@@ -21,35 +22,34 @@ const Room: React.FC<RoomProps> = ({ callback }) => {
     }, [memoizedCallback]);
 
     useEffect(() => {
-        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_USERS, null).then(
-            payload => {
-                setUsers(payload);
-                setLoading(false);
-            },
-        );
+        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_MEMBERS).then(payload => {
+            setUsers(payload);
+            setLoading(false);
+        });
     }, []);
 
     const messagingClient = new ContentScriptMessagingClient();
 
     useEffect(() => {
-        const handler = (payload: IMember[] | null): void => {
-            payload && setUsers(payload);
-            setLoading(false);
-        };
-
-        messagingClient.addHandler(ExtensionMessageType.USERS_UPDATED, handler);
+        messagingClient.addHandler(
+            ExtensionMessageType.MEMBERS_UPDATED,
+            (payload: MemberType[] | null): void => {
+                payload && setUsers(payload);
+                setLoading(false);
+            },
+        );
 
         return () => {
-            messagingClient.removeHandler(ExtensionMessageType.USERS_UPDATED);
+            messagingClient.removeHandler(ExtensionMessageType.MEMBERS_UPDATED);
         };
     }, []);
 
     if (loading) {
-        return <div className="h-[100px]">Loading...</div>;
+        return <></>;
     }
 
     return (
-        <ul className="st-room grid grid-cols-2 gap-[16px_0] p-[10px_12px] m-0 select-none">
+        <ul className="st-room grid grid-cols-2 list-none gap-[16px_0] p-[10px_12px] m-0 select-none">
             {users.map(user => (
                 <Member key={user.id} {...user} />
             ))}

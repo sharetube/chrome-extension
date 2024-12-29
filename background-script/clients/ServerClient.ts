@@ -1,5 +1,5 @@
 import config from "config";
-import type { profile } from "types/profile";
+import { ProfileType } from "types/profile.type";
 import {
     FromServerMessagePayloadMap,
     FromServerMessageType,
@@ -13,7 +13,7 @@ type MessageHandler<T extends FromServerMessageType> = (
     payload: FromServerMessagePayloadMap[T],
 ) => void;
 
-const buildQueryParams = (params: Record<string, any>): string =>
+const buildQueryParams = (params: Record<string, string>): string =>
     Object.entries(params)
         .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
         .join("&");
@@ -52,57 +52,67 @@ class ServerClient {
         }
     }
 
-    private init(url: string) {
-        if (
-            this._ws &&
-            (this._ws.readyState === WebSocket.CLOSING || this._ws.readyState === WebSocket.CLOSED)
-        ) {
-            return;
-        }
+    private init(url: string): Promise<void> {
+        return new Promise((resolve, reject) => {
+            if (this._ws && this._ws.readyState === WebSocket.OPEN) {
+                reject(new Error("ws already open"));
+            }
 
-        this._ws = new WebSocket(`wss://${url}`);
+            console.log("ws connecting to ", url);
+            this._ws = new WebSocket(url);
 
-        this._ws.addEventListener("error", event => {
-            console.log("WS ERROR:", event);
-        });
+            this._ws.addEventListener("error", event => {
+                this._ws?.close();
+                console.log("WS ERROR", event);
+                reject(new Error("ws error"));
+            });
 
-        this._ws.addEventListener("close", event => {
-            this.clearKeepAlive();
-            console.log("WS CLOSED", event);
-        });
+            this._ws.addEventListener("close", event => {
+                this.clearKeepAlive();
+                console.log("WS CLOSED", event);
+                reject(new Error("ws closed"));
+            });
 
-        this._ws?.addEventListener("open", () => {
-            console.log("WS OPENED");
-            this.keepAlive();
-            this._ws?.addEventListener("message", ({ data }) => {
-                try {
-                    const { type, payload } = JSON.parse(data);
-                    console.log("FROM WS:", { type, payload });
-                    this._handlers.get(type)?.(payload);
-                } catch (error) {
-                    console.error("WS ERROR: Parsing message:", error);
-                }
+            this._ws?.addEventListener("open", () => {
+                this.keepAlive();
+                this._ws?.addEventListener("message", ({ data }) => {
+                    try {
+                        const { type, payload } = JSON.parse(data);
+                        console.log(`FROM WS: type: ${type}, payload:`, payload);
+                        this._handlers.get(type)?.(payload);
+                    } catch (error) {
+                        console.error("WS ERROR: Parsing message:", error);
+                    }
+                });
+
+                console.log("ws connected");
+                resolve();
             });
         });
     }
 
-    private buildParams({ username, color, avatar_url }: profile, extraParams: object = {}) {
+    private buildParams(profile: ProfileType, extraParams: object = {}) {
         return {
-            username,
-            color,
-            ...(avatar_url && { "avatar-url": avatar_url }),
+            username: profile.username,
+            color: profile.color,
+            ...(profile.avatar_url && { "avatar-url": profile.avatar_url }),
             ...extraParams,
         };
     }
 
-    public create(profile: profile, videoUrl: string) {
+    public createRoom(profile: ProfileType, videoUrl: string): Promise<void> {
         const params = this.buildParams(profile, { "video-url": videoUrl });
-        this.init(`${baseUrl}/api/v1/ws/room/create?${buildQueryParams(params)}`);
+        console.log("ws creating room with params:", params);
+        // todo: implement WSConnectionURLBuilder
+        return this.init(`wss://${baseUrl}/api/v1/ws/room/create?${buildQueryParams(params)}`);
     }
 
-    public join(profile: profile, room_id: string) {
+    public joinRoom(profile: ProfileType, room_id: string): Promise<void> {
         const params = this.buildParams(profile);
-        this.init(`${baseUrl}/api/v1/ws/room/${room_id}/join?${buildQueryParams(params)}`);
+        console.log("ws joining room with params:", params);
+        return this.init(
+            `wss://${baseUrl}/api/v1/ws/room/${room_id}/join?${buildQueryParams(params)}`,
+        );
     }
 
     public send<T extends ToServerMessageType>(type: T, payload: ToServerMessagePayloadMap[T]) {
@@ -112,7 +122,7 @@ class ServerClient {
     }
 
     public close() {
-        if (this._ws) this._ws.close();
+        this._ws?.close();
     }
 
     public addHandler<T extends FromServerMessageType>(type: T, handler: MessageHandler<T>): void {

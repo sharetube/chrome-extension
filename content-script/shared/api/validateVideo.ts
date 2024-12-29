@@ -1,6 +1,7 @@
+// todo: rename to getVideoIdFromURL and do len logic here
 const validate = (url: string): Promise<string> =>
     new Promise((resolve, reject) => {
-        const regex = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|\?v=)([^#\&\?]*).*/;
+        const regex = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|\?v=)([^#&?]*).*/;
         const match = url.match(regex);
         if (match && match[2].length === 11) {
             fetch(`https://www.youtube.com/oembed?url=${url}`)

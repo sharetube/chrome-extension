@@ -5,12 +5,12 @@ import ShareTube from "@shared/ui/ShareTube/ShareTube";
 import { defaultProfile } from "constants/defaultProfile";
 import React, { useEffect, useState } from "react";
 import { ExtensionMessageType } from "types/extensionMessage";
-import { profile } from "types/profile";
+import { ProfileType } from "types/profile.type";
 
 const Popup: React.FC = () => {
     const [isExpanded, setIsExpanded] = useState<boolean>(false);
     const [isProfileEdit, setIsProfileEdit] = useState<boolean>(false);
-    const [user, setUser] = useState<profile>(defaultProfile);
+    const [user, setUser] = useState<ProfileType>(defaultProfile);
 
     const expandChange = () => {
         setIsExpanded(!isExpanded);
@@ -41,15 +41,15 @@ const Popup: React.FC = () => {
     const changePage = () => setIsProfileEdit(!isProfileEdit);
 
     useEffect(() => {
-        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_PROFILE, null).then(
-            (payload: profile) => {
+        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_PROFILE).then(
+            (payload: ProfileType) => {
                 setUser(payload);
             },
         );
     }, []);
 
     useEffect(() => {
-        MessageClient.addHandler(ExtensionMessageType.PROFILE_UPDATED, (payload: profile) => {
+        MessageClient.addHandler(ExtensionMessageType.PROFILE_UPDATED, (payload: ProfileType) => {
             setUser(payload);
         });
     }, []);
@@ -74,7 +74,7 @@ const Popup: React.FC = () => {
                     {isProfileEdit ? (
                         <Profile changePage={changePage} user={user} />
                     ) : (
-                        <Room changePage={changePage} user={user} />
+                        <Room changePage={changePage} profile={user} />
                     )}
                 </div>
             )}

@@ -7,76 +7,76 @@ import { ContentScriptMessagingClient } from "@shared/client/client";
 import Next from "@shared/ui/Next/Next";
 import React, { useEffect, useState } from "react";
 import { ExtensionMessageType } from "types/extensionMessage";
-import { profile } from "types/profile";
+import { ProfileType } from "types/profile.type";
 
 interface RoomProps {
     changePage: () => void;
-    user: profile;
+    profile: ProfileType;
 }
 
-const Room: React.FC<RoomProps> = ({ user, changePage }) => {
+const Room: React.FC<RoomProps> = ({ profile, changePage }) => {
     const [isRoom, setIsRoom] = useState<boolean>(true);
 
-    const MessageClient = new ContentScriptMessagingClient();
+    const contentSciptMessagingClient = new ContentScriptMessagingClient();
 
     useEffect(() => {
-        console.log("Room mounted");
-        ContentScriptMessagingClient.sendMessage(
-            ExtensionMessageType.CHECK_PRIMARY_TAB_EXISTS,
-            null,
-        ).then(response => {
-            setIsRoom(response);
-            setIsNavigateButtonDisabled(!response);
-        });
-        MessageClient.addHandler(ExtensionMessageType.PRIMARY_TAB_SET, () => {
-            console.log("SET");
+        // console.log("Room mounted");
+        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.IS_PRIMARY_TAB_EXISTS).then(
+            response => {
+                setIsRoom(response);
+                setIsNavigateButtonDisabled(!response);
+            },
+        );
+        contentSciptMessagingClient.addHandler(ExtensionMessageType.PRIMARY_TAB_SET, () => {
             setIsRoom(true);
             setIsNavigateButtonDisabled(false);
         });
 
-        MessageClient.addHandler(ExtensionMessageType.PRIMARY_TAB_UNSET, () => {
-            console.log("UNSET");
+        contentSciptMessagingClient.addHandler(ExtensionMessageType.PRIMARY_TAB_UNSET, () => {
             setIsRoom(false);
             setIsNavigateButtonDisabled(true);
         });
     }, []);
 
-    const [videoURLValue, setInputValue] = useState("");
-    const [videoId, setVideoId] = useState("");
+    const [initVideoValue, setInitVideoValue] = useState("");
+    const [videoUrl, setVideoUrl] = useState("");
     const [isCreateRoomButtonDisabled, setIsButtonDisabled] = useState(true);
     const [isNavigateButtonDisabled, setIsNavigateButtonDisabled] = useState(true);
 
-    const handleVideoURLChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleInitVideoLinkChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const value = event.target.value;
-        setInputValue(value);
+        setInitVideoValue(value);
 
+        // todo: move check to validate func
         if (value.length >= 16) {
-            validate(value).then(videoId => {
-                setVideoId(videoId);
-                setIsButtonDisabled(!videoId);
+            validate(value).then(response => {
+                setVideoUrl(response);
+                setIsButtonDisabled(!response);
             });
         }
     };
 
     const handleCreateRoomButtonClick = () => {
-        if (videoId) {
-            setInputValue("");
-            ContentScriptMessagingClient.sendMessage(ExtensionMessageType.CREATE_ROOM, { videoId });
+        if (videoUrl) {
+            setInitVideoValue("");
+            ContentScriptMessagingClient.sendMessage(ExtensionMessageType.CREATE_ROOM, {
+                videoUrl: videoUrl,
+            });
         }
     };
 
     const switchToPrimaryTab = () => {
-        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.SWITCH_TO_PRIMARY_TAB, null);
+        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.SWITCH_TO_PRIMARY_TAB);
     };
 
     const [isPrimaryTab, setIsPrimaryTab] = useState(true);
     useEffect(() => {
-        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.IS_PRIMARY_TAB, null).then(
+        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.IS_PRIMARY_TAB).then(
             response => {
                 setIsPrimaryTab(response);
             },
         );
-    }, [isPrimaryTab]);
+    }, []);
 
     return (
         <React.Fragment>
@@ -93,15 +93,16 @@ const Room: React.FC<RoomProps> = ({ user, changePage }) => {
                 <div className="flex items-center gap-4 select-none">
                     <Avatar
                         size="m"
-                        url={user.avatar_url}
-                        letter={user.username.slice(0, 1)}
-                        color={user.color}
+                        url={profile.avatar_url}
+                        //? isn't [0] better
+                        letter={profile.username.slice(0, 1)}
+                        color={profile.color}
                     />
                     <h2
                         className="text-[16px] leading-[22px] font-normal font-secondary"
-                        style={{ color: user.color }}
+                        style={{ color: profile.color }}
                     >
-                        {user.username}
+                        {profile.username}
                     </h2>
                 </div>
                 <div>
@@ -118,7 +119,7 @@ const Room: React.FC<RoomProps> = ({ user, changePage }) => {
             {!isRoom && (
                 <section className="p-[16px]">
                     <Title>Initial video</Title>
-                    <Input value={videoURLValue} onChange={handleVideoURLChange} />
+                    <Input value={initVideoValue} onChange={handleInitVideoLinkChange} />
                     <div className="m-[32px_0_0]">
                         <Button
                             onClick={handleCreateRoomButtonClick}

@@ -3,50 +3,44 @@ import useAdmin from "@shared/Context/Admin/hooks/useAdmin";
 import { ContentScriptMessagingClient } from "@shared/client/client";
 import React, { useEffect, useState } from "react";
 import { ExtensionMessageType } from "types/extensionMessage";
-import type { Video as IVideo, Playlist } from "types/serverMessage";
-import { videoID } from "types/video";
+import type { VideoType as IVideo, PlaylistType } from "types/video.type";
 
 const Playlist: React.FC = () => {
-    const [previous, setPrevious] = useState<IVideo>();
-    const [current, setCurrent] = useState<videoID>();
+    const [lastVideo, setLastVideo] = useState<IVideo>();
+    const [currentVideoUrl, setCurrentVideoUrl] = useState<string>();
     const [videos, setVideos] = useState<IVideo[]>([]);
     const { is_admin } = useAdmin();
 
     const messageClient = new ContentScriptMessagingClient();
 
-    // Previous
+    // Last
     useEffect(() => {
-        ContentScriptMessagingClient.sendMessage(
-            ExtensionMessageType.GET_PREVIOUS_VIDEO,
-            null,
-        ).then(payload => {
-            setVideos(payload);
+        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_LAST_VIDEO).then(
+            payload => {
+                setVideos(payload);
+            },
+        );
+
+        messageClient.addHandler(ExtensionMessageType.LAST_VIDEO_UPDATED, (payload: IVideo) => {
+            if (payload) setLastVideo(payload);
         });
 
-        const handler = (payload: IVideo) => {
-            if (payload) setPrevious(payload);
-        };
-
-        messageClient.addHandler(ExtensionMessageType.PREVIOUS_VIDEO_UPDATED, handler);
-
         return () => {
-            messageClient.removeHandler(ExtensionMessageType.PREVIOUS_VIDEO_UPDATED);
+            messageClient.removeHandler(ExtensionMessageType.LAST_VIDEO_UPDATED);
         };
     }, []);
 
     // Current
     useEffect(() => {
-        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_PLAYER_VIDEO, null).then(
+        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_PLAYER_VIDEO_URL).then(
             payload => {
-                setCurrent(payload);
+                setCurrentVideoUrl(payload);
             },
         );
 
-        const handler = (payload: videoID) => {
-            if (payload) setCurrent(payload);
-        };
-
-        messageClient.addHandler(ExtensionMessageType.PLAYER_VIDEO_UPDATED, handler);
+        messageClient.addHandler(ExtensionMessageType.PLAYER_VIDEO_UPDATED, (payload: string) => {
+            if (payload) setCurrentVideoUrl(payload);
+        });
 
         return () => {
             messageClient.removeHandler(ExtensionMessageType.PLAYER_VIDEO_UPDATED);
@@ -55,13 +49,13 @@ const Playlist: React.FC = () => {
 
     // Playlist
     useEffect(() => {
-        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_PLAYLIST, null).then(
+        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_PLAYLIST).then(
             payload => {
                 setVideos(payload.videos);
             },
         );
 
-        const handler = (payload: Playlist) => {
+        const handler = (payload: PlaylistType) => {
             if (payload) setVideos(payload.videos);
         };
 
@@ -74,10 +68,17 @@ const Playlist: React.FC = () => {
 
     return (
         <ul className="st-playlist m-0">
-            {previous && (
-                <Video videoId={previous.id} videoUrl={previous.url} previous actions={is_admin} />
+            {lastVideo && (
+                <Video videoId={lastVideo.id} videoUrl={lastVideo.url} last actions={is_admin} />
             )}
-            {current && <Video videoId={current} videoUrl={current} current actions={is_admin} />}
+            {currentVideoUrl && (
+                <Video
+                    videoId={currentVideoUrl}
+                    videoUrl={currentVideoUrl}
+                    current
+                    actions={is_admin}
+                />
+            )}
             {videos &&
                 videos.length > 0 &&
                 videos.map((video, index) => (

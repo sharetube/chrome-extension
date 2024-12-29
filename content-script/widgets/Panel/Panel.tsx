@@ -13,11 +13,11 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 const Panel: React.FC = () => {
     const { isFullScreen, height } = useResize();
 
-    const [isExpended, setIsExpended] = useState(false);
+    const [isExpanded, setIsExpanded] = useState(true);
     const [userCount, setUserCount] = useState<number>(0);
 
-    const expandChange = () => {
-        setIsExpended(prevState => !prevState);
+    const toggleExpand = () => {
+        setIsExpanded(prevState => !prevState);
     };
 
     return (
@@ -35,8 +35,8 @@ const Panel: React.FC = () => {
                     </Button>
                     <div
                         className="flex items-center"
-                        title={isExpended ? "Hide room" : "Show room"}
-                        onClick={expandChange}
+                        title={isExpanded ? "Hide room" : "Show room"}
+                        onClick={toggleExpand}
                     >
                         <Button>
                             <Members />
@@ -45,13 +45,13 @@ const Panel: React.FC = () => {
                             {userCount > 0 && `Members (${userCount})`}
                         </p>
                         <Button>
-                            <Expand isExpended={isExpended} />
+                            <Expand isExpanded={isExpanded} />
                         </Button>
                     </div>
                 </div>
             </header>
             <div
-                className={`${isExpended ? "block" : "hidden"} bg-background-primary border-b border-solid border-spec-outline border-t-0 border-l-0 border-r-0`}
+                className={`${isExpanded ? "block" : "hidden"} bg-background-primary border-b border-solid border-spec-outline border-t-0 border-l-0 border-r-0`}
             >
                 <Room callback={setUserCount} />
             </div>
