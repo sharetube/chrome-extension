@@ -1,5 +1,6 @@
 import { MemberType } from "./member.type";
 import { PlayerType } from "./player.type";
+import { RoomType } from "./room.type";
 import { PlaylistType, VideoType } from "./video.type";
 
 export enum ToServerMessageType {
@@ -25,19 +26,12 @@ export enum FromServerMessageType {
     MEMBER_JOINED = "MEMBER_JOINED",
     MEMBER_DISCONNECTED = "MEMBER_DISCONNECTED",
     MEMBER_UPDATED = "MEMBER_UPDATED",
-    IS_ADMIN_CHANGED = "IS_ADMIN_UPDATED",
-    PLAYER_UPDATED = "PLAYER_UPDATED",
+    IS_ADMIN_UPDATED = "IS_ADMIN_UPDATED",
+    PLAYER_STATE_UPDATED = "PLAYER_STATE_UPDATED",
 }
 
 const TO = ToServerMessageType;
 const FROM = FromServerMessageType;
-
-export type Room = {
-    room_id: string;
-    player: PlayerType;
-    playlist: PlaylistType;
-    members: MemberType[];
-};
 
 export type ToServerMessagePayloadMap = {
     [TO.UPDATE_PROFILE]: {
@@ -58,7 +52,7 @@ export type ToServerMessagePayloadMap = {
         video_id: string;
     };
     [TO.REORDER_PLAYLIST]: {
-        videos: VideoType[];
+        video_ids: string[];
     };
     [TO.UPDATE_READY]: {
         is_ready: boolean;
@@ -83,7 +77,7 @@ export type FromServerMessagePayloadMap = {
     [FROM.JOINED_ROOM]: {
         jwt: string;
         joined_member: MemberType;
-        room: Room;
+        room: RoomType;
     };
     [FROM.PLAYER_VIDEO_UPDATED]: {
         player: PlayerType;
@@ -97,10 +91,7 @@ export type FromServerMessagePayloadMap = {
         removed_video_id: string;
         playlist: PlaylistType;
     };
-    [FROM.PLAYLIST_REORDERED]: {
-        videos: VideoType[];
-        last_video: VideoType;
-    };
+    [FROM.PLAYLIST_REORDERED]: { playlist: PlaylistType };
     [FROM.MEMBER_JOINED]: {
         joined_member: MemberType;
         members: MemberType[];
@@ -113,10 +104,10 @@ export type FromServerMessagePayloadMap = {
         updated_member: MemberType;
         members: MemberType[];
     };
-    [FROM.IS_ADMIN_CHANGED]: {
+    [FROM.IS_ADMIN_UPDATED]: {
         is_admin: boolean;
     };
-    [FROM.PLAYER_UPDATED]: {
+    [FROM.PLAYER_STATE_UPDATED]: {
         player: PlayerType;
     };
 };

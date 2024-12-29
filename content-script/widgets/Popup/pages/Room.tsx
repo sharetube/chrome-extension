@@ -21,13 +21,12 @@ const Room: React.FC<RoomProps> = ({ profile, changePage }) => {
 
     useEffect(() => {
         // console.log("Room mounted");
-        ContentScriptMessagingClient.sendMessage(
-            ExtensionMessageType.IS_PRIMARY_TAB_EXISTS,
-            null,
-        ).then(response => {
-            setIsRoom(response);
-            setIsNavigateButtonDisabled(!response);
-        });
+        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.IS_PRIMARY_TAB_EXISTS).then(
+            response => {
+                setIsRoom(response);
+                setIsNavigateButtonDisabled(!response);
+            },
+        );
         contentSciptMessagingClient.addHandler(ExtensionMessageType.PRIMARY_TAB_SET, () => {
             setIsRoom(true);
             setIsNavigateButtonDisabled(false);
@@ -67,12 +66,12 @@ const Room: React.FC<RoomProps> = ({ profile, changePage }) => {
     };
 
     const switchToPrimaryTab = () => {
-        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.SWITCH_TO_PRIMARY_TAB, null);
+        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.SWITCH_TO_PRIMARY_TAB);
     };
 
     const [isPrimaryTab, setIsPrimaryTab] = useState(true);
     useEffect(() => {
-        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.IS_PRIMARY_TAB, null).then(
+        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.IS_PRIMARY_TAB).then(
             response => {
                 setIsPrimaryTab(response);
             },

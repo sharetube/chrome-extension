@@ -61,7 +61,7 @@ class Player {
     }
 
     private fetchState() {
-        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_PLAYER_STATE, null).then(
+        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_PLAYER_STATE).then(
             (state: PlayerStateType) => {
                 log("fetched player state", state);
                 this.state = state;
@@ -98,7 +98,7 @@ class Player {
 
     private handleEnded() {
         log("ended");
-        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.SKIP_CURRENT_VIDEO, null);
+        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.SKIP_CURRENT_VIDEO);
     }
 
     private handleLoadedData() {
@@ -131,8 +131,10 @@ class Player {
             ct = state.current_time / 1e6;
         } else {
             ct =
-                (state.current_time + (Date.now() * 1e3 - state.updated_at) * state.playback_rate) /
-                1e6;
+                Math.round(
+                    state.current_time +
+                        (Date.now() * 1e3 - state.updated_at) * state.playback_rate,
+                ) / 1e6;
         }
 
         log("setting state: previous state", this.state);
@@ -156,7 +158,7 @@ class Player {
     public get state(): PlayerStateType {
         const s = {
             updated_at: Date.now() * 1e3,
-            current_time: this._p.currentTime * 1e6,
+            current_time: Math.round(this._p.currentTime * 1e6),
             playback_rate: this._p.playbackRate,
             is_playing: this.getIsPLaying(),
         };

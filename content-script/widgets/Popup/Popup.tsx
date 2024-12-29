@@ -41,7 +41,7 @@ const Popup: React.FC = () => {
     const changePage = () => setIsProfileEdit(!isProfileEdit);
 
     useEffect(() => {
-        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_PROFILE, null).then(
+        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_PROFILE).then(
             (payload: ProfileType) => {
                 setUser(payload);
             },
