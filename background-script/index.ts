@@ -1,16 +1,4 @@
-import "./profile.ts";
-import "./server.ts";
+import "./extension-client/routes.ts";
+import "./onInstalled.ts";
+import "./server-client/routes.ts";
 import "./tab.ts";
-
-// chrome.scripting
-//     .registerContentScripts([
-//         {
-//             id: "XMLOverride",
-//             js: ["@setVideo"],
-//             matches: ["https://*.youtube.com/*"],
-//             runAt: "document_start",
-//             world: "MAIN",
-//         },
-//     ])
-//     .then(console.log)
-//     .catch(e => console.log("X", e));

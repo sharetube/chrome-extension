@@ -15,6 +15,7 @@ interface Base {
     current?: boolean;
 }
 
+// ?
 interface Last extends Base {
     last: true;
     current?: never;
@@ -108,8 +109,8 @@ const VideoContent: React.FC<VideoProps & { videoData: data }> = memo(
     },
 );
 
+// todo: rename
 const Video: React.FC<VideoProps> = props => {
-    console.log(props);
     const { loading, videoData } = useVideoData(props.videoUrl);
     return loading ? <LoadingSkeleton /> : <VideoContent {...props} videoData={videoData} />;
 };

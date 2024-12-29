@@ -3,12 +3,11 @@ import useAdmin from "@shared/Context/Admin/hooks/useAdmin";
 import { ContentScriptMessagingClient } from "@shared/client/client";
 import React, { useEffect, useState } from "react";
 import { ExtensionMessageType } from "types/extensionMessage";
-import type { Video as IVideo, Playlist } from "types/serverMessage";
-import { videoID } from "types/video";
+import type { VideoType as IVideo, PlaylistType } from "types/video.type";
 
 const Playlist: React.FC = () => {
-    const [last, setLast] = useState<IVideo>();
-    const [current, setCurrent] = useState<videoID>();
+    const [lastVideo, setLastVideo] = useState<IVideo>();
+    const [currentVideoUrl, setCurrentVideoUrl] = useState<string>();
     const [videos, setVideos] = useState<IVideo[]>([]);
     const { is_admin } = useAdmin();
 
@@ -16,17 +15,15 @@ const Playlist: React.FC = () => {
 
     // Last
     useEffect(() => {
-        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_LAST_VIDEO, null).then(
+        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_LAST_VIDEO).then(
             payload => {
                 setVideos(payload);
             },
         );
 
-        const handler = (payload: IVideo) => {
-            if (payload) setLast(payload);
-        };
-
-        messageClient.addHandler(ExtensionMessageType.LAST_VIDEO_UPDATED, handler);
+        messageClient.addHandler(ExtensionMessageType.LAST_VIDEO_UPDATED, (payload: IVideo) => {
+            if (payload) setLastVideo(payload);
+        });
 
         return () => {
             messageClient.removeHandler(ExtensionMessageType.LAST_VIDEO_UPDATED);
@@ -35,17 +32,15 @@ const Playlist: React.FC = () => {
 
     // Current
     useEffect(() => {
-        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_PLAYER_VIDEO, null).then(
+        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_PLAYER_VIDEO_URL).then(
             payload => {
-                setCurrent(payload);
+                setCurrentVideoUrl(payload);
             },
         );
 
-        const handler = (payload: videoID) => {
-            if (payload) setCurrent(payload);
-        };
-
-        messageClient.addHandler(ExtensionMessageType.PLAYER_VIDEO_UPDATED, handler);
+        messageClient.addHandler(ExtensionMessageType.PLAYER_VIDEO_UPDATED, (payload: string) => {
+            if (payload) setCurrentVideoUrl(payload);
+        });
 
         return () => {
             messageClient.removeHandler(ExtensionMessageType.PLAYER_VIDEO_UPDATED);
@@ -54,13 +49,13 @@ const Playlist: React.FC = () => {
 
     // Playlist
     useEffect(() => {
-        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_PLAYLIST, null).then(
+        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_PLAYLIST).then(
             payload => {
                 setVideos(payload.videos);
             },
         );
 
-        const handler = (payload: Playlist) => {
+        const handler = (payload: PlaylistType) => {
             if (payload) setVideos(payload.videos);
         };
 
@@ -73,8 +68,17 @@ const Playlist: React.FC = () => {
 
     return (
         <ul className="st-playlist m-0">
-            {last && <Video videoId={last.id} videoUrl={last.url} last actions={is_admin} />}
-            {current && <Video videoId={current} videoUrl={current} current actions={is_admin} />}
+            {lastVideo && (
+                <Video videoId={lastVideo.id} videoUrl={lastVideo.url} last actions={is_admin} />
+            )}
+            {currentVideoUrl && (
+                <Video
+                    videoId={currentVideoUrl}
+                    videoUrl={currentVideoUrl}
+                    current
+                    actions={is_admin}
+                />
+            )}
             {videos &&
                 videos.length > 0 &&
                 videos.map((video, index) => (
