@@ -5,10 +5,8 @@ const updateVideoUrl = (videoUrl: string) => {
         if (t) {
             const a = t.querySelector("a");
             if (a) {
-                // console.log(a);
-                // console.log((a as any).data.watchEndpoint.videoId);
-                (a as any).data.watchEndpoint.videoId = videoUrl;
-                // console.log((a as any).data.watchEndpoint.videoId);
+                a.data.watchEndpoint.videoId = videoUrl;
+                a.data.commandMetadata.webCommandMetadata.url = `/watch?v=${videoUrl}`;
                 a.click();
             }
         }

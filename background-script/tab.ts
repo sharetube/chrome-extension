@@ -2,6 +2,7 @@ import { BackgroundMessagingClient } from "./clients/ExtensionClient";
 import ServerClient from "./clients/ServerClient";
 import { PrimaryTabStorage } from "./primaryTabStorage";
 import { ProfileStorage } from "./profileStorage";
+import { globalState } from "./state";
 import { setTargetPrimaryTabId } from "./targetPrimaryTabId";
 import { ExtensionMessageType } from "types/extensionMessage";
 
@@ -11,6 +12,7 @@ const primaryTabStorage = PrimaryTabStorage.getInstance();
 
 const bgMessagingClient = BackgroundMessagingClient.getInstance();
 
+const domainRegex = /^https:\/\/(www\.)?(youtu\.be|youtube\.com)/;
 const inviteLinkRegex = /^https:\/\/(www\.)?youtu\.be\/st\/(.+)$/;
 const roomIdRegex = /^[a-zA-Z0-9.-]{8}$/;
 
@@ -89,5 +91,30 @@ chrome.tabs.onRemoved.addListener(tabId => {
                 }
             })
             .catch(err => console.log(err));
+    }
+});
+
+chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+    const clearPrimary = (): void => {
+        primaryTabStorage.remove();
+        server.close();
+    };
+
+    const primaryTabId = await primaryTabStorage.get();
+
+    if (primaryTabId !== tabId) {
+        return;
+    }
+
+    if (!(tab.url && tab.url.match(domainRegex))) {
+        clearPrimary();
+        return;
+    }
+
+    if (
+        changeInfo.url &&
+        changeInfo.url !== `https://www.youtube.com/watch?v=${globalState.room.player.video_url}`
+    ) {
+        clearPrimary();
     }
 });
