@@ -7,10 +7,10 @@ import Title from "../shared/Title/Title";
 import Avatar from "@entities/Avatar/Avatar";
 import Back from "@shared/ui/Back/Back";
 import React, { useEffect, useState } from "react";
-import { profile } from "types/profile";
+import { ProfileType } from "types/profile.type";
 
 interface ProfileProps {
-    user: profile;
+    user: ProfileType;
     changePage: () => void;
 }
 
@@ -96,16 +96,11 @@ const Profile: React.FC<ProfileProps> = ({ user, changePage }) => {
     };
 
     const setProfile = () => {
-        const updateProfile: profile = {
+        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.UPDATE_PROFILE, {
             username: username,
             avatar_url: avatarUrl,
             color: selectedColor,
-        };
-
-        ContentScriptMessagingClient.sendMessage(
-            ExtensionMessageType.UPDATE_PROFILE,
-            updateProfile,
-        );
+        });
 
         setIsColorChanged(false);
         setIsAvatarUrlChanged(false);

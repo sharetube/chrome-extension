@@ -1,8 +1,7 @@
-import { Member, Player, Playlist } from "./serverMessage";
-import { Video } from "./serverMessage";
-import { videoID } from "./video";
-import { PlayerState } from "types/player";
-import { profile } from "types/profile";
+import { MemberType } from "./member.type";
+import { ProfileType } from "./profile.type";
+import { PlaylistType, VideoType } from "./video.type";
+import { PlayerStateType, PlayerType } from "types/player.type";
 
 export enum ExtensionMessageType {
     PRIMARY_TAB_SET = "PRIMARY_TAB_SET",
@@ -12,10 +11,10 @@ export enum ExtensionMessageType {
     UPDATE_PROFILE = "UPDATE_PROFILE",
     CREATE_ROOM = "CREATE_ROOM",
     SWITCH_TO_PRIMARY_TAB = "SWITCH_TO_PRIMARY_TAB",
-    CHECK_PRIMARY_TAB_EXISTS = "CHECK_PRIMARY_TAB_EXISTS",
+    IS_PRIMARY_TAB_EXISTS = "IS_PRIMARY_TAB_EXISTS",
     IS_PRIMARY_TAB = "IS_PRIMARY_TAB",
     // Room
-    GET_ADMIN_STATUS = "GET_ADMIN_STATUS",
+    GET_IS_ADMIN = "GET_ADMIN_STATUS",
     ADMIN_STATUS_UPDATED = "ADMIN_STATUS_UPDATED",
     GET_PLAYLIST = "GET_PLAYLIST",
     PLAYLIST_UPDATED = "PLAYLIST_UPDATED",
@@ -32,57 +31,69 @@ export enum ExtensionMessageType {
     PLAYER_STATE_UPDATED = "PLAYER_STATE_UPDATED",
     PLAYER_VIDEO_UPDATED = "PLAYER_VIDEO_UPDATED",
     UPDATE_PLAYER_VIDEO = "UPDATE_PLAYER_VIDEO",
+    SKIP_CURRENT_VIDEO = "SKIP_CURRENT_VIDEO",
     GET_PLAYER_STATE = "GET_PLAYER_STATE",
-    GET_PLAYER_VIDEO = "GET_PLAYER_VIDEO",
+    GET_PLAYER_VIDEO_URL = "GET_PLAYER_VIDEO_URL",
     GET_LAST_VIDEO = "GET_LAST_VIDEO",
     LAST_VIDEO_UPDATED = "LAST_VIDEO_UPDATED",
     UPDATE_MUTED = "UPDATE_MUTED",
-    //
     UPDATE_READY = "UPDATE_READY",
 }
 
-export interface CrateRoomPayload {
-    videoId: string;
-}
-
 export type ExtensionMessagePayloadMap = {
-    [ExtensionMessageType.PRIMARY_TAB_SET]: null;
-    [ExtensionMessageType.PRIMARY_TAB_UNSET]: null;
-    [ExtensionMessageType.PROFILE_UPDATED]: profile;
-    [ExtensionMessageType.GET_PROFILE]: null;
-    [ExtensionMessageType.UPDATE_PROFILE]: profile;
-    [ExtensionMessageType.SWITCH_TO_PRIMARY_TAB]: null;
-    [ExtensionMessageType.CHECK_PRIMARY_TAB_EXISTS]: null;
-    [ExtensionMessageType.IS_PRIMARY_TAB]: null;
-    [ExtensionMessageType.CREATE_ROOM]: CrateRoomPayload;
+    [ExtensionMessageType.PRIMARY_TAB_SET]: void;
+    [ExtensionMessageType.PRIMARY_TAB_UNSET]: void;
+    [ExtensionMessageType.PROFILE_UPDATED]: ProfileType;
+    [ExtensionMessageType.GET_PROFILE]: void;
+    [ExtensionMessageType.UPDATE_PROFILE]: ProfileType;
+    [ExtensionMessageType.SWITCH_TO_PRIMARY_TAB]: void;
+    [ExtensionMessageType.IS_PRIMARY_TAB_EXISTS]: void;
+    [ExtensionMessageType.IS_PRIMARY_TAB]: void;
+    [ExtensionMessageType.CREATE_ROOM]: { videoUrl: string };
     // Room
-    [ExtensionMessageType.GET_ADMIN_STATUS]: null;
+    [ExtensionMessageType.GET_IS_ADMIN]: void;
     [ExtensionMessageType.ADMIN_STATUS_UPDATED]: boolean;
-    [ExtensionMessageType.GET_PLAYLIST]: null;
-    [ExtensionMessageType.PLAYLIST_UPDATED]: Playlist;
-    [ExtensionMessageType.UPDATE_PLAYLIST]: Playlist;
-    [ExtensionMessageType.GET_MEMBERS]: null;
-    [ExtensionMessageType.MEMBERS_UPDATED]: Member[];
-    [ExtensionMessageType.ADD_VIDEO]: videoID;
-    [ExtensionMessageType.REMOVE_VIDEO]: videoID;
-    [ExtensionMessageType.GET_ROOM_ID]: null;
+    [ExtensionMessageType.PLAYLIST_UPDATED]: PlaylistType;
+    [ExtensionMessageType.UPDATE_PLAYLIST]: PlaylistType;
+    [ExtensionMessageType.GET_MEMBERS]: void;
+    [ExtensionMessageType.MEMBERS_UPDATED]: MemberType[];
+    [ExtensionMessageType.ADD_VIDEO]: string;
+    [ExtensionMessageType.REMOVE_VIDEO]: string;
+    [ExtensionMessageType.GET_ROOM_ID]: void;
     [ExtensionMessageType.PROMOTE_MEMBER]: string;
     [ExtensionMessageType.REMOVE_MEMBER]: string;
     // Player
-    [ExtensionMessageType.UPDATE_PLAYER_STATE]: PlayerState;
-    [ExtensionMessageType.PLAYER_STATE_UPDATED]: Player;
-    [ExtensionMessageType.UPDATE_PLAYER_VIDEO]: videoID;
-    [ExtensionMessageType.GET_PLAYER_STATE]: null;
-    [ExtensionMessageType.GET_PLAYER_VIDEO]: null;
-    [ExtensionMessageType.PLAYER_VIDEO_UPDATED]: videoID;
-    [ExtensionMessageType.GET_LAST_VIDEO]: null;
-    [ExtensionMessageType.LAST_VIDEO_UPDATED]: Video;
+    [ExtensionMessageType.UPDATE_PLAYER_STATE]: PlayerStateType;
+    [ExtensionMessageType.PLAYER_STATE_UPDATED]: PlayerType;
+    // todo: also send updated_at
+    [ExtensionMessageType.UPDATE_PLAYER_VIDEO]: string;
+    [ExtensionMessageType.SKIP_CURRENT_VIDEO]: void;
+    [ExtensionMessageType.GET_PLAYER_STATE]: void;
+    [ExtensionMessageType.GET_PLAYER_VIDEO_URL]: void;
+    [ExtensionMessageType.PLAYER_VIDEO_UPDATED]: string;
+    [ExtensionMessageType.LAST_VIDEO_UPDATED]: VideoType;
+    // Profile
     [ExtensionMessageType.UPDATE_MUTED]: boolean;
-    //
     [ExtensionMessageType.UPDATE_READY]: boolean;
+    [ExtensionMessageType.GET_LAST_VIDEO]: void;
+    [ExtensionMessageType.GET_PLAYLIST]: void;
+};
+export type ExtensionMessageResponseMap = {
+    [ExtensionMessageType.GET_PLAYLIST]: PlaylistType;
+    [ExtensionMessageType.GET_PROFILE]: Promise<ProfileType>;
+    [ExtensionMessageType.IS_PRIMARY_TAB]: Promise<boolean>;
+    [ExtensionMessageType.IS_PRIMARY_TAB_EXISTS]: Promise<boolean>;
+    [ExtensionMessageType.GET_MEMBERS]: MemberType[];
+    [ExtensionMessageType.ADD_VIDEO]: string;
+    [ExtensionMessageType.REMOVE_VIDEO]: string;
+    [ExtensionMessageType.GET_ROOM_ID]: string;
+    [ExtensionMessageType.GET_IS_ADMIN]: boolean;
+    [ExtensionMessageType.GET_PLAYER_STATE]: PlayerStateType;
+    [ExtensionMessageType.GET_PLAYER_VIDEO_URL]: string;
+    [ExtensionMessageType.GET_LAST_VIDEO]: VideoType | null;
 };
 
 export interface ExtensionMessage<T extends ExtensionMessageType> {
     type: ExtensionMessageType;
-    payload: ExtensionMessagePayloadMap[T];
+    payload?: ExtensionMessagePayloadMap[T];
 }
