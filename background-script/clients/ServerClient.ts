@@ -13,7 +13,7 @@ type MessageHandler<T extends FromServerMessageType> = (
     payload: FromServerMessagePayloadMap[T],
 ) => void;
 
-const buildQueryParams = (params: Record<string, any>): string =>
+const buildQueryParams = (params: Record<string, string | number>): string =>
     Object.entries(params)
         .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
         .join("&");
@@ -21,7 +21,7 @@ const buildQueryParams = (params: Record<string, any>): string =>
 class ServerClient {
     private static instance: ServerClient;
     private _ws: WebSocket | null;
-    private _handlers: Map<FromServerMessageType, MessageHandler<any>>;
+    private _handlers: Map<FromServerMessageType, MessageHandler<FromServerMessageType>>;
     private _keepAliveIntervalId: NodeJS.Timeout | null;
 
     private constructor() {

@@ -31,12 +31,13 @@ const Room: React.FC<RoomProps> = ({ callback }) => {
     const messagingClient = new ContentScriptMessagingClient();
 
     useEffect(() => {
-        const handler = (payload: MemberType[] | null): void => {
-            payload && setUsers(payload);
-            setLoading(false);
-        };
-
-        messagingClient.addHandler(ExtensionMessageType.MEMBERS_UPDATED, handler);
+        messagingClient.addHandler(
+            ExtensionMessageType.MEMBERS_UPDATED,
+            (payload: MemberType[] | null): void => {
+                payload && setUsers(payload);
+                setLoading(false);
+            },
+        );
 
         return () => {
             messagingClient.removeHandler(ExtensionMessageType.MEMBERS_UPDATED);
