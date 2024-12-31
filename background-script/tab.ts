@@ -59,15 +59,10 @@ const handleTab = async (tabId: number, url: string) => {
             url: chrome.runtime.getURL("/pages/loading.html"),
         });
 
-        server
-            .joinRoom(profile, roomId)
-            .then(() => {
-                console.log("ws connected");
-            })
-            .catch(err => {
-                console.log("ws error", err);
-                showErrorPage();
-            });
+        server.joinRoom(profile, roomId).catch(err => {
+            console.log("ws error", err);
+            showErrorPage();
+        });
     }
 };
 
@@ -87,7 +82,7 @@ chrome.tabs.onRemoved.addListener(tabId => {
             .then(primaryTabId => {
                 if (primaryTabId === tabId) {
                     server.close();
-                    primaryTabStorage.remove();
+                    primaryTabStorage.unset();
                 }
             })
             .catch(err => console.log(err));
@@ -95,8 +90,9 @@ chrome.tabs.onRemoved.addListener(tabId => {
 });
 
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+    // todo: refactor
     const clearPrimary = (): void => {
-        primaryTabStorage.remove();
+        primaryTabStorage.unset();
         server.close();
     };
 

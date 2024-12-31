@@ -24,9 +24,8 @@ class Player {
     private _mode: Modes = Modes.Default;
     private _muted: boolean = true;
     private _state_set: number = 0;
-    private _waiting: boolean = false;
-    private _default_unpauses_left = 2;
-    private _ad_showing: boolean = true;
+    private _is_ready: boolean = false;
+    private _default_unpauses_left = 2; //! now causing bug: two unpause clicks needed after room created
     private _default_waiting_handled: boolean = false;
 
     private _contentScriptMessagingClient: ContentScriptMessagingClient;
@@ -51,7 +50,7 @@ class Player {
         // State handle
         this._p.addEventListener("play", this.handlePlay.bind(this));
         this._p.addEventListener("pause", this.handlePause.bind(this));
-        this._p.addEventListener("seeking", this.handleSeeked.bind(this));
+        this._p.addEventListener("seeking", this.handleSeeking.bind(this));
         this._p.addEventListener("ratechange", this.handleRatechange.bind(this));
         // Loading handle
         this._p.addEventListener("waiting", this.handleWaiting.bind(this));
@@ -59,7 +58,6 @@ class Player {
         this._p.addEventListener("loadeddata", this.handleLoadedData.bind(this));
         this._p.addEventListener("ended", this.handleEnded.bind(this));
 
-        console.log("event listeners added");
         this._p.addEventListener("audioprocess", () => console.log("audioprocess"));
         this._p.addEventListener("canplay", () => console.log("canplay"));
         this._p.addEventListener("canplaythrough", () => console.log("canplaythrough"));
@@ -75,7 +73,6 @@ class Player {
         this._p.addEventListener("seeked", () => console.log("seeked"));
         this._p.addEventListener("stalled", () => console.log("stalled"));
         this._p.addEventListener("suspend", () => console.log("suspend"));
-        this._p.addEventListener("timeupdate", () => console.log("timeupdate"));
     }
 
     private fetchState() {
@@ -87,31 +84,29 @@ class Player {
         );
     }
 
-    private debouncedWaiting = debounce((value: boolean): void => {
-        this._waiting = value;
-        this.handleOnline();
-    }, 800);
+    private debouncedUpdateIsReady = debounce(() => this.sendUpdateReady(), 800);
 
     // Then modify your debounceWaiting method to call it
-    private debounceWaiting(value: boolean): void {
-        log("debounce waiting");
-        this.debouncedWaiting(value);
+    private debounceUpdateIsReady(value: boolean): void {
+        if (this._is_ready === value) return;
+        this._is_ready = value;
+        this.debouncedUpdateIsReady();
     }
 
     // Loading handle
 
     private handleWaiting() {
         log("waiting");
-        if (!this._default_waiting_handled) {
-            this._default_waiting_handled = true;
-            return;
-        }
-        this.debounceWaiting(true);
+        // if (!this._default_waiting_handled) {
+        //     this._default_waiting_handled = true;
+        //     return;
+        // }
+        this.debounceUpdateIsReady(false);
     }
 
     private handlePlaying() {
         log("playing");
-        this.debounceWaiting(false);
+        this.debounceUpdateIsReady(true);
     }
 
     private handleEnded() {
@@ -121,8 +116,7 @@ class Player {
 
     private handleLoadedData() {
         log("loaded data");
-        log("ready state", this._p.readyState);
-        this.debounceWaiting(false);
+        this.debounceUpdateIsReady(true);
     }
 
     // Mute
@@ -198,9 +192,9 @@ class Player {
         this.handleStateChanged();
     }
 
-    private handleSeeked() {
-        log("seeked");
-        log("duration", this._p.duration);
+    private handleSeeking() {
+        log("seeking", "duration", this._p.duration);
+        this.debounceUpdateIsReady(false);
         this.handleStateChanged();
     }
 
@@ -222,7 +216,7 @@ class Player {
             return;
         }
 
-        if (this._ad_showing) return;
+        if (!this._is_ready) return;
 
         ContentScriptMessagingClient.sendMessage(
             ExtensionMessageType.UPDATE_PLAYER_STATE,
@@ -244,11 +238,12 @@ class Player {
             ExtensionMessageType.PLAYER_STATE_UPDATED,
             (state: PlayerStateType) => {
                 log("received player state updated", state);
-                if (this._ad_showing || this._waiting) {
-                    return;
-                } else {
-                    this.state = state;
-                }
+                this.state = state;
+                // if (this._is_ready) {
+                //     return;
+                // } else {
+                //     this.state = state;
+                // }
             },
         );
     }
@@ -280,13 +275,7 @@ class Player {
     // Ad showing
 
     private observeAd(cl: DOMTokenList): void {
-        this.ad = cl.contains("ad-showing");
-    }
-
-    private set ad(ad: boolean) {
-        if (this._ad_showing === ad) return;
-        this._ad_showing = ad;
-        this.handleOnline();
+        this.debounceUpdateIsReady(!cl.contains("ad-showing"));
     }
 
     // Player mode
@@ -322,13 +311,9 @@ class Player {
         this._mode = mode;
     }
 
-    private handleOnline(): void {
-        log("handle online");
-        if (this._waiting || this._ad_showing) {
-            ContentScriptMessagingClient.sendMessage(ExtensionMessageType.UPDATE_READY, false);
-        } else {
-            ContentScriptMessagingClient.sendMessage(ExtensionMessageType.UPDATE_READY, true);
-        }
+    private sendUpdateReady(): void {
+        log("handle ready");
+        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.UPDATE_READY, this._is_ready);
     }
 }
 
