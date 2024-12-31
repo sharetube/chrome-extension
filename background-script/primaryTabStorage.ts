@@ -16,17 +16,27 @@ export class PrimaryTabStorage {
         return chrome.storage.local.set({ [this.STORAGE_KEY]: tabId });
     }
 
-    public get(): Promise<number | null> {
-        return chrome.storage.local
-            .get(this.STORAGE_KEY)
-            .then(result => result[this.STORAGE_KEY] || null)
-            .catch(err => {
-                console.error("Error getting primary tab:", err);
-                return null;
-            });
+    private checkIfTabExists(tabId: number): Promise<boolean> {
+        return chrome.tabs
+            .get(tabId)
+            .then(() => true)
+            .catch(() => false);
     }
 
-    public remove(): Promise<void> {
+    public async get(): Promise<number | null> {
+        const primaryTabId =
+            (await chrome.storage.local.get(this.STORAGE_KEY))[this.STORAGE_KEY] || null;
+        if (!primaryTabId) return null;
+
+        if (!(await this.checkIfTabExists(primaryTabId))) {
+            this.unset();
+            return null;
+        }
+
+        return primaryTabId;
+    }
+
+    public unset(): Promise<void> {
         return new Promise((resolve, reject) => {
             chrome.storage.local
                 .remove(this.STORAGE_KEY)

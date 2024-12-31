@@ -15,9 +15,7 @@ import { ToServerMessageType as TSMType } from "types/serverMessage";
 const server = ServerClient.getInstance();
 
 const profileStorage = ProfileStorage.getInstance();
-
 const bgMessagingClient = BackgroundMessagingClient.getInstance();
-
 const primaryTabStorage = PrimaryTabStorage.getInstance();
 
 export function addVideo(videoUrl: EMPM[EMType.ADD_VIDEO]): void {

@@ -1,15 +1,16 @@
 import { BackgroundMessagingClient } from "background-script/clients/ExtensionClient";
 import { PrimaryTabStorage } from "background-script/primaryTabStorage";
-import { globalState } from "background-script/state";
+import { globalState, resetState } from "background-script/state";
 import { takeTargetPrimaryTabId } from "background-script/targetPrimaryTabId";
 import { ExtensionMessageType } from "types/extensionMessage";
 import { FromServerMessagePayloadMap, FromServerMessageType } from "types/serverMessage";
 
 const bgMessagingClient = BackgroundMessagingClient.getInstance();
-
 export function joinedRoom(
     payload: FromServerMessagePayloadMap[FromServerMessageType.JOINED_ROOM],
 ): void {
+    resetState();
+    globalState.jwt = payload.jwt;
     globalState.room = payload.room;
     globalState.is_admin = payload.joined_member.is_admin;
 

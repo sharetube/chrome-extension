@@ -3,6 +3,6 @@ import { ProfileStorage } from "./profileStorage";
 
 chrome.runtime.onInstalled.addListener(details => {
     console.log("onInstalled", details);
-    PrimaryTabStorage.getInstance().remove();
+    PrimaryTabStorage.getInstance().unset();
     ProfileStorage.getInstance().get();
 });
