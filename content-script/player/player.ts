@@ -26,7 +26,6 @@ class Player {
     private _state_set: number = 0;
     private _is_ready: boolean = false;
     private _default_unpauses_left = 2; //! now causing bug: two unpause clicks needed after room created
-    private _default_waiting_handled: boolean = false;
 
     private _contentScriptMessagingClient: ContentScriptMessagingClient;
     private _observer: MutationObserver | null = null;
@@ -73,6 +72,16 @@ class Player {
         this._p.addEventListener("seeked", () => console.log("seeked"));
         this._p.addEventListener("stalled", () => console.log("stalled"));
         this._p.addEventListener("suspend", () => console.log("suspend"));
+
+        document.addEventListener("keydown", event => {
+            if (event.key === "ArrowRight") {
+                log(
+                    "ArrowRight video diration, current time",
+                    this._p.duration,
+                    this._p.currentTime,
+                );
+            }
+        });
     }
 
     private fetchState() {
@@ -94,13 +103,8 @@ class Player {
     }
 
     // Loading handle
-
     private handleWaiting() {
         log("waiting");
-        // if (!this._default_waiting_handled) {
-        //     this._default_waiting_handled = true;
-        //     return;
-        // }
         this.debounceUpdateIsReady(false);
     }
 
@@ -120,7 +124,6 @@ class Player {
     }
 
     // Mute
-
     private sendMute() {
         ContentScriptMessagingClient.sendMessage(ExtensionMessageType.UPDATE_MUTED, this._muted);
     }
@@ -136,7 +139,6 @@ class Player {
     }
 
     // State
-
     public set state(state: PlayerStateType) {
         let ct;
         if (!state.is_playing) {
@@ -239,23 +241,16 @@ class Player {
             (state: PlayerStateType) => {
                 log("received player state updated", state);
                 this.state = state;
-                // if (this._is_ready) {
-                //     return;
-                // } else {
-                //     this.state = state;
-                // }
             },
         );
     }
 
     // Set video
-
     private set video(videoUrl: string) {
         window.postMessage({ type: "SKIP", payload: videoUrl }, "*");
     }
 
     // Main observer
-
     private observeElement(): void {
         this._observer = new MutationObserver(mutations => {
             mutations.forEach(mutation => {
@@ -273,13 +268,11 @@ class Player {
     }
 
     // Ad showing
-
     private observeAd(cl: DOMTokenList): void {
         this.debounceUpdateIsReady(!cl.contains("ad-showing"));
     }
 
     // Player mode
-
     private observeMode(cl: DOMTokenList): void {
         const classNames = Array.from(cl);
         const c = (className: string) => classNames.includes(className);

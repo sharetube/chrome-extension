@@ -1,5 +1,5 @@
 import { BaseMessagingClient } from "../../shared/baseExtensionClient";
-import { PrimaryTabStorage } from "background-script/primaryTabStorage";
+import { TabStorage } from "background-script/tabStorage";
 import {
     ExtensionMessage,
     ExtensionMessagePayloadMap,
@@ -8,12 +8,11 @@ import {
 
 export class BackgroundMessagingClient extends BaseMessagingClient {
     private static _instance: BackgroundMessagingClient;
-    private _tabIds: Set<number> = new Set();
-    private _primatyTabStorage: PrimaryTabStorage;
+    private _tabStorage: TabStorage;
 
     constructor() {
         super();
-        this._primatyTabStorage = PrimaryTabStorage.getInstance();
+        this._tabStorage = TabStorage.getInstance();
     }
 
     public static getInstance(): BackgroundMessagingClient {
@@ -34,7 +33,7 @@ export class BackgroundMessagingClient extends BaseMessagingClient {
         type: T,
         payload: ExtensionMessagePayloadMap[T],
     ): Promise<void> {
-        const primaryTabId = await this._primatyTabStorage.get();
+        const primaryTabId = await this._tabStorage.getPrimaryTab();
         if (!primaryTabId) {
             console.error("Error trying send to primary tab: no primary tab found");
             return;
@@ -51,20 +50,11 @@ export class BackgroundMessagingClient extends BaseMessagingClient {
     ): void {
         const message: ExtensionMessage<T> = { type, payload };
         console.log("broadcasting message to all tabs", message);
-        this._tabIds.forEach(tabId => {
-            chrome.tabs.sendMessage(tabId, message);
+        this._tabStorage.getTabs().then(tabs => {
+            console.log("broadcasting to tabs", tabs);
+            tabs.forEach(tabId => {
+                chrome.tabs.sendMessage(tabId, message);
+            });
         });
-    }
-
-    public addTab(tabId: number): void {
-        this._tabIds.add(tabId);
-    }
-
-    public removeTab(tabId: number): void {
-        this._tabIds.delete(tabId);
-    }
-
-    public tabExists(tabId: number): boolean {
-        return this._tabIds.has(tabId);
     }
 }

@@ -1,9 +1,10 @@
 import { setTargetPrimaryTabId } from "../targetPrimaryTabId";
 import { BackgroundMessagingClient } from "background-script/clients/ExtensionClient";
 import ServerClient from "background-script/clients/ServerClient";
-import { PrimaryTabStorage } from "background-script/primaryTabStorage";
 import { ProfileStorage } from "background-script/profileStorage";
 import { globalState } from "background-script/state";
+import { getPrimaryTabIdOrUnset } from "background-script/tab";
+import { TabStorage } from "background-script/tabStorage";
 import {
     ExtensionMessagePayloadMap as EMPM,
     ExtensionMessageResponseMap as EMRM,
@@ -16,7 +17,7 @@ const server = ServerClient.getInstance();
 
 const profileStorage = ProfileStorage.getInstance();
 const bgMessagingClient = BackgroundMessagingClient.getInstance();
-const primaryTabStorage = PrimaryTabStorage.getInstance();
+const tabStorage = TabStorage.getInstance();
 
 export function addVideo(videoUrl: EMPM[EMType.ADD_VIDEO]): void {
     server.send(TSMType.ADD_VIDEO, { video_url: videoUrl });
@@ -112,7 +113,7 @@ export async function createRoom(
 }
 
 export function switchToPrimaryTab() {
-    primaryTabStorage.get().then(primaryTabId => {
+    tabStorage.getPrimaryTab().then(primaryTabId => {
         if (primaryTabId) chrome.tabs.update(primaryTabId, { active: true });
     });
 }
@@ -127,11 +128,15 @@ export function isPrimaryTab(
             return;
         }
 
-        bgMessagingClient.addTab(sender.tab.id);
-        resolve(primaryTabStorage.get().then(primaryTabId => primaryTabId === sender.tab?.id));
+        tabStorage.addTab(sender.tab.id);
+
+        getPrimaryTabIdOrUnset().then(primaryTabId => {
+            console.log("isPrimaryTab", primaryTabId, sender.tab?.id);
+            resolve(primaryTabId === sender.tab?.id);
+        });
     });
 }
 
 export function isPrimaryTabExists(): EMRM[EMType.IS_PRIMARY_TAB_EXISTS] {
-    return primaryTabStorage.get().then(primaryTabId => !!primaryTabId);
+    return getPrimaryTabIdOrUnset().then(primaryTabId => primaryTabId !== null);
 }
