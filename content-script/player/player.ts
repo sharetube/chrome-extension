@@ -74,12 +74,9 @@ class Player {
         this._p.addEventListener("suspend", () => console.log("suspend"));
 
         document.addEventListener("keydown", event => {
-            if (event.key === "ArrowRight") {
-                log(
-                    "ArrowRight video diration, current time",
-                    this._p.duration,
-                    this._p.currentTime,
-                );
+            switch (event.key) {
+                case "ArrowRight":
+                    this.handleRightArrowKey();
             }
         });
     }
@@ -100,6 +97,13 @@ class Player {
         if (this._is_ready === value) return;
         this._is_ready = value;
         this.debouncedUpdateIsReady();
+    }
+
+    private handleRightArrowKey() {
+        log("ArrowRight video diration, current time", this._p.duration, this._p.currentTime);
+        if (this._p.duration - this._p.currentTime < 5) {
+            ContentScriptMessagingClient.sendMessage(ExtensionMessageType.SKIP_CURRENT_VIDEO);
+        }
     }
 
     // Loading handle

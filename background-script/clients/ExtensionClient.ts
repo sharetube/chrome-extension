@@ -49,12 +49,8 @@ export class BackgroundMessagingClient extends BaseMessagingClient {
         payload?: ExtensionMessagePayloadMap[T],
     ): void {
         const message: ExtensionMessage<T> = { type, payload };
-        console.log("broadcasting message to all tabs", message);
-        this._tabStorage.getTabs().then(tabs => {
-            console.log("broadcasting to tabs", tabs);
-            tabs.forEach(tabId => {
-                chrome.tabs.sendMessage(tabId, message);
-            });
+        this._tabStorage.getTabs().forEach(tabId => {
+            chrome.tabs.sendMessage(tabId, message);
         });
     }
 }

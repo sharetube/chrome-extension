@@ -4,7 +4,6 @@ import { ProfileStorage } from "./profileStorage";
 import { globalState } from "./state";
 import { TabStorage } from "./tabStorage";
 import { setTargetPrimaryTabId } from "./targetPrimaryTabId";
-import { resolve } from "path";
 import { ExtensionMessageType } from "types/extensionMessage";
 
 const server = ServerClient.getInstance();
