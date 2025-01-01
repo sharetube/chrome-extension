@@ -95,6 +95,7 @@ export function updateReady(isReady: EMPM[EMType.UPDATE_READY]): void {
 export function updateProfile(profile: EMPM[EMType.UPDATE_PROFILE]): void {
     profileStorage.set(profile).then(() => {
         bgMessagingClient.broadcastMessage(ExtensionMessageType.PROFILE_UPDATED, profile);
+        server.send(TSMType.UPDATE_PROFILE, profile);
     });
 }
 
