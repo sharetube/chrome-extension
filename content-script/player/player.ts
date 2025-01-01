@@ -22,7 +22,7 @@ class Player {
     private _p: HTMLVideoElement;
 
     private _mode: Modes = Modes.Default;
-    private _muted: boolean = true;
+    private _muted: boolean | null = null;
     private _state_set: number = 0;
     private _waiting: boolean = false;
     private _default_unpauses_left = 2;
@@ -128,12 +128,12 @@ class Player {
     // Mute
 
     private sendMute() {
-        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.UPDATE_MUTED, this._muted);
+        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.UPDATE_MUTED, this._muted!);
     }
 
     private handleMute() {
         log("mute");
-        if (this._p.muted !== this._muted) {
+        if (this._p.muted === this._muted) {
             return;
         } else {
             this._muted = this._p.muted;

@@ -116,6 +116,7 @@ class ServerClient {
     }
 
     public send<T extends ToServerMessageType>(type: T, payload: ToServerMessagePayloadMap[T]) {
+        if (!this._ws || this._ws.readyState !== WebSocket.OPEN) return;
         const message = JSON.stringify({ type, payload });
         this._ws?.send(message);
         console.log("TO WS:", { type, payload });
