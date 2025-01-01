@@ -1,37 +1,30 @@
 export class TabStorage {
     private static _instance: TabStorage;
     private readonly PRIMARY_TAB_STORAGE_KEY = "st-primary-tab";
-    private readonly TABS_STORAGE_KEY = "st-tabs";
+    private _tabs: Set<number>;
+
+    constructor() {
+        this._tabs = new Set();
+    }
 
     public static getInstance(): TabStorage {
         return (TabStorage._instance ??= new TabStorage());
     }
 
-    public async addTab(tabId: number): Promise<void> {
-        const tabs = await this.getTabs();
-        console.log("Adding tab", tabId, tabs);
-        if (!tabs.includes(tabId)) {
-            tabs.push(tabId);
-            return chrome.storage.local.set({ [this.TABS_STORAGE_KEY]: tabs });
-        }
+    public addTab(tabId: number): void {
+        if (!this._tabs.has(tabId)) this._tabs.add(tabId);
     }
 
-    public async removeTab(tabId: number): Promise<void> {
-        const tabs = await this.getTabs();
-        console.log("Removing tab", tabId, tabs);
-        const newTabs = tabs.filter(t => t !== tabId);
-        console.log("New tabs", newTabs);
-        return chrome.storage.local.set({ [this.TABS_STORAGE_KEY]: newTabs });
+    public removeTab(tabId: number): void {
+        this._tabs.delete(tabId);
     }
 
-    public async tabExists(tabId: number): Promise<boolean> {
-        return this.getTabs().then(tabs => tabs.includes(tabId));
+    public tabExists(tabId: number): boolean {
+        return this._tabs.has(tabId);
     }
 
-    public async getTabs(): Promise<number[]> {
-        const tabs = await chrome.storage.local.get(this.TABS_STORAGE_KEY);
-        console.log("get tabs", tabs);
-        return tabs[this.TABS_STORAGE_KEY] || [];
+    public getTabs(): Set<number> {
+        return this._tabs;
     }
 
     public setPrimaryTab(tabId: number): Promise<void> {
