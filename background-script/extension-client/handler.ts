@@ -84,6 +84,11 @@ export function updateMuted(isMuted: EMPM[EMType.UPDATE_MUTED]): void {
 }
 
 export function updatePlayerState(playerState: EMPM[EMType.UPDATE_PLAYER_STATE]): void {
+    globalState.room.player.current_time = playerState.current_time;
+    globalState.room.player.is_playing = playerState.is_playing;
+    globalState.room.player.playback_rate = playerState.playback_rate;
+    globalState.room.player.updated_at = playerState.updated_at;
+
     server.send(TSMType.UPDATE_PLAYER_STATE, playerState);
 }
 
