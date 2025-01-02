@@ -17,26 +17,42 @@ interface MastheadElement extends HTMLElement {
 }
 
 class Player {
-    // todo: rename
-    private _e: HTMLElement;
-    private _p: HTMLVideoElement;
+    private _e: HTMLElement; // todo: rename
+    private _player: HTMLVideoElement;
 
+    // todo: move initialization to constructor
     private _mode: Modes = Modes.Default;
+<<<<<<< HEAD
     private _muted: boolean | null = null;
     private _state_set: number = 0;
     private _waiting: boolean = false;
     private _default_unpauses_left = 2;
     private _ad_showing: boolean = true;
     private _default_waiting_handled: boolean = false;
+||||||| 6d605a0
+    private _muted: boolean = true;
+    private _state_set: number = 0;
+    private _waiting: boolean = false;
+    private _default_unpauses_left = 2;
+    private _ad_showing: boolean = true;
+    private _default_waiting_handled: boolean = false;
+=======
+    private _muted: boolean = true;
+    private _isReady: boolean = false;
+    private _adShowing: boolean = false;
+    private _isDataLoaded: boolean = false;
+    private _ignoreSeekingCount: number = 0;
+    private _ignorePlayCount: number = 0;
+    private _ignorePlayingCount: number = 0;
+    private _ignorePauseCount: number = 0;
+>>>>>>> skewb1k
 
     private _contentScriptMessagingClient: ContentScriptMessagingClient;
-    private _observer: MutationObserver | null = null;
 
     public constructor(e: HTMLElement, p: HTMLVideoElement) {
         this._e = e;
-        this._p = p;
+        this._player = p;
         this._contentScriptMessagingClient = new ContentScriptMessagingClient();
-        this.fetchState();
 
         this.observeElement();
         this.handleStateMessages();
@@ -47,71 +63,93 @@ class Player {
 
     private addEventListeners() {
         // Mute handle
-        this._p.addEventListener("volumechange", this.handleMute.bind(this));
+        this._player.addEventListener("volumechange", this.handleMute.bind(this));
         // State handle
-        this._p.addEventListener("play", this.handlePlay.bind(this));
-        this._p.addEventListener("pause", this.handlePause.bind(this));
-        this._p.addEventListener("seeking", this.handleSeeked.bind(this));
-        this._p.addEventListener("ratechange", this.handleRatechange.bind(this));
+        this._player.addEventListener("play", this.handlePlay.bind(this));
+        this._player.addEventListener("pause", this.handlePause.bind(this));
+        this._player.addEventListener("seeking", this.handleSeeking.bind(this));
+        this._player.addEventListener("ratechange", this.handleRatechange.bind(this));
         // Loading handle
-        this._p.addEventListener("waiting", this.handleWaiting.bind(this));
-        this._p.addEventListener("playing", this.handlePlaying.bind(this));
-        this._p.addEventListener("loadeddata", this.handleLoadedData.bind(this));
-        this._p.addEventListener("ended", this.handleEnded.bind(this));
+        this._player.addEventListener("waiting", this.handleWaiting.bind(this));
+        this._player.addEventListener("playing", this.handlePlaying.bind(this));
+        this._player.addEventListener("loadeddata", this.handleLoadedData.bind(this));
+        this._player.addEventListener("ended", this.handleEnded.bind(this));
 
-        console.log("event listeners added");
-        this._p.addEventListener("audioprocess", () => console.log("audioprocess"));
-        this._p.addEventListener("canplay", () => console.log("canplay"));
-        this._p.addEventListener("canplaythrough", () => console.log("canplaythrough"));
-        this._p.addEventListener("complete", () => console.log("complete"));
-        this._p.addEventListener("durationchange", () => console.log("durationchange"));
-        this._p.addEventListener("emptied", () => console.log("emptied"));
-        this._p.addEventListener("error", () => console.log("error"));
-        this._p.addEventListener("loadedmetadata", () => console.log("loadedmetadata"));
-        this._p.addEventListener("loadstart", () => console.log("loadstart"));
-        this._p.addEventListener("playing", () => console.log("playing"));
-        this._p.addEventListener("progress", () => console.log("progress"));
-        this._p.addEventListener("ratechange", () => console.log("ratechange"));
-        this._p.addEventListener("seeked", () => console.log("seeked"));
-        this._p.addEventListener("stalled", () => console.log("stalled"));
-        this._p.addEventListener("suspend", () => console.log("suspend"));
-        this._p.addEventListener("timeupdate", () => console.log("timeupdate"));
+        this._player.addEventListener("canplay", () => this.handleCanplay.bind(this));
+        // this._p.addEventListener("canplaythrough", () => log("canplaythrough"));
+        this._player.addEventListener("emptied", () => log("emptied"));
+        this._player.addEventListener("error", () => log("error"));
+        this._player.addEventListener("seeked", () => this.handleSeeked.bind(this));
+
+        document.addEventListener("keydown", event => {
+            switch (event.key) {
+                case "ArrowRight":
+                    this.handleRightArrowKey();
+            }
+        });
     }
 
-    private fetchState() {
+    private setActualState() {
         ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_PLAYER_STATE).then(
             (state: PlayerStateType) => {
                 log("fetched player state", state);
-                this.state = state;
+                this.setState(state);
             },
         );
     }
 
-    private debouncedWaiting = debounce((value: boolean): void => {
-        this._waiting = value;
-        this.handleOnline();
-    }, 800);
+    private debouncedUpdateIsReady = debounce(() => {
+        log("sending update ready", this._isReady);
+        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.UPDATE_READY, this._isReady);
+    }, 200);
 
-    // Then modify your debounceWaiting method to call it
-    private debounceWaiting(value: boolean): void {
-        log("debounce waiting");
-        this.debouncedWaiting(value);
+    private debounceUpdateIsReady(value: boolean): void {
+        log("debounced update ready", value, this._isReady);
+        if (this._isReady === value) return;
+        this._isReady = value;
+        this.debouncedUpdateIsReady();
     }
 
-    // Loading handle
+    private handleRightArrowKey() {
+        log(
+            "ArrowRight: video diration, current time",
+            this._player.duration,
+            this._player.currentTime,
+        );
+        if (this._player.duration - this._player.currentTime < 5) {
+            ContentScriptMessagingClient.sendMessage(ExtensionMessageType.SKIP_CURRENT_VIDEO);
+        }
+    }
 
+    // Handlers
     private handleWaiting() {
         log("waiting");
-        if (!this._default_waiting_handled) {
-            this._default_waiting_handled = true;
-            return;
-        }
-        this.debounceWaiting(true);
+        this.debounceUpdateIsReady(false);
+    }
+
+    private handleCanplay() {
+        log("canplay");
+
+        this.setActualState();
+        this.debounceUpdateIsReady(true);
     }
 
     private handlePlaying() {
         log("playing");
-        this.debounceWaiting(false);
+        if (this._ignorePlayingCount > 0) {
+            log("playing ignored");
+            this._ignorePlayingCount--;
+            return;
+        }
+
+        this.setActualState();
+        this.debounceUpdateIsReady(true);
+    }
+
+    private handleSeeked() {
+        log("seeked");
+        this.setActualState();
+        this.debounceUpdateIsReady(true);
     }
 
     private handleEnded() {
@@ -121,46 +159,104 @@ class Player {
 
     private handleLoadedData() {
         log("loaded data");
-        log("ready state", this._p.readyState);
-        this.debounceWaiting(false);
+        this._isDataLoaded = true;
+        this.setActualState();
+        this.debounceUpdateIsReady(true);
+    }
+
+    private handlePause() {
+        log("pause");
+        if (this._ignorePauseCount > 0) {
+            log("pause ignored");
+            this._ignorePauseCount--;
+            return;
+        }
+
+        this.handleStateChanged();
+    }
+
+    private handlePlay() {
+        log("play");
+        if (!this._isDataLoaded) {
+            log("play ignored because data not loaded");
+            return;
+        }
+
+        if (this._ignorePlayCount > 0) {
+            log("play ignored");
+            this._ignorePlayCount--;
+            // this.setActualState();
+            return;
+        }
+
+        this._ignorePlayingCount++;
+        this.handleStateChanged();
+    }
+
+    private handleSeeking() {
+        log("seeking");
+        if (this._ignoreSeekingCount > 0) {
+            log("seeking ignored");
+            this._ignoreSeekingCount--;
+            return;
+        }
+
+        this._ignorePlayCount++;
+        this.handleStateChanged();
+    }
+
+    private handleRatechange() {
+        log("ratechange");
+        this.handleStateChanged();
     }
 
     // Mute
-
     private sendMute() {
         ContentScriptMessagingClient.sendMessage(ExtensionMessageType.UPDATE_MUTED, this._muted!);
     }
 
     private handleMute() {
         log("mute");
+<<<<<<< HEAD
         if (this._p.muted === this._muted) {
+||||||| 6d605a0
+        if (this._p.muted !== this._muted) {
+=======
+        if (this._player.muted !== this._muted) {
+>>>>>>> skewb1k
             return;
         } else {
-            this._muted = this._p.muted;
+            this._muted = this._player.muted;
             this.sendMute();
         }
     }
 
     // State
-
-    public set state(state: PlayerStateType) {
+    public setState(state: PlayerStateType) {
         let ct;
-        if (!state.is_playing) {
-            ct = state.current_time / 1e6;
-        } else {
+        if (state.is_playing) {
             ct =
                 Math.round(
                     state.current_time +
                         (Date.now() * 1e3 - state.updated_at) * state.playback_rate,
                 ) / 1e6;
+        } else {
+            ct = state.current_time / 1e6;
         }
 
-        log("setting state: previous state", this.state);
+        if (state.is_playing && !this.getIsPLaying()) {
+            log("ignore play count ++", this._ignorePlayCount);
+            this._ignorePlayCount++;
+        } else if (!state.is_playing && this.getIsPLaying()) {
+            log("ignore pause count ++", this._ignorePauseCount);
+            // this._ignorePauseCount++;
+        }
+        this._player[state.is_playing ? "play" : "pause"]();
 
-        this._state_set = 2;
-        this._p[state.is_playing ? "play" : "pause"]();
-        this._p.currentTime = ct;
-        this._p.playbackRate = state.playback_rate;
+        this._player.currentTime = ct;
+        this._ignoreSeekingCount++;
+
+        this._player.playbackRate = state.playback_rate;
 
         log("setted player state", {
             current_time: ct,
@@ -170,63 +266,26 @@ class Player {
     }
 
     public getIsPLaying(): boolean {
-        return !this._p.paused;
+        return !this._player.paused;
     }
 
-    public get state(): PlayerStateType {
+    public getState(): PlayerStateType {
         const s = {
             updated_at: Date.now() * 1e3,
-            current_time: Math.round(this._p.currentTime * 1e6),
-            playback_rate: this._p.playbackRate,
+            current_time: Math.round(this._player.currentTime * 1e6),
+            playback_rate: this._player.playbackRate,
             is_playing: this.getIsPLaying(),
         };
         log("get state returned: ", s);
         return s;
     }
 
-    private handlePlay() {
-        log("play");
-        if (this._default_unpauses_left > 0) {
-            log(this._p.readyState);
-            log("default unpause handled");
-            this._default_unpauses_left--;
-            // todo: dont fetch state again
-            this.fetchState();
-            return;
-        }
-
-        this.handleStateChanged();
-    }
-
-    private handleSeeked() {
-        log("seeked");
-        log("duration", this._p.duration);
-        this.handleStateChanged();
-    }
-
-    private handleRatechange() {
-        log("ratechange");
-        this.handleStateChanged();
-    }
-
-    private handlePause() {
-        log("pause");
-        this.handleStateChanged();
-    }
-
     private handleStateChanged() {
-        log("state changed", this.state);
-        if (this._state_set > 0) {
-            log("state set if");
-            this._state_set--;
-            return;
-        }
-
-        if (this._ad_showing) return;
+        if (!this._isReady) return;
 
         ContentScriptMessagingClient.sendMessage(
             ExtensionMessageType.UPDATE_PLAYER_STATE,
-            this.state,
+            this.getState(),
         );
     }
 
@@ -235,8 +294,9 @@ class Player {
             ExtensionMessageType.PLAYER_VIDEO_UPDATED,
             (videoUrl: string) => {
                 log("received video updated", videoUrl);
-                this._default_unpauses_left = 1;
-                this.video = videoUrl;
+                this._ignorePlayCount++;
+                log("ignore play count ++", this._ignorePlayCount);
+                this.updateVideo(videoUrl);
             },
         );
 
@@ -244,64 +304,50 @@ class Player {
             ExtensionMessageType.PLAYER_STATE_UPDATED,
             (state: PlayerStateType) => {
                 log("received player state updated", state);
-                if (this._ad_showing || this._waiting) {
-                    return;
-                } else {
-                    this.state = state;
-                }
+                this.setState(state);
             },
         );
     }
 
-    // Set video
-
-    private set video(videoUrl: string) {
+    private updateVideo(videoUrl: string) {
         window.postMessage({ type: "SKIP", payload: videoUrl }, "*");
     }
 
-    // Main observer
-
     private observeElement(): void {
-        this._observer = new MutationObserver(mutations => {
+        const observer = new MutationObserver(mutations => {
             mutations.forEach(mutation => {
                 if (mutation.type === "attributes" && mutation.attributeName === "class") {
-                    this.observeAd(this._e.classList);
-                    this.observeMode(this._e.classList);
+                    this.handleAdChanged(this._e.classList);
+                    this.handleModeChanged(this._e.classList);
                 }
             });
         });
 
-        this._observer.observe(this._e, {
+        observer.observe(this._e, {
             attributes: true,
             attributeFilter: ["class"],
         });
     }
 
     // Ad showing
-
-    private observeAd(cl: DOMTokenList): void {
-        this.ad = cl.contains("ad-showing");
-    }
-
-    private set ad(ad: boolean) {
-        if (this._ad_showing === ad) return;
-        this._ad_showing = ad;
-        this.handleOnline();
+    private handleAdChanged(cl: DOMTokenList): void {
+        const adShowing = cl.contains("ad-showing");
+        if (this._adShowing === adShowing) return;
+        this.debounceUpdateIsReady(!adShowing);
     }
 
     // Player mode
-
-    private observeMode(cl: DOMTokenList): void {
+    private handleModeChanged(cl: DOMTokenList): void {
         const classNames = Array.from(cl);
         const c = (className: string) => classNames.includes(className);
 
         if (c("ytp-modern-miniplayer")) {
-            this.mode = Modes.Mini;
+            this.setMode(Modes.Mini);
             return;
         }
 
         if (c("ytp-fullscreen") && c("ytp-big-mode")) {
-            this.mode = Modes.Full;
+            this.setMode(Modes.Full);
             return;
         }
 
@@ -310,25 +356,16 @@ class Player {
         ) as MastheadElement | null;
 
         if (masthead && masthead.hasAttribute("theater")) {
-            this.mode = Modes.Theater;
+            this.setMode(Modes.Theater);
             return;
         }
 
-        this.mode = Modes.Default;
+        this.setMode(Modes.Default);
     }
 
-    private set mode(mode: Modes) {
+    private setMode(mode: Modes) {
         if (this._mode === mode) return;
         this._mode = mode;
-    }
-
-    private handleOnline(): void {
-        log("handle online");
-        if (this._waiting || this._ad_showing) {
-            ContentScriptMessagingClient.sendMessage(ExtensionMessageType.UPDATE_READY, false);
-        } else {
-            ContentScriptMessagingClient.sendMessage(ExtensionMessageType.UPDATE_READY, true);
-        }
     }
 }
 

@@ -1,3 +1,4 @@
+import { globalState } from "background-script/state";
 import config from "config";
 import { ProfileType } from "types/profile.type";
 import {
@@ -21,6 +22,7 @@ const buildQueryParams = (params: Record<string, string>): string =>
 class ServerClient {
     private static instance: ServerClient;
     private _ws: WebSocket | null;
+    // todo: remove any
     private _handlers: Map<FromServerMessageType, MessageHandler<any>>;
     private _keepAliveIntervalId: NodeJS.Timeout | null;
 
@@ -108,7 +110,7 @@ class ServerClient {
     }
 
     public joinRoom(profile: ProfileType, room_id: string): Promise<void> {
-        const params = this.buildParams(profile);
+        const params = this.buildParams(profile, globalState.jwt ? { jwt: globalState.jwt } : {});
         console.log("ws joining room with params:", params);
         return this.init(
             `wss://${baseUrl}/api/v1/ws/room/${room_id}/join?${buildQueryParams(params)}`,

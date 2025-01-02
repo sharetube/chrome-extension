@@ -1,9 +1,10 @@
 import { setTargetPrimaryTabId } from "../targetPrimaryTabId";
 import { BackgroundMessagingClient } from "background-script/clients/ExtensionClient";
 import ServerClient from "background-script/clients/ServerClient";
-import { PrimaryTabStorage } from "background-script/primaryTabStorage";
 import { ProfileStorage } from "background-script/profileStorage";
 import { globalState } from "background-script/state";
+import { getPrimaryTabIdOrUnset } from "background-script/tab";
+import { TabStorage } from "background-script/tabStorage";
 import {
     ExtensionMessagePayloadMap as EMPM,
     ExtensionMessageResponseMap as EMRM,
@@ -15,10 +16,8 @@ import { ToServerMessageType as TSMType } from "types/serverMessage";
 const server = ServerClient.getInstance();
 
 const profileStorage = ProfileStorage.getInstance();
-
 const bgMessagingClient = BackgroundMessagingClient.getInstance();
-
-const primaryTabStorage = PrimaryTabStorage.getInstance();
+const tabStorage = TabStorage.getInstance();
 
 export function addVideo(videoUrl: EMPM[EMType.ADD_VIDEO]): void {
     server.send(TSMType.ADD_VIDEO, { video_url: videoUrl });
@@ -85,6 +84,11 @@ export function updateMuted(isMuted: EMPM[EMType.UPDATE_MUTED]): void {
 }
 
 export function updatePlayerState(playerState: EMPM[EMType.UPDATE_PLAYER_STATE]): void {
+    globalState.room.player.current_time = playerState.current_time;
+    globalState.room.player.is_playing = playerState.is_playing;
+    globalState.room.player.playback_rate = playerState.playback_rate;
+    globalState.room.player.updated_at = playerState.updated_at;
+
     server.send(TSMType.UPDATE_PLAYER_STATE, playerState);
 }
 
@@ -115,7 +119,7 @@ export async function createRoom(
 }
 
 export function switchToPrimaryTab() {
-    primaryTabStorage.get().then(primaryTabId => {
+    tabStorage.getPrimaryTab().then(primaryTabId => {
         if (primaryTabId) chrome.tabs.update(primaryTabId, { active: true });
     });
 }
@@ -130,11 +134,15 @@ export function isPrimaryTab(
             return;
         }
 
-        bgMessagingClient.addTab(sender.tab.id);
-        resolve(primaryTabStorage.get().then(primaryTabId => primaryTabId === sender.tab?.id));
+        tabStorage.addTab(sender.tab.id);
+
+        getPrimaryTabIdOrUnset().then(primaryTabId => {
+            console.log("isPrimaryTab", primaryTabId, sender.tab?.id);
+            resolve(primaryTabId === sender.tab?.id);
+        });
     });
 }
 
 export function isPrimaryTabExists(): EMRM[EMType.IS_PRIMARY_TAB_EXISTS] {
-    return primaryTabStorage.get().then(primaryTabId => !!primaryTabId);
+    return getPrimaryTabIdOrUnset().then(primaryTabId => primaryTabId !== null);
 }

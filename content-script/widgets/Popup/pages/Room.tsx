@@ -20,9 +20,9 @@ const Room: React.FC<RoomProps> = ({ profile, changePage }) => {
     const contentSciptMessagingClient = new ContentScriptMessagingClient();
 
     useEffect(() => {
-        // console.log("Room mounted");
         ContentScriptMessagingClient.sendMessage(ExtensionMessageType.IS_PRIMARY_TAB_EXISTS).then(
             response => {
+                console.log("IS_PRIMARY_TAB_EXISTS", response);
                 setIsRoom(response);
                 setIsNavigateButtonDisabled(!response);
             },
