@@ -22,22 +22,7 @@ class Player {
 
     // todo: move initialization to constructor
     private _mode: Modes = Modes.Default;
-<<<<<<< HEAD
     private _muted: boolean | null = null;
-    private _state_set: number = 0;
-    private _waiting: boolean = false;
-    private _default_unpauses_left = 2;
-    private _ad_showing: boolean = true;
-    private _default_waiting_handled: boolean = false;
-||||||| 6d605a0
-    private _muted: boolean = true;
-    private _state_set: number = 0;
-    private _waiting: boolean = false;
-    private _default_unpauses_left = 2;
-    private _ad_showing: boolean = true;
-    private _default_waiting_handled: boolean = false;
-=======
-    private _muted: boolean = true;
     private _isReady: boolean = false;
     private _adShowing: boolean = false;
     private _isDataLoaded: boolean = false;
@@ -45,7 +30,6 @@ class Player {
     private _ignorePlayCount: number = 0;
     private _ignorePlayingCount: number = 0;
     private _ignorePauseCount: number = 0;
->>>>>>> skewb1k
 
     private _contentScriptMessagingClient: ContentScriptMessagingClient;
 
@@ -217,13 +201,7 @@ class Player {
 
     private handleMute() {
         log("mute");
-<<<<<<< HEAD
-        if (this._p.muted === this._muted) {
-||||||| 6d605a0
-        if (this._p.muted !== this._muted) {
-=======
-        if (this._player.muted !== this._muted) {
->>>>>>> skewb1k
+        if (this._player.muted === this._muted) {
             return;
         } else {
             this._muted = this._player.muted;
