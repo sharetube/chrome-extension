@@ -1,11 +1,13 @@
 import { RoomType } from "types/room.type";
 
 interface State {
+    jwt: string;
     room: RoomType;
     is_admin: boolean;
 }
 
-export const globalState: State = {
+export const defaultState: State = {
+    jwt: "",
     is_admin: false,
     room: {
         id: "",
@@ -23,3 +25,9 @@ export const globalState: State = {
         members: [],
     },
 };
+
+export const globalState: State = defaultState;
+
+export function resetState(): void {
+    Object.assign(globalState, defaultState);
+}

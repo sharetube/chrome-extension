@@ -50,7 +50,7 @@ waitForElement("#secondary-inner")
         const container = document.createElement("div");
         elem?.parentElement?.prepend(container);
 
-        const root = ReactDOM.createRoot(container); // Use createRoot
+        const root = ReactDOM.createRoot(container);
         root.render(
             <AdminProvider>
                 <Panel />
@@ -62,7 +62,7 @@ waitForElement("#secondary-inner")
 // Render search
 waitForElement("#center")
     .then(elem => {
-        const root = ReactDOM.createRoot(elem!); // Use createRoot
+        const root = ReactDOM.createRoot(elem!);
         root.render(
             <AdminProvider>
                 <Search />

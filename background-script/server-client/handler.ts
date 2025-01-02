@@ -1,15 +1,18 @@
 import { BackgroundMessagingClient } from "background-script/clients/ExtensionClient";
-import { PrimaryTabStorage } from "background-script/primaryTabStorage";
-import { globalState } from "background-script/state";
+import { globalState, resetState } from "background-script/state";
+import { TabStorage } from "background-script/tabStorage";
 import { takeTargetPrimaryTabId } from "background-script/targetPrimaryTabId";
 import { ExtensionMessageType } from "types/extensionMessage";
 import { FromServerMessagePayloadMap, FromServerMessageType } from "types/serverMessage";
 
 const bgMessagingClient = BackgroundMessagingClient.getInstance();
+const tabStorage = TabStorage.getInstance();
 
 export function joinedRoom(
     payload: FromServerMessagePayloadMap[FromServerMessageType.JOINED_ROOM],
 ): void {
+    resetState();
+    globalState.jwt = payload.jwt;
     globalState.room = payload.room;
     globalState.is_admin = payload.joined_member.is_admin;
 
@@ -17,7 +20,9 @@ export function joinedRoom(
     const targetPrimaryTabId = takeTargetPrimaryTabId();
     if (targetPrimaryTabId) {
         chrome.tabs.update(targetPrimaryTabId, { url: videoPageLink });
-        PrimaryTabStorage.getInstance().set(targetPrimaryTabId);
+        tabStorage.addTab(targetPrimaryTabId);
+        tabStorage.setPrimaryTab(targetPrimaryTabId);
+        bgMessagingClient.broadcastMessage(ExtensionMessageType.PRIMARY_TAB_SET);
     } else {
         console.error("No target primary tab found");
     }
