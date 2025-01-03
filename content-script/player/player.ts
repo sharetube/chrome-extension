@@ -59,16 +59,21 @@ class Player {
         this._player.addEventListener("loadeddata", this.handleLoadedData.bind(this));
         this._player.addEventListener("ended", this.handleEnded.bind(this));
 
-        this._player.addEventListener("canplay", () => this.handleCanplay.bind(this));
-        // this._p.addEventListener("canplaythrough", () => log("canplaythrough"));
-        this._player.addEventListener("emptied", () => log("emptied"));
+        this._player.addEventListener("emptied", () => {
+            log("emptied");
+            this._isReady = false;
+            this._isDataLoaded = false;
+        });
         this._player.addEventListener("error", () => log("error"));
-        this._player.addEventListener("seeked", () => this.handleSeeked.bind(this));
 
         document.addEventListener("keydown", event => {
             switch (event.key) {
                 case "ArrowRight":
                     this.handleRightArrowKey();
+                    break;
+                case "ArrowLeft":
+                    this.handleLeftArrowKey();
+                    break;
             }
         });
     }
@@ -82,16 +87,25 @@ class Player {
         );
     }
 
-    private debouncedUpdateIsReady = debounce(() => {
-        log("sending update ready", this._isReady);
-        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.UPDATE_READY, this._isReady);
-    }, 200);
+    private udpateIsReadyFalseTimeout: NodeJS.Timeout | null = null;
+    private setUpdateIsReadyFalseTimeout(): void {
+        this.udpateIsReadyFalseTimeout = setTimeout(() => {
+            if (!this._isReady) return;
+            log("update is ready false timeout");
+            this._isReady = false;
+            ContentScriptMessagingClient.sendMessage(ExtensionMessageType.UPDATE_READY, false);
+            this.clearUpdateIsReadyFalseTimeout();
+        }, 1000);
+    }
 
-    private debounceUpdateIsReady(value: boolean): void {
-        log("debounced update ready", value, this._isReady);
-        if (this._isReady === value) return;
-        this._isReady = value;
-        this.debouncedUpdateIsReady();
+    private clearUpdateIsReadyFalseTimeout(): boolean {
+        if (!this.udpateIsReadyFalseTimeout) {
+            return false;
+        }
+
+        clearTimeout(this.udpateIsReadyFalseTimeout);
+        this.udpateIsReadyFalseTimeout = null;
+        return true;
     }
 
     private handleRightArrowKey() {
@@ -100,22 +114,23 @@ class Player {
             this._player.duration,
             this._player.currentTime,
         );
+        this._ignorePlayCount--;
         if (this._player.duration - this._player.currentTime < 5) {
             ContentScriptMessagingClient.sendMessage(ExtensionMessageType.SKIP_CURRENT_VIDEO);
         }
     }
 
+    private handleLeftArrowKey() {
+        log("ArrowLeft");
+        this._ignorePlayCount--;
+    }
+
     // Handlers
     private handleWaiting() {
         log("waiting");
-        this.debounceUpdateIsReady(false);
-    }
-
-    private handleCanplay() {
-        log("canplay");
-
-        this.setActualState();
-        this.debounceUpdateIsReady(true);
+        if (this._isDataLoaded) {
+            this.setUpdateIsReadyFalseTimeout();
+        }
     }
 
     private handlePlaying() {
@@ -126,14 +141,12 @@ class Player {
             return;
         }
 
-        this.setActualState();
-        this.debounceUpdateIsReady(true);
-    }
-
-    private handleSeeked() {
-        log("seeked");
-        this.setActualState();
-        this.debounceUpdateIsReady(true);
+        if (!this.clearUpdateIsReadyFalseTimeout()) {
+            if (this._isReady) return;
+            this._isReady = true;
+            this.setActualState();
+            ContentScriptMessagingClient.sendMessage(ExtensionMessageType.UPDATE_READY, true);
+        }
     }
 
     private handleEnded() {
@@ -144,8 +157,6 @@ class Player {
     private handleLoadedData() {
         log("loaded data");
         this._isDataLoaded = true;
-        this.setActualState();
-        this.debounceUpdateIsReady(true);
     }
 
     private handlePause() {
@@ -169,7 +180,6 @@ class Player {
         if (this._ignorePlayCount > 0) {
             log("play ignored");
             this._ignorePlayCount--;
-            // this.setActualState();
             return;
         }
 
@@ -185,7 +195,10 @@ class Player {
             return;
         }
 
-        this._ignorePlayCount++;
+        if (this._isDataLoaded && this.getIsPlaying()) {
+            log("ignore play count ++", this._ignorePlayCount);
+            this._ignorePlayCount++;
+        }
         this.handleStateChanged();
     }
 
@@ -222,12 +235,12 @@ class Player {
             ct = state.current_time / 1e6;
         }
 
-        if (state.is_playing && !this.getIsPLaying()) {
+        if (state.is_playing && !this.getIsPlaying()) {
             log("ignore play count ++", this._ignorePlayCount);
             this._ignorePlayCount++;
-        } else if (!state.is_playing && this.getIsPLaying()) {
+        } else if (!state.is_playing && this.getIsPlaying()) {
             log("ignore pause count ++", this._ignorePauseCount);
-            // this._ignorePauseCount++;
+            this._ignorePauseCount++;
         }
         this._player[state.is_playing ? "play" : "pause"]();
 
@@ -243,7 +256,7 @@ class Player {
         });
     }
 
-    public getIsPLaying(): boolean {
+    public getIsPlaying(): boolean {
         return !this._player.paused;
     }
 
@@ -252,7 +265,7 @@ class Player {
             updated_at: Date.now() * 1e3,
             current_time: Math.round(this._player.currentTime * 1e6),
             playback_rate: this._player.playbackRate,
-            is_playing: this.getIsPLaying(),
+            is_playing: this.getIsPlaying(),
         };
         log("get state returned: ", s);
         return s;
@@ -272,8 +285,8 @@ class Player {
             ExtensionMessageType.PLAYER_VIDEO_UPDATED,
             (videoUrl: string) => {
                 log("received video updated", videoUrl);
-                this._ignorePlayCount++;
-                log("ignore play count ++", this._ignorePlayCount);
+                // this._ignorePlayCount++;
+                // log("ignore play count ++", this._ignorePlayCount);
                 this.updateVideo(videoUrl);
             },
         );
@@ -281,7 +294,6 @@ class Player {
         this._contentScriptMessagingClient.addHandler(
             ExtensionMessageType.PLAYER_STATE_UPDATED,
             (state: PlayerStateType) => {
-                log("received player state updated", state);
                 this.setState(state);
             },
         );
@@ -311,7 +323,16 @@ class Player {
     private handleAdChanged(cl: DOMTokenList): void {
         const adShowing = cl.contains("ad-showing");
         if (this._adShowing === adShowing) return;
-        this.debounceUpdateIsReady(!adShowing);
+
+        this._adShowing = adShowing;
+        if (adShowing) {
+            this._isReady = false;
+            ContentScriptMessagingClient.sendMessage(ExtensionMessageType.UPDATE_READY, false);
+        } else {
+            this._isReady = true;
+            ContentScriptMessagingClient.sendMessage(ExtensionMessageType.UPDATE_READY, true);
+            this.setActualState();
+        }
     }
 
     // Player mode
