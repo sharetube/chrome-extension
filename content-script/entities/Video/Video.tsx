@@ -1,5 +1,5 @@
 import useVideoData from "./hooks/useVideoData";
-import data from "./types/data";
+import VideoData from "./types/videoData.type";
 import { ContentScriptMessagingClient } from "@shared/client/client";
 import Trash from "@shared/ui/Trash/Trash";
 import React, { useCallback } from "react";
@@ -48,7 +48,7 @@ const LoadingSkeleton: React.FC = () => (
     </li>
 );
 
-const VideoContent: React.FC<VideoProps & { videoData: data }> = memo(
+const VideoContent: React.FC<VideoProps & { videoData: VideoData }> = memo(
     ({ videoData, videoId, ...props }) => {
         const deleteVideo = useCallback(() => {
             if (props.current || props.last || !props.actions) return;
