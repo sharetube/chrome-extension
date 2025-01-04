@@ -6,7 +6,7 @@ import React, { useState } from "react";
 import { ExtensionMessageType } from "types/extensionMessage";
 
 const Search: React.FC = () => {
-    const { is_admin } = useAdmin();
+    const { isAdmin: is_admin } = useAdmin();
     const [inputValue, setInputValue] = useState<string>("");
     const inputRef = useKey("/");
 
