@@ -2,15 +2,8 @@ import { dateNowInUs } from "../../shared/dateNowInUs";
 import { log } from "../../shared/log";
 import { ContentScriptMessagingClient } from "@shared/client/client";
 import { ExtensionMessageType } from "types/extensionMessage";
+import { Mode } from "types/mode";
 import { PlayerStateType, PlayerType } from "types/player.type";
-
-//! Вынести
-enum Modes {
-    Default = "default",
-    Theater = "theater",
-    Full = "full",
-    Mini = "mini",
-}
 
 interface MastheadElement extends HTMLElement {
     theater: boolean;
@@ -20,7 +13,7 @@ class Player {
     private _e: HTMLElement; // todo: rename
     private _player: HTMLVideoElement;
 
-    private _mode: Modes;
+    private _mode: Mode;
     private _muted: boolean | null;
     private _videoUrl: string;
     private _isReady: boolean;
@@ -36,7 +29,7 @@ class Player {
     public constructor(e: HTMLElement, p: HTMLVideoElement) {
         this._e = e;
         this._player = p;
-        this._mode = Modes.Default;
+        this._mode = Mode.DEFAULT;
         this._muted = null;
         this._videoUrl = "";
         this._isReady = false;
@@ -46,6 +39,7 @@ class Player {
         this._ignorePlayCount = 0;
         this._ignorePlayingCount = 0;
         this._ignorePauseCount = 0;
+
         this._contentScriptMessagingClient = new ContentScriptMessagingClient();
         ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_PLAYER_VIDEO_URL).then(
             (url: string) => {
@@ -359,12 +353,12 @@ class Player {
         const c = (className: string) => classNames.includes(className);
 
         if (c("ytp-modern-miniplayer")) {
-            this.setMode(Modes.Mini);
+            this.setMode(Mode.MINI);
             return;
         }
 
         if (c("ytp-fullscreen") && c("ytp-big-mode")) {
-            this.setMode(Modes.Full);
+            this.setMode(Mode.FULL);
             return;
         }
 
@@ -373,14 +367,14 @@ class Player {
         ) as MastheadElement | null;
 
         if (masthead && masthead.hasAttribute("theater")) {
-            this.setMode(Modes.Theater);
+            this.setMode(Mode.THEATER);
             return;
         }
 
-        this.setMode(Modes.Default);
+        this.setMode(Mode.DEFAULT);
     }
 
-    private setMode(mode: Modes) {
+    private setMode(mode: Mode) {
         if (this._mode === mode) return;
         this._mode = mode;
     }
