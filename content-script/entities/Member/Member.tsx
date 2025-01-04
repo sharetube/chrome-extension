@@ -20,7 +20,7 @@ const Member: React.FC<MemberProps> = ({
     is_muted,
     ...props
 }) => {
-    const { is_admin } = useAdmin();
+    const { isAdmin: is_admin } = useAdmin();
     const [menu, setMenu] = React.useState(false);
 
     const handleClick = (e: MouseEvent) => {

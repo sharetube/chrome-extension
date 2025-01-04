@@ -1,7 +1,11 @@
 import { dateNowInUs } from "../../shared/dateNowInUs";
 import { log } from "../../shared/log";
 import { ContentScriptMessagingClient } from "@shared/client/client";
-import { ExtensionMessageType } from "types/extensionMessage";
+import {
+    ExtensionMessagePayloadMap,
+    ExtensionMessageResponseMap,
+    ExtensionMessageType,
+} from "types/extensionMessage";
 import { Mode } from "types/mode";
 import { PlayerStateType, PlayerType } from "types/player.type";
 
@@ -12,6 +16,8 @@ interface MastheadElement extends HTMLElement {
 class Player {
     private _e: HTMLElement; // todo: rename
     private _player: HTMLVideoElement;
+
+    private _isAdmin: boolean;
 
     private _mode: Mode;
     private _muted: boolean | null;
@@ -29,6 +35,14 @@ class Player {
     public constructor(e: HTMLElement, p: HTMLVideoElement) {
         this._e = e;
         this._player = p;
+        this._isAdmin = false;
+
+        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_IS_ADMIN).then(
+            (res: ExtensionMessageResponseMap[ExtensionMessageType.GET_IS_ADMIN]) => {
+                this._isAdmin = res;
+            },
+        );
+
         this._mode = Mode.DEFAULT;
         this._muted = null;
         this._videoUrl = "";
@@ -47,10 +61,31 @@ class Player {
             },
         );
 
-        this.observeElement();
-        this.handleStateMessages();
-        this.addEventListeners();
+        this._contentScriptMessagingClient.addHandler(
+            ExtensionMessageType.PLAYER_VIDEO_UPDATED,
+            (videoUrl: string) => {
+                log("received video updated", videoUrl);
+                this._videoUrl = videoUrl;
+                this.updateVideo(videoUrl);
+            },
+        );
 
+        this._contentScriptMessagingClient.addHandler(
+            ExtensionMessageType.PLAYER_STATE_UPDATED,
+            (state: PlayerStateType) => {
+                this.setState(state);
+            },
+        );
+
+        this._contentScriptMessagingClient.addHandler(
+            ExtensionMessageType.ADMIN_STATUS_UPDATED,
+            (payload: ExtensionMessagePayloadMap[ExtensionMessageType.ADMIN_STATUS_UPDATED]) => {
+                this._isAdmin = payload;
+            },
+        );
+
+        this.observeElement();
+        this.addEventListeners();
         this.sendMute();
     }
 
@@ -91,6 +126,13 @@ class Player {
         );
     }
 
+    private sendSkip() {
+        ContentScriptMessagingClient.sendMessage(
+            ExtensionMessageType.SKIP_CURRENT_VIDEO,
+            dateNowInUs(),
+        );
+    }
+
     private udpateIsReadyFalseTimeout: NodeJS.Timeout | null = null;
     private setUpdateIsReadyFalseTimeout(): void {
         this.udpateIsReadyFalseTimeout = setTimeout(() => {
@@ -123,7 +165,7 @@ class Player {
     private handleArrowRight() {
         log("ArrowRight: video diration, current time");
         this._ignorePlayCount--;
-        if (this._player.duration - this._player.currentTime < 5) {
+        if (this._isAdmin && this._player.duration - this._player.currentTime < 5) {
             this.sendSkip();
         }
     }
@@ -135,14 +177,9 @@ class Player {
 
     private handleEnded() {
         log("ended");
-        this.sendSkip();
-    }
-
-    private sendSkip() {
-        ContentScriptMessagingClient.sendMessage(
-            ExtensionMessageType.SKIP_CURRENT_VIDEO,
-            dateNowInUs(),
-        );
+        if (this._isAdmin) {
+            this.sendSkip();
+        }
     }
 
     private handleEmptied() {
@@ -286,29 +323,14 @@ class Player {
 
     private handleStateChanged() {
         if (!this._isReady) return;
-
-        ContentScriptMessagingClient.sendMessage(
-            ExtensionMessageType.UPDATE_PLAYER_STATE,
-            this.getState(),
-        );
-    }
-
-    private handleStateMessages() {
-        this._contentScriptMessagingClient.addHandler(
-            ExtensionMessageType.PLAYER_VIDEO_UPDATED,
-            (videoUrl: string) => {
-                log("received video updated", videoUrl);
-                this._videoUrl = videoUrl;
-                this.updateVideo(videoUrl);
-            },
-        );
-
-        this._contentScriptMessagingClient.addHandler(
-            ExtensionMessageType.PLAYER_STATE_UPDATED,
-            (state: PlayerStateType) => {
-                this.setState(state);
-            },
-        );
+        if (this._isAdmin) {
+            ContentScriptMessagingClient.sendMessage(
+                ExtensionMessageType.UPDATE_PLAYER_STATE,
+                this.getState(),
+            );
+        } else {
+            this.setActualState();
+        }
     }
 
     private updateVideo(videoUrl: string) {

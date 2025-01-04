@@ -1,13 +1,17 @@
 import { ContentScriptMessagingClient } from "@shared/client/client";
 import React, { ReactNode, createContext, useEffect, useState } from "react";
-import { ExtensionMessageType } from "types/extensionMessage";
+import {
+    ExtensionMessagePayloadMap as EMPM,
+    ExtensionMessageResponseMap as EMRM,
+    ExtensionMessageType as EMType,
+} from "types/extensionMessage";
 
 interface AdminContextType {
-    is_admin: boolean;
+    isAdmin: boolean;
 }
 
 const AdminContext = createContext<AdminContextType>({
-    is_admin: false,
+    isAdmin: false,
 });
 
 interface MyProviderProps {
@@ -20,20 +24,21 @@ const AdminProvider: React.FC<MyProviderProps> = ({ children }) => {
     const messagingClient = new ContentScriptMessagingClient();
 
     useEffect(() => {
-        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_IS_ADMIN).then(
-            payload => {
-                setIsAdmin(payload);
+        ContentScriptMessagingClient.sendMessage(EMType.GET_IS_ADMIN).then(
+            (res: EMRM[EMType.GET_IS_ADMIN]) => {
+                setIsAdmin(res);
             },
         );
 
-        const handler = (payload: boolean) => {
-            setIsAdmin(payload);
-        };
-
-        messagingClient.addHandler(ExtensionMessageType.ADMIN_STATUS_UPDATED, handler);
+        messagingClient.addHandler(
+            EMType.ADMIN_STATUS_UPDATED,
+            (payload: EMPM[EMType.ADMIN_STATUS_UPDATED]) => {
+                setIsAdmin(payload);
+            },
+        );
     }, []);
 
-    return <AdminContext.Provider value={{ is_admin: isAdmin }}>{children}</AdminContext.Provider>;
+    return <AdminContext.Provider value={{ isAdmin }}>{children}</AdminContext.Provider>;
 };
 
 export { AdminContext, AdminProvider };
