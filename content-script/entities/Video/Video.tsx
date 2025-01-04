@@ -4,6 +4,7 @@ import { ContentScriptMessagingClient } from "@shared/client/client";
 import Trash from "@shared/ui/Trash/Trash";
 import React, { useCallback } from "react";
 import { memo } from "react";
+import { dateNowInUs } from "shared/dateNowInUs";
 import { ExtensionMessageType } from "types/extensionMessage";
 
 interface Base {
@@ -56,10 +57,10 @@ const VideoContent: React.FC<VideoProps & { videoData: data }> = memo(
 
         const playVideo = useCallback(() => {
             if (props.current || !props.actions) return;
-            ContentScriptMessagingClient.sendMessage(
-                ExtensionMessageType.UPDATE_PLAYER_VIDEO,
-                videoId,
-            );
+            ContentScriptMessagingClient.sendMessage(ExtensionMessageType.UPDATE_PLAYER_VIDEO, {
+                videoId: videoId,
+                updatedAt: dateNowInUs(),
+            });
         }, [videoId, props.actions, props.current]);
 
         return (
