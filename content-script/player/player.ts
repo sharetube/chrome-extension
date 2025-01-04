@@ -1,8 +1,8 @@
+import { dateNowInUs } from "../../shared/dateNowInUs";
 import { log } from "../../shared/log";
 import { ContentScriptMessagingClient } from "@shared/client/client";
-import debounce from "lodash.debounce";
 import { ExtensionMessageType } from "types/extensionMessage";
-import { PlayerStateType } from "types/player.type";
+import { PlayerStateType, PlayerType } from "types/player.type";
 
 //! Вынести
 enum Modes {
@@ -20,23 +20,38 @@ class Player {
     private _e: HTMLElement; // todo: rename
     private _player: HTMLVideoElement;
 
-    // todo: move initialization to constructor
-    private _mode: Modes = Modes.Default;
-    private _muted: boolean | null = null;
-    private _isReady: boolean = false;
-    private _adShowing: boolean = false;
-    private _isDataLoaded: boolean = false;
-    private _ignoreSeekingCount: number = 0;
-    private _ignorePlayCount: number = 0;
-    private _ignorePlayingCount: number = 0;
-    private _ignorePauseCount: number = 0;
+    private _mode: Modes;
+    private _muted: boolean | null;
+    private _videoUrl: string;
+    private _isReady: boolean;
+    private _adShowing: boolean;
+    private _isDataLoaded: boolean;
+    private _ignoreSeekingCount: number;
+    private _ignorePlayCount: number;
+    private _ignorePlayingCount: number;
+    private _ignorePauseCount: number;
 
     private _contentScriptMessagingClient: ContentScriptMessagingClient;
 
     public constructor(e: HTMLElement, p: HTMLVideoElement) {
         this._e = e;
         this._player = p;
+        this._mode = Modes.Default;
+        this._muted = null;
+        this._videoUrl = "";
+        this._isReady = false;
+        this._adShowing = false;
+        this._isDataLoaded = false;
+        this._ignoreSeekingCount = 0;
+        this._ignorePlayCount = 0;
+        this._ignorePlayingCount = 0;
+        this._ignorePauseCount = 0;
         this._contentScriptMessagingClient = new ContentScriptMessagingClient();
+        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_PLAYER_VIDEO_URL).then(
+            (url: string) => {
+                this._videoUrl = url;
+            },
+        );
 
         this.observeElement();
         this.handleStateMessages();
@@ -58,21 +73,16 @@ class Player {
         this._player.addEventListener("playing", this.handlePlaying.bind(this));
         this._player.addEventListener("loadeddata", this.handleLoadedData.bind(this));
         this._player.addEventListener("ended", this.handleEnded.bind(this));
-
-        this._player.addEventListener("emptied", () => {
-            log("emptied");
-            this._isReady = false;
-            this._isDataLoaded = false;
-        });
+        this._player.addEventListener("emptied", this.handleEmptied.bind(this));
         this._player.addEventListener("error", () => log("error"));
 
         document.addEventListener("keydown", event => {
             switch (event.key) {
                 case "ArrowRight":
-                    this.handleRightArrowKey();
+                    this.handleArrowRight();
                     break;
                 case "ArrowLeft":
-                    this.handleLeftArrowKey();
+                    this.handleArrowLeft();
                     break;
             }
         });
@@ -95,7 +105,7 @@ class Player {
             this._isReady = false;
             ContentScriptMessagingClient.sendMessage(ExtensionMessageType.UPDATE_READY, false);
             this.clearUpdateIsReadyFalseTimeout();
-        }, 1000);
+        }, 500);
     }
 
     private clearUpdateIsReadyFalseTimeout(): boolean {
@@ -108,29 +118,54 @@ class Player {
         return true;
     }
 
-    private handleRightArrowKey() {
-        log(
-            "ArrowRight: video diration, current time",
-            this._player.duration,
-            this._player.currentTime,
-        );
-        this._ignorePlayCount--;
-        if (this._player.duration - this._player.currentTime < 5) {
-            ContentScriptMessagingClient.sendMessage(ExtensionMessageType.SKIP_CURRENT_VIDEO);
-        }
-    }
-
-    private handleLeftArrowKey() {
-        log("ArrowLeft");
-        this._ignorePlayCount--;
-    }
-
     // Handlers
     private handleWaiting() {
         log("waiting");
         if (this._isDataLoaded) {
             this.setUpdateIsReadyFalseTimeout();
         }
+    }
+
+    private handleArrowRight() {
+        log("ArrowRight: video diration, current time");
+        this._ignorePlayCount--;
+        if (this._player.duration - this._player.currentTime < 5) {
+            this.sendSkip();
+        }
+    }
+
+    private handleArrowLeft() {
+        log("ArrowLeft");
+        this._ignorePlayCount--;
+    }
+
+    private handleEnded() {
+        log("ended");
+        this.sendSkip();
+    }
+
+    private sendSkip() {
+        ContentScriptMessagingClient.sendMessage(
+            ExtensionMessageType.SKIP_CURRENT_VIDEO,
+            dateNowInUs(),
+        );
+    }
+
+    private handleEmptied() {
+        log("emptied");
+        this._isReady = false;
+        this._isDataLoaded = false;
+    }
+
+    private handlePause() {
+        log("pause");
+        if (this._ignorePauseCount > 0) {
+            log("pause ignored");
+            this._ignorePauseCount--;
+            return;
+        }
+
+        this.handleStateChanged();
     }
 
     private handlePlaying() {
@@ -149,25 +184,9 @@ class Player {
         }
     }
 
-    private handleEnded() {
-        log("ended");
-        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.SKIP_CURRENT_VIDEO);
-    }
-
     private handleLoadedData() {
         log("loaded data");
         this._isDataLoaded = true;
-    }
-
-    private handlePause() {
-        log("pause");
-        if (this._ignorePauseCount > 0) {
-            log("pause ignored");
-            this._ignorePauseCount--;
-            return;
-        }
-
-        this.handleStateChanged();
     }
 
     private handlePlay() {
@@ -228,8 +247,7 @@ class Player {
         if (state.is_playing) {
             ct =
                 Math.round(
-                    state.current_time +
-                        (Date.now() * 1e3 - state.updated_at) * state.playback_rate,
+                    state.current_time + (dateNowInUs() - state.updated_at) * state.playback_rate,
                 ) / 1e6;
         } else {
             ct = state.current_time / 1e6;
@@ -260,9 +278,10 @@ class Player {
         return !this._player.paused;
     }
 
-    public getState(): PlayerStateType {
+    public getState(): PlayerType {
         const s = {
-            updated_at: Date.now() * 1e3,
+            video_url: this._videoUrl,
+            updated_at: dateNowInUs(),
             current_time: Math.round(this._player.currentTime * 1e6),
             playback_rate: this._player.playbackRate,
             is_playing: this.getIsPlaying(),
@@ -285,8 +304,7 @@ class Player {
             ExtensionMessageType.PLAYER_VIDEO_UPDATED,
             (videoUrl: string) => {
                 log("received video updated", videoUrl);
-                // this._ignorePlayCount++;
-                // log("ignore play count ++", this._ignorePlayCount);
+                this._videoUrl = videoUrl;
                 this.updateVideo(videoUrl);
             },
         );
