@@ -77,6 +77,7 @@ class ServerClient {
 
     private removeListeners() {
         if (!this.ws) return;
+
         this.ws.onerror = null;
         this.ws.onclose = null;
         this.ws.onmessage = null;

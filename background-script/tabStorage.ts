@@ -42,22 +42,11 @@ export class TabStorage {
         return primaryTabId;
     }
 
-    public unsetPrimaryTab(): Promise<void> {
-        return new Promise((resolve, reject) => {
-            chrome.storage.local
-                .remove(this.PRIMARY_TAB_STORAGE_KEY)
-                .then(() => {
-                    if (chrome.runtime.lastError) {
-                        console.error("Error removing primary tab:", chrome.runtime.lastError);
-                        reject(chrome.runtime.lastError);
-                    }
-                    console.log("Primary tab removed");
-                    resolve();
-                })
-                .catch(err => {
-                    console.error("Error removing primary tab:", err);
-                    reject(err);
-                });
-        });
+    public async unsetPrimaryTab(): Promise<void> {
+        const primaryTabId = await this.getPrimaryTab();
+        if (!primaryTabId) return;
+
+        this.removeTab(primaryTabId);
+        return chrome.storage.local.remove(this.PRIMARY_TAB_STORAGE_KEY);
     }
 }

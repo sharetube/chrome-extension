@@ -30,6 +30,7 @@ class Player {
     private _ignorePauseCount: number;
 
     private _contentScriptMessagingClient: ContentScriptMessagingClient;
+    private observer: MutationObserver | null = null;
 
     public constructor(e: HTMLElement, p: HTMLVideoElement) {
         this._e = e;
@@ -101,20 +102,57 @@ class Player {
         this._player.addEventListener("loadeddata", this.handleLoadedData.bind(this));
         this._player.addEventListener("ended", this.handleEnded.bind(this));
         this._player.addEventListener("emptied", this.handleEmptied.bind(this));
-        this._player.addEventListener("error", () => log("error"));
-        this._player.addEventListener("playing", () => log("playing"));
-        this._player.addEventListener("loadstart", () => log("loadstart"));
+        // this._player.addEventListener("error", () => log("error"));
+        // this._player.addEventListener("playing", () => log("playing"));
+        // this._player.addEventListener("loadstart", () => log("loadstart"));
 
-        document.addEventListener("keydown", event => {
-            switch (event.key) {
-                case "ArrowRight":
-                    this.handleArrowRight();
-                    break;
-                case "ArrowLeft":
-                    this.handleArrowLeft();
-                    break;
-            }
-        });
+        document.addEventListener("keydown", this.handleKeyDown.bind(this));
+    }
+
+    private handleKeyDown(event: KeyboardEvent) {
+        switch (event.key) {
+            case "ArrowRight":
+                log("ArrowRight: video diration, current time");
+                this._ignorePlayCount--;
+                if (this._isAdmin && this._player.duration - this._player.currentTime < 5) {
+                    this.sendSkip();
+                }
+
+                break;
+            case "ArrowLeft":
+                log("ArrowLeft");
+                this._ignorePlayCount--;
+
+                break;
+        }
+    }
+
+    private clearEventListeners() {
+        this._player.removeEventListener("volumechange", this.handleMute.bind(this));
+        this._player.removeEventListener("play", this.handlePlay);
+        this._player.removeEventListener("pause", this.handlePause.bind(this));
+        this._player.removeEventListener("seeking", this.handleSeeking.bind(this));
+        this._player.removeEventListener("ratechange", this.handleRatechange.bind(this));
+        this._player.removeEventListener("waiting", this.handleWaiting.bind(this));
+        this._player.removeEventListener("canplay", this.handleCanplay.bind(this));
+        this._player.removeEventListener("loadeddata", this.handleLoadedData.bind(this));
+        this._player.removeEventListener("ended", this.handleEnded.bind(this));
+        this._player.removeEventListener("emptied", this.handleEmptied.bind(this));
+
+        document.removeEventListener("keydown", this.handleKeyDown.bind(this));
+    }
+
+    private clearContentScriptHandlers() {
+        this._contentScriptMessagingClient.removeHandler(ExtensionMessageType.PLAYER_VIDEO_UPDATED);
+        this._contentScriptMessagingClient.removeHandler(ExtensionMessageType.PLAYER_STATE_UPDATED);
+        this._contentScriptMessagingClient.removeHandler(ExtensionMessageType.ADMIN_STATUS_UPDATED);
+    }
+
+    private clearAll() {
+        this.clearUpdateIsReadyFalseTimeout();
+        this.clearEventListeners();
+        this.clearContentScriptHandlers();
+        this.disconnectObserver();
     }
 
     private setActualState() {
@@ -162,19 +200,6 @@ class Player {
         if (this._isDataLoaded) {
             this.setUpdateIsReadyFalseTimeout();
         }
-    }
-
-    private handleArrowRight() {
-        log("ArrowRight: video diration, current time");
-        this._ignorePlayCount--;
-        if (this._isAdmin && this._player.duration - this._player.currentTime < 5) {
-            this.sendSkip();
-        }
-    }
-
-    private handleArrowLeft() {
-        log("ArrowLeft");
-        this._ignorePlayCount--;
     }
 
     private handleEnded() {
@@ -333,7 +358,7 @@ class Player {
     }
 
     private observeElement(): void {
-        const observer = new MutationObserver(mutations => {
+        this.observer = new MutationObserver(mutations => {
             mutations.forEach(mutation => {
                 if (mutation.type === "attributes" && mutation.attributeName === "class") {
                     this.handleAdChanged(this._e.classList);
@@ -342,10 +367,17 @@ class Player {
             });
         });
 
-        observer.observe(this._e, {
+        this.observer.observe(this._e, {
             attributes: true,
             attributeFilter: ["class"],
         });
+    }
+
+    private disconnectObserver(): void {
+        if (this.observer) {
+            this.observer.disconnect();
+            this.observer = null;
+        }
     }
 
     // Ad showing

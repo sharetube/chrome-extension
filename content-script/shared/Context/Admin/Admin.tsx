@@ -7,19 +7,19 @@ import {
     ExtensionMessageType as EMType,
 } from "types/extensionMessage";
 
-interface AdminContextType {
+type AdminContextType = {
     isAdmin: boolean;
-}
+};
 
 const AdminContext = createContext<AdminContextType>({
     isAdmin: false,
 });
 
-interface MyProviderProps {
+interface AdminProviderProps {
     children: ReactNode;
 }
 
-const AdminProvider: React.FC<MyProviderProps> = ({ children }) => {
+const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
     const [isAdmin, setIsAdmin] = useState<boolean>(false);
 
     const messagingClient = new ContentScriptMessagingClient();
