@@ -25,7 +25,7 @@ const waitForElement = (
             const timeoutId = setTimeout(() => {
                 observer.disconnect();
                 if (retryCount > 0) {
-                    console.log("Retrying...", retryCount);
+                    console.log("Retrying...", retryCount, selector);
                     attempt(retryCount - 1);
                 } else {
                     resolve(null);

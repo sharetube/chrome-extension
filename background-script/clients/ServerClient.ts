@@ -122,6 +122,7 @@ class ServerClient {
         this.removeListeners();
         this.ws.close();
         this.ws = null;
+        console.log("WS CLOSED");
     }
 
     public addHandler<T extends FromServerMessageType>(type: T, handler: MessageHandler<T>): void {

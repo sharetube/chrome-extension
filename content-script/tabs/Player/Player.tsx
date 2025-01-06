@@ -1,77 +1,178 @@
 import Player from "@player/player";
 import { AdminProvider } from "@shared/Context/Admin/Admin";
+import { ContentScriptMessagingClient } from "@shared/client/client";
 import waitForElement from "@shared/lib/waitForElement";
 import Panel from "@widgets/Panel/Panel";
 import Search from "@widgets/Search/Search";
 import React from "react";
 import ReactDOM from "react-dom/client";
+import { ExtensionMessageType } from "types/extensionMessage";
 
-waitForElement(".html5-video-player")
-    .then(e => {
-        waitForElement("video")
-            .then(p => {
-                console.log("Player found");
-                new Player(e as HTMLElement, p as HTMLVideoElement);
-            })
-            .catch(error => console.log("Failed select video element", error));
-    })
-    .catch(error => console.log("Failed select player element", error));
+const contentScriptMessageClient = new ContentScriptMessagingClient();
+let isPrimaryTab = false;
 
-//Remove autoplay button from player
-waitForElement(".ytp-autonav-toggle-button-container").then(elem => {
-    elem!.parentElement!.style.display = "none";
+function update() {
+    ContentScriptMessagingClient.sendMessage(ExtensionMessageType.IS_PRIMARY_TAB).then(
+        (res: boolean) => {
+            if (isPrimaryTab === res) return;
+            isPrimaryTab = res;
+
+            if (res) {
+                initPlayer();
+                initSearch();
+                hideAutoplayButton();
+                hideNextVideoButton();
+                hideBottomPanel();
+                hideClipButton();
+                hideVoiceSearchButton();
+                showMainPanel();
+            } else {
+                disablePlayer();
+                disableSearch();
+                showAutoplayButton();
+                showNextVideoButton();
+                showBottomPanel();
+                showClipButton();
+                showVoiceSearchButton();
+                hideMainPanel();
+            }
+        },
+    );
+}
+
+contentScriptMessageClient.addHandler(ExtensionMessageType.PRIMARY_TAB_UNSET, () => {
+    update();
 });
+update();
 
-// Remove next button from player
-waitForElement(".ytp-next-button.ytp-button")
-    .then(elem => {
-        elem!.style.display = "none";
-    })
-    .catch(error => console.log("Failed to remove next button", error));
+let player: Player | null = null;
+function initPlayer() {
+    waitForElement(".html5-video-player").then(e => {
+        waitForElement("video").then(p => {
+            console.log("Player found");
+            player = new Player(e as HTMLElement, p as HTMLVideoElement);
+        });
+        // .catch(error => console.log("Failed select video element", error));
+    });
+    // .catch(error => console.log("Failed select player element", error));
+}
 
-// Because clip button must be removed
-waitForElement("#flexible-item-buttons")
-    .then(elem => {
-        elem!.style.display = "none";
-    })
-    .catch(error => console.log("Failed to remove clip button", error));
+function disablePlayer() {
+    if (!player) return;
+    player.clearAll();
+}
 
-// Remove clip button
-waitForElement("yt-button-shape#button-shape")
-    .then(elem => {
-        elem!.style.display = "none";
-    })
-    .catch(error => console.log("Failed to shape button", error));
+function hideAutoplayButton() {
+    waitForElement(".ytp-autonav-toggle-button-container").then(elem => {
+        Object.assign(elem!.style, { transform: "scale(0)" });
+    });
+    // .then(error => console.log("Failed to remove autoplay button", error));
+}
 
-// Render main panel
-waitForElement("#secondary-inner")
-    .then(elem => {
+function showAutoplayButton() {
+    waitForElement(".ytp-autonav-toggle-button-container").then(elem => {
+        Object.assign(elem!.style, { transform: "scale(1)" });
+    });
+    // .then(error => console.log("Failed to remove autoplay button", error));
+}
+
+function hideNextVideoButton() {
+    waitForElement(".ytp-next-button.ytp-button").then(elem => {
+        Object.assign(elem!.style, { transform: "scale(0)" });
+    });
+    // .catch(error => console.log("Failed to remove next button", error));
+}
+
+function showNextVideoButton() {
+    waitForElement(".ytp-next-button.ytp-button").then(elem => {
+        Object.assign(elem!.style, { transform: "scale(1)" });
+    });
+    // .catch(error => console.log("Failed to remove next button", error));
+}
+
+function hideClipButton() {
+    waitForElement("#flexible-item-buttons").then(elem => {
+        Object.assign(elem!.style, { transform: "scale(0)" });
+    });
+    // .catch(error => console.log("Failed to remove clip button", error));
+}
+
+function showClipButton() {
+    waitForElement("#flexible-item-buttons").then(elem => {
+        Object.assign(elem!.style, { transform: "scale(1)" });
+    });
+    // .catch(error => console.log("Failed to remove clip button", error));
+}
+
+function hideBottomPanel() {
+    waitForElement("yt-button-shape#button-shape").then(elem => {
+        Object.assign(elem!.style, { transform: "scale(0)" });
+    });
+    // .catch(error => console.log("Failed to shape button", error));
+}
+
+function showBottomPanel() {
+    waitForElement("yt-button-shape#button-shape").then(elem => {
+        Object.assign(elem!.style, { transform: "scale(1)" });
+    });
+    // .catch(error => console.log("Failed to shape button", error));
+}
+
+function showMainPanel() {
+    waitForElement("#secondary-inner").then(elem => {
         Object.assign(elem!.style, { transform: "scale(0)" });
         const container = document.createElement("div");
         elem?.parentElement?.prepend(container);
 
-        const root = ReactDOM.createRoot(container);
-        root.render(
+        ReactDOM.createRoot(container).render(
             <AdminProvider>
                 <Panel />
             </AdminProvider>,
         );
-    })
-    .catch(error => console.log("Failed to render main panel", error));
+    });
+    // .catch(error => console.log("Failed to render main panel", error));
+}
 
-// Render search
-waitForElement("#center")
-    .then(elem => {
-        const root = ReactDOM.createRoot(elem!);
-        root.render(
+function hideMainPanel() {
+    waitForElement("#secondary-inner").then(elem => {
+        Object.assign(elem!.style, { transform: "scale(1)" });
+        elem?.parentElement?.firstChild?.remove();
+    });
+    // .catch(error => console.log("Failed to render main panel", error));
+}
+
+// todo: fix
+function initSearch() {
+    waitForElement("#center").then(elem => {
+        Object.assign((elem!.firstElementChild as HTMLElement).style, { transform: "scale(0)" });
+        const container = document.createElement("div");
+        container.style.width = "100%";
+        elem!.prepend(container);
+
+        ReactDOM.createRoot(container).render(
             <AdminProvider>
                 <Search />
             </AdminProvider>,
         );
-    })
-    .catch(error => console.log("Failed to render input", error));
+    });
+    // .catch(error => console.log("Failed to render input", error));
+}
 
-// Remove voice search button
-waitForElement("#voice-search-button")
-    .then(elem => elem?.remove())
-    .catch(error => console.log("Failed to remove voice search button", error));
+function disableSearch() {
+    waitForElement("#center").then(elem => {
+        elem!.firstChild!.remove();
+        Object.assign((elem!.firstElementChild as HTMLElement).style, { transform: "scale(1)" });
+    });
+}
+
+function showVoiceSearchButton() {
+    waitForElement("#voice-search-button").then(elem => {
+        Object.assign(elem!.style, { transform: "scale(1)" });
+    });
+}
+
+function hideVoiceSearchButton() {
+    waitForElement("#voice-search-button").then(elem => {
+        Object.assign(elem!.style, { transform: "scale(0)" });
+    });
+}

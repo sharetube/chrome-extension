@@ -98,15 +98,15 @@ chrome.tabs.onRemoved.addListener(async tabId => {
     getPrimaryTabIdOrUnset();
 });
 
-function reloadTab(tabId: number) {
-    chrome.tabs.reload(tabId, {}, () => {
-        if (chrome.runtime.lastError) {
-            console.error(`Error reloading tab ${tabId}: ${chrome.runtime.lastError.message}`);
-        } else {
-            console.log(`Tab ${tabId} reloaded successfully.`);
-        }
-    });
-}
+// function reloadTab(tabId: number) {
+//     chrome.tabs.reload(tabId, {}, () => {
+//         if (chrome.runtime.lastError) {
+//             console.error(`Error reloading tab ${tabId}: ${chrome.runtime.lastError.message}`);
+//         } else {
+//             console.log(`Tab ${tabId} reloaded successfully.`);
+//         }
+//     });
+// }
 
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     if (changeInfo.url === undefined) {
@@ -127,7 +127,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
         changeInfo.url &&
         changeInfo.url !== `https://www.youtube.com/watch?v=${globalState.room.player.video_url}`
     ) {
-        reloadTab(tabId);
+        // reloadTab(tabId);
         clearPrimaryTab();
     }
 });
