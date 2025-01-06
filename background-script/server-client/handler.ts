@@ -20,6 +20,7 @@ export function joinedRoom(
     const targetPrimaryTabId = takeTargetPrimaryTabId();
     if (targetPrimaryTabId) {
         chrome.tabs.update(targetPrimaryTabId, { url: videoPageLink });
+        // todo: skip that if target primary tab was primary tab
         tabStorage.addTab(targetPrimaryTabId);
         tabStorage.setPrimaryTab(targetPrimaryTabId);
         bgMessagingClient.broadcastMessage(ExtensionMessageType.PRIMARY_TAB_SET);

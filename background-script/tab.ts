@@ -37,8 +37,18 @@ const handleTab = async (tabId: number, url: string) => {
 
     const primaryTabId = await tabStorage.getPrimaryTab();
     if (primaryTabId) {
-        chrome.tabs.update(primaryTabId, { active: true });
-        chrome.tabs.remove(tabId);
+        if (primaryTabId === tabId) {
+            server.close();
+
+            setTargetPrimaryTabId(tabId);
+            const profile = await ProfileStorage.getInstance().get();
+            server.joinRoom(profile, roomId).catch(() => {
+                showErrorPage();
+            });
+        } else {
+            chrome.tabs.update(primaryTabId, { active: true });
+            chrome.tabs.remove(tabId);
+        }
     } else {
         const profile = await ProfileStorage.getInstance().get();
 
@@ -87,6 +97,9 @@ chrome.tabs.onRemoved.addListener(async tabId => {
 
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     // todo: refactor
+    if (changeInfo.url === undefined) {
+        return;
+    }
     const primaryTabId = await tabStorage.getPrimaryTab();
 
     if (primaryTabId !== tabId) {

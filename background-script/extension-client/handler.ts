@@ -51,19 +51,18 @@ export function removeMember(memberId: EMPM[EMType.REMOVE_MEMBER]): void {
     server.send(TSMType.REMOVE_MEMBER, { member_id: memberId });
 }
 
-export function skipCurrentVideo(): void {
+export function skipCurrentVideo(updatedAt: EMPM[EMType.SKIP_CURRENT_VIDEO]): void {
+    if (globalState.room.playlist.videos.length === 0) return;
     server.send(TSMType.UPDATE_PLAYER_VIDEO, {
         video_id: globalState.room.playlist.videos[0].id,
-        //? get updated_at with payload
-        updated_at: Date.now(),
+        updated_at: updatedAt,
     });
 }
 
-export function updatePlayerVideo(videoId: EMPM[EMType.UPDATE_PLAYER_VIDEO]): void {
+export function updatePlayerVideo({ videoId, updatedAt }: EMPM[EMType.UPDATE_PLAYER_VIDEO]): void {
     server.send(TSMType.UPDATE_PLAYER_VIDEO, {
         video_id: videoId,
-        //? get updated_at with payload
-        updated_at: Date.now(),
+        updated_at: updatedAt,
     });
 }
 
@@ -84,6 +83,10 @@ export function updateMuted(isMuted: EMPM[EMType.UPDATE_MUTED]): void {
 }
 
 export function updatePlayerState(playerState: EMPM[EMType.UPDATE_PLAYER_STATE]): void {
+    if (playerState.video_url !== globalState.room.player.video_url) {
+        return;
+    }
+
     globalState.room.player.current_time = playerState.current_time;
     globalState.room.player.is_playing = playerState.is_playing;
     globalState.room.player.playback_rate = playerState.playback_rate;

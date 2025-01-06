@@ -5,13 +5,11 @@ import { ExtensionMessageType as EMT } from "types/extensionMessage";
 const bgMessagingClient = BackgroundMessagingClient.getInstance();
 
 // Profile
-
 bgMessagingClient.addHandler(EMT.GET_PROFILE, Handler.getProfile);
 
 bgMessagingClient.addHandler(EMT.UPDATE_PROFILE, Handler.updateProfile);
 
 // Player && room
-
 bgMessagingClient.addHandler(EMT.ADD_VIDEO, Handler.addVideo);
 
 bgMessagingClient.addHandler(EMT.REMOVE_VIDEO, Handler.removeVideo);
