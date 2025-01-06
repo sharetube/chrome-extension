@@ -31,6 +31,7 @@ class Player {
 
     private _contentScriptMessagingClient: ContentScriptMessagingClient;
     private observer: MutationObserver | null = null;
+    private abortController: AbortController;
 
     public constructor(e: HTMLElement, p: HTMLVideoElement) {
         this._e = e;
@@ -83,6 +84,8 @@ class Player {
             },
         );
 
+        this.abortController = new AbortController();
+
         this.observeElement();
         this.addEventListeners();
         this.sendMute();
@@ -90,23 +93,45 @@ class Player {
 
     private addEventListeners() {
         // Mute handle
-        this._player.addEventListener("volumechange", this.handleMute.bind(this));
+        this._player.addEventListener("volumechange", this.handleMute.bind(this), {
+            signal: this.abortController.signal,
+        });
         // State handle
-        this._player.addEventListener("play", this.handlePlay.bind(this));
-        this._player.addEventListener("pause", this.handlePause.bind(this));
-        this._player.addEventListener("seeking", this.handleSeeking.bind(this));
-        this._player.addEventListener("ratechange", this.handleRatechange.bind(this));
+        this._player.addEventListener("play", this.handlePlay.bind(this), {
+            signal: this.abortController.signal,
+        });
+        this._player.addEventListener("pause", this.handlePause.bind(this), {
+            signal: this.abortController.signal,
+        });
+        this._player.addEventListener("seeking", this.handleSeeking.bind(this), {
+            signal: this.abortController.signal,
+        });
+        this._player.addEventListener("ratechange", this.handleRatechange.bind(this), {
+            signal: this.abortController.signal,
+        });
         // Loading handle
-        this._player.addEventListener("waiting", this.handleWaiting.bind(this));
-        this._player.addEventListener("canplay", this.handleCanplay.bind(this));
-        this._player.addEventListener("loadeddata", this.handleLoadedData.bind(this));
-        this._player.addEventListener("ended", this.handleEnded.bind(this));
-        this._player.addEventListener("emptied", this.handleEmptied.bind(this));
+        this._player.addEventListener("waiting", this.handleWaiting.bind(this), {
+            signal: this.abortController.signal,
+        });
+        this._player.addEventListener("canplay", this.handleCanplay.bind(this), {
+            signal: this.abortController.signal,
+        });
+        this._player.addEventListener("loadeddata", this.handleLoadedData.bind(this), {
+            signal: this.abortController.signal,
+        });
+        this._player.addEventListener("ended", this.handleEnded.bind(this), {
+            signal: this.abortController.signal,
+        });
+        this._player.addEventListener("emptied", this.handleEmptied.bind(this), {
+            signal: this.abortController.signal,
+        });
         // this._player.addEventListener("error", () => log("error"));
         // this._player.addEventListener("playing", () => log("playing"));
         // this._player.addEventListener("loadstart", () => log("loadstart"));
 
-        document.addEventListener("keydown", this.handleKeyDown.bind(this));
+        document.addEventListener("keydown", this.handleKeyDown.bind(this), {
+            signal: this.abortController.signal,
+        });
     }
 
     private handleKeyDown(event: KeyboardEvent) {
@@ -128,18 +153,8 @@ class Player {
     }
 
     private clearEventListeners() {
-        this._player.removeEventListener("volumechange", this.handleMute.bind(this));
-        this._player.removeEventListener("play", this.handlePlay);
-        this._player.removeEventListener("pause", this.handlePause.bind(this));
-        this._player.removeEventListener("seeking", this.handleSeeking.bind(this));
-        this._player.removeEventListener("ratechange", this.handleRatechange.bind(this));
-        this._player.removeEventListener("waiting", this.handleWaiting.bind(this));
-        this._player.removeEventListener("canplay", this.handleCanplay.bind(this));
-        this._player.removeEventListener("loadeddata", this.handleLoadedData.bind(this));
-        this._player.removeEventListener("ended", this.handleEnded.bind(this));
-        this._player.removeEventListener("emptied", this.handleEmptied.bind(this));
-
-        document.removeEventListener("keydown", this.handleKeyDown.bind(this));
+        this.abortController.abort(); // Removes all listeners attached with this controller
+        this.abortController = new AbortController();
     }
 
     private clearContentScriptHandlers() {
@@ -148,7 +163,8 @@ class Player {
         this._contentScriptMessagingClient.removeHandler(ExtensionMessageType.ADMIN_STATUS_UPDATED);
     }
 
-    private clearAll() {
+    public clearAll() {
+        log("clearAll");
         this.clearUpdateIsReadyFalseTimeout();
         this.clearEventListeners();
         this.clearContentScriptHandlers();

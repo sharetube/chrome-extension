@@ -127,23 +127,16 @@ export function switchToPrimaryTab() {
     });
 }
 
-export function isPrimaryTab(
+export async function isPrimaryTab(
     _: EMPM[EMType.IS_PRIMARY_TAB],
     sender: chrome.runtime.MessageSender,
 ): EMRM[EMType.IS_PRIMARY_TAB] {
-    return new Promise((resolve, reject) => {
-        if (sender.tab?.id === undefined) {
-            reject();
-            return;
-        }
+    if (sender.tab?.id === undefined) {
+        return false;
+    }
 
-        tabStorage.addTab(sender.tab.id);
-
-        getPrimaryTabIdOrUnset().then(primaryTabId => {
-            console.log("isPrimaryTab", primaryTabId, sender.tab?.id);
-            resolve(primaryTabId === sender.tab?.id);
-        });
-    });
+    tabStorage.addTab(sender.tab.id);
+    return getPrimaryTabIdOrUnset().then(primaryTabId => primaryTabId === sender.tab?.id);
 }
 
 export function isPrimaryTabExists(): EMRM[EMType.IS_PRIMARY_TAB_EXISTS] {

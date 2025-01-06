@@ -46,7 +46,6 @@ export class TabStorage {
         const primaryTabId = await this.getPrimaryTab();
         if (!primaryTabId) return;
 
-        this.removeTab(primaryTabId);
         return chrome.storage.local.remove(this.PRIMARY_TAB_STORAGE_KEY);
     }
 }
