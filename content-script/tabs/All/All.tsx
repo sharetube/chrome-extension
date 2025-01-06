@@ -13,40 +13,21 @@ waitForElement("#end")
     .catch(error => console.error("ST: Failed to render popup", error));
 
 // Modify context menus
-waitForElement("ytd-popup-container")
-    .then(elem => {
-        const container = document.createElement("div");
-        container.id = "st-context-menu";
-        container.style.minWidth = "149px";
+const container = document.createElement("div");
+container.id = "st-context-menu";
+container.style.minWidth = "149px";
 
-        ReactDOM.render(<ContextItem />, container);
+ReactDOM.render(<ContextItem />, container);
 
-        const handlePopupMutation = (mutations: MutationRecord[], observer: MutationObserver) => {
-            mutations.forEach(mutation => {
-                mutation.addedNodes.forEach(node => {
-                    if (node instanceof HTMLElement && node.tagName === "TP-YT-IRON-DROPDOWN") {
-                        const listboxElem = node.querySelector("tp-yt-paper-listbox");
+window.addEventListener("message", event => {
+    const { type } = event.data;
+    // todo: add to constants
+    if (type === "CONTEXT") {
+        const dropdown = Array.from(document.body.querySelectorAll("tp-yt-iron-dropdown")).find(
+            d => !d.id,
+        );
 
-                        listboxElem!.prepend(container);
-                        observer.disconnect();
-
-                        new MutationObserver(mutations => {
-                            mutations.forEach(mutation => {
-                                mutation.removedNodes.forEach(node => {
-                                    if (
-                                        node instanceof HTMLElement &&
-                                        node.id === "st-context-menu"
-                                    ) {
-                                        listboxElem?.prepend(container);
-                                    }
-                                });
-                            });
-                        }).observe(listboxElem!, { childList: true });
-                    }
-                });
-            });
-        };
-
-        new MutationObserver(handlePopupMutation).observe(elem!, { childList: true });
-    })
-    .catch(error => console.error("ST: Failed to select 'ytd-popup-container.ytd-app'", error));
+        const listboxElem = dropdown?.querySelector("tp-yt-paper-listbox");
+        listboxElem!.prepend(container);
+    }
+});
