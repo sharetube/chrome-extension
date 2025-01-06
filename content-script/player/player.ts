@@ -27,7 +27,6 @@ class Player {
     private _isDataLoaded: boolean;
     private _ignoreSeekingCount: number;
     private _ignorePlayCount: number;
-    private _ignorePlayingCount: number;
     private _ignorePauseCount: number;
 
     private _contentScriptMessagingClient: ContentScriptMessagingClient;
@@ -51,7 +50,6 @@ class Player {
         this._isDataLoaded = false;
         this._ignoreSeekingCount = 0;
         this._ignorePlayCount = 0;
-        this._ignorePlayingCount = 0;
         this._ignorePauseCount = 0;
 
         this._contentScriptMessagingClient = new ContentScriptMessagingClient();
@@ -99,11 +97,13 @@ class Player {
         this._player.addEventListener("ratechange", this.handleRatechange.bind(this));
         // Loading handle
         this._player.addEventListener("waiting", this.handleWaiting.bind(this));
-        this._player.addEventListener("playing", this.handlePlaying.bind(this));
+        this._player.addEventListener("playing", () => log("actual playing"));
         this._player.addEventListener("loadeddata", this.handleLoadedData.bind(this));
         this._player.addEventListener("ended", this.handleEnded.bind(this));
         this._player.addEventListener("emptied", this.handleEmptied.bind(this));
         this._player.addEventListener("error", () => log("error"));
+        this._player.addEventListener("loadstart", () => log("loadstart"));
+        this._player.addEventListener("canplay", this.handleCanplay.bind(this));
 
         document.addEventListener("keydown", event => {
             switch (event.key) {
@@ -135,6 +135,7 @@ class Player {
 
     private udpateIsReadyFalseTimeout: NodeJS.Timeout | null = null;
     private setUpdateIsReadyFalseTimeout(): void {
+        this.clearUpdateIsReadyFalseTimeout();
         this.udpateIsReadyFalseTimeout = setTimeout(() => {
             if (!this._isReady) return;
             log("update is ready false timeout");
@@ -199,13 +200,8 @@ class Player {
         this.handleStateChanged();
     }
 
-    private handlePlaying() {
-        log("playing");
-        if (this._ignorePlayingCount > 0) {
-            log("playing ignored");
-            this._ignorePlayingCount--;
-            return;
-        }
+    private handleCanplay() {
+        log("canplay");
 
         if (!this.clearUpdateIsReadyFalseTimeout()) {
             if (this._isReady) return;
@@ -233,7 +229,6 @@ class Player {
             return;
         }
 
-        this._ignorePlayingCount++;
         this.handleStateChanged();
     }
 

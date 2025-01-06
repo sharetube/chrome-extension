@@ -70,7 +70,7 @@ export type ToServerMessagePayloadMap = {
         video_id: string;
         updated_at: number;
     };
-    [TO.ALIVE]: null;
+    [TO.ALIVE]: void;
 };
 
 export type FromServerMessagePayloadMap = {
