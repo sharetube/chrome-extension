@@ -34,7 +34,7 @@ const Room: React.FC<RoomProps> = ({ callback }) => {
         messagingClient.addHandler(
             ExtensionMessageType.MEMBERS_UPDATED,
             (payload: MemberType[] | null): void => {
-                payload && setUsers(payload);
+                if (payload) setUsers(payload);
                 setLoading(false);
             },
         );

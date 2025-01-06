@@ -64,6 +64,12 @@ const handleTab = async (tabId: number, url: string) => {
     }
 };
 
+async function clearPrimaryTab() {
+    server.close();
+    await tabStorage.unsetPrimaryTab();
+    bgMessagingClient.broadcastMessage(ExtensionMessageType.PRIMARY_TAB_UNSET);
+}
+
 export async function getPrimaryTabIdOrUnset(): Promise<number | null> {
     const primaryTabId = await tabStorage.getPrimaryTab();
     if (!primaryTabId) return null;
@@ -74,10 +80,7 @@ export async function getPrimaryTabIdOrUnset(): Promise<number | null> {
             .then(() => resolve(primaryTabId))
             .catch(async () => {
                 console.log("clearing primary tab");
-                server.close();
-                await tabStorage.unsetPrimaryTab();
-                await tabStorage.removeTab(primaryTabId);
-                bgMessagingClient.broadcastMessage(ExtensionMessageType.PRIMARY_TAB_UNSET);
+                clearPrimaryTab();
                 resolve(null);
             });
     });
@@ -95,19 +98,28 @@ chrome.tabs.onRemoved.addListener(async tabId => {
     getPrimaryTabIdOrUnset();
 });
 
+function reloadTab(tabId: number) {
+    chrome.tabs.reload(tabId, {}, () => {
+        if (chrome.runtime.lastError) {
+            console.error(`Error reloading tab ${tabId}: ${chrome.runtime.lastError.message}`);
+        } else {
+            console.log(`Tab ${tabId} reloaded successfully.`);
+        }
+    });
+}
+
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
-    // todo: refactor
     if (changeInfo.url === undefined) {
         return;
     }
-    const primaryTabId = await tabStorage.getPrimaryTab();
 
+    const primaryTabId = await getPrimaryTabIdOrUnset();
     if (primaryTabId !== tabId) {
         return;
     }
 
-    if (!(tab.url && tab.url.match(domainRegex))) {
-        getPrimaryTabIdOrUnset();
+    if (!tab.url?.match(domainRegex)) {
+        clearPrimaryTab();
         return;
     }
 
@@ -115,6 +127,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
         changeInfo.url &&
         changeInfo.url !== `https://www.youtube.com/watch?v=${globalState.room.player.video_url}`
     ) {
-        getPrimaryTabIdOrUnset();
+        reloadTab(tabId);
+        clearPrimaryTab();
     }
 });

@@ -123,10 +123,16 @@ export const playerVideoUpdated = (
 ): void => {
     globalState.room.playlist = payload.playlist;
     globalState.room.player = payload.player;
+    globalState.room.members = payload.members;
 
     bgMessagingClient.sendMessageToPrimaryTab(
         ExtensionMessageType.PLAYLIST_UPDATED,
         payload.playlist,
+    );
+
+    bgMessagingClient.sendMessageToPrimaryTab(
+        ExtensionMessageType.MEMBERS_UPDATED,
+        payload.members,
     );
 
     bgMessagingClient.sendMessageToPrimaryTab(
