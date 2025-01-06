@@ -1,4 +1,4 @@
-import validate from "../../shared/api/validateVideo";
+import getVideoUrlFromLink from "../../shared/api/validateVideo";
 import useKey from "./hooks/useKey";
 import useAdmin from "@shared/Context/Admin/hooks/useAdmin";
 import Icon from "@shared/ui/Add/Add";
@@ -6,7 +6,7 @@ import React, { useState } from "react";
 import { ExtensionMessageType } from "types/extensionMessage";
 
 const Search: React.FC = () => {
-    const { is_admin } = useAdmin();
+    const { isAdmin: is_admin } = useAdmin();
     const [inputValue, setInputValue] = useState<string>("");
     const inputRef = useKey("/");
 
@@ -18,7 +18,7 @@ const Search: React.FC = () => {
         setInputValue(e.target.value);
 
     const handleAdd = () => {
-        validate(inputValue)
+        getVideoUrlFromLink(inputValue)
             .then(videoId => {
                 add(videoId);
                 setInputValue("");

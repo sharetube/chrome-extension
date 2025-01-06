@@ -70,7 +70,7 @@ export type ToServerMessagePayloadMap = {
         video_id: string;
         updated_at: number;
     };
-    [TO.ALIVE]: null;
+    [TO.ALIVE]: void;
 };
 
 export type FromServerMessagePayloadMap = {
@@ -82,6 +82,7 @@ export type FromServerMessagePayloadMap = {
     [FROM.PLAYER_VIDEO_UPDATED]: {
         player: PlayerType;
         playlist: PlaylistType;
+        members: MemberType[];
     };
     [FROM.VIDEO_ADDED]: {
         added_video: VideoType;

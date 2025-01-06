@@ -2,7 +2,7 @@ import Button from "../shared/Button/Button";
 import Input from "../shared/Input/Input";
 import Title from "../shared/Title/Title";
 import Avatar from "@entities/Avatar/Avatar";
-import validate from "@shared/api/validateVideo";
+import getVideoUrlFromLink from "@shared/api/validateVideo";
 import { ContentScriptMessagingClient } from "@shared/client/client";
 import Next from "@shared/ui/Next/Next";
 import React, { useEffect, useState } from "react";
@@ -47,13 +47,10 @@ const Room: React.FC<RoomProps> = ({ profile, changePage }) => {
         const value = event.target.value;
         setInitVideoValue(value);
 
-        // todo: move check to validate func
-        if (value.length >= 16) {
-            validate(value).then(response => {
-                setVideoUrl(response);
-                setIsButtonDisabled(!response);
-            });
-        }
+        getVideoUrlFromLink(value).then(response => {
+            setVideoUrl(response);
+            setIsButtonDisabled(!response);
+        });
     };
 
     const handleCreateRoomButtonClick = () => {
