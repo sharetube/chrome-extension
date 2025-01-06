@@ -97,13 +97,13 @@ class Player {
         this._player.addEventListener("ratechange", this.handleRatechange.bind(this));
         // Loading handle
         this._player.addEventListener("waiting", this.handleWaiting.bind(this));
-        this._player.addEventListener("playing", () => log("actual playing"));
+        this._player.addEventListener("canplay", this.handleCanplay.bind(this));
         this._player.addEventListener("loadeddata", this.handleLoadedData.bind(this));
         this._player.addEventListener("ended", this.handleEnded.bind(this));
         this._player.addEventListener("emptied", this.handleEmptied.bind(this));
         this._player.addEventListener("error", () => log("error"));
+        this._player.addEventListener("playing", () => log("playing"));
         this._player.addEventListener("loadstart", () => log("loadstart"));
-        this._player.addEventListener("canplay", this.handleCanplay.bind(this));
 
         document.addEventListener("keydown", event => {
             switch (event.key) {
@@ -133,6 +133,7 @@ class Player {
         );
     }
 
+    //? add same for isReady true
     private udpateIsReadyFalseTimeout: NodeJS.Timeout | null = null;
     private setUpdateIsReadyFalseTimeout(): void {
         this.clearUpdateIsReadyFalseTimeout();
@@ -202,7 +203,6 @@ class Player {
 
     private handleCanplay() {
         log("canplay");
-
         if (!this.clearUpdateIsReadyFalseTimeout()) {
             if (this._isReady) return;
             this._isReady = true;

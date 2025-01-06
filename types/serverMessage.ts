@@ -82,6 +82,7 @@ export type FromServerMessagePayloadMap = {
     [FROM.PLAYER_VIDEO_UPDATED]: {
         player: PlayerType;
         playlist: PlaylistType;
+        members: MemberType[];
     };
     [FROM.VIDEO_ADDED]: {
         added_video: VideoType;
