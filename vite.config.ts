@@ -53,6 +53,7 @@ export default defineConfig({
             "@entities": "/content-script/entities",
             "@tabs": "/content-script/tabs",
             "@player": "/content-script/player",
+            scripts: "/scripts/",
             constants: "/constants",
             types: "/types",
             config: "config.ts",

@@ -15,7 +15,7 @@ const ContextItem: React.FC = () => {
                         <ShareTube />
                     </div>
                     <p className="m-0 p-0 text-text-primary font-secondary text-[1.4rem] leading-[2rem] font-normal">
-                        Start room
+                        Room
                     </p>
                 </div>
                 <div className="h-[1px] w-full bg-spec-outline m-[8px_0]"></div>

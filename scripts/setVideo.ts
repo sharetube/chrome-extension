@@ -5,8 +5,8 @@ const updateVideoUrl = (videoUrl: string) => {
         if (t) {
             const a = t.querySelector("a");
             if (a) {
-                a.data.watchEndpoint.videoId = videoUrl;
-                a.data.commandMetadata.webCommandMetadata.url = `/watch?v=${videoUrl}`;
+                (a as any).data.watchEndpoint.videoId = videoUrl;
+                (a as any).data.commandMetadata.webCommandMetadata.url = `/watch?v=${videoUrl}`;
                 a.click();
             }
         }
@@ -14,7 +14,6 @@ const updateVideoUrl = (videoUrl: string) => {
 };
 
 window.addEventListener("message", event => {
-    console.log("EVENT CATCH WINDOW");
     const { type, payload } = event.data;
     // todo: add to constants
     if (type === "SKIP") {
