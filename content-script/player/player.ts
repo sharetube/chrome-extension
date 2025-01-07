@@ -429,7 +429,6 @@ class Player {
 
     private observeElement(): void {
         this.observer = new MutationObserver(mutations => {
-            // todo: optimize by breaking loop
             mutations.forEach(mutation => {
                 if (mutation.type === "attributes" && mutation.attributeName === "class") {
                     this.handleAdChanged(this.e.classList);

@@ -1,5 +1,6 @@
 import { globalState } from "background-script/state";
 import config from "config";
+import debounce from "lodash.debounce";
 import { connectToWS } from "pkg/ws/ws";
 import { ProfileType } from "types/profile.type";
 import {
@@ -24,19 +25,14 @@ const buildQueryParams = (params: Record<string, string>): string =>
 
 class ServerClient {
     private static instance: ServerClient;
-    private ws: WebSocket | null;
+    private ws: WebSocket | undefined;
     // todo: remove any
     private handlers: Map<FromServerMessageType, MessageHandler<any>>;
     private closeCodeHandlers: Map<number, CloseCodeHandler>;
-    // todo: use lodash debounce
-    private keepAliveTimeout: NodeJS.Timeout | null;
-    private KEEP_ALIVE_INTERVAL: number = 25 * 1000;
 
     private constructor() {
         this.handlers = new Map();
         this.closeCodeHandlers = new Map();
-        this.ws = null;
-        this.keepAliveTimeout = null;
     }
 
     public static getInstance(): ServerClient {
@@ -50,7 +46,7 @@ class ServerClient {
             connectToWS(url).then(ws => {
                 this.ws = ws;
                 this.addListeners();
-                this.startKeepAlive();
+                this.debouncedKeepAlive();
                 resolve();
             });
         });
@@ -76,7 +72,7 @@ class ServerClient {
         };
 
         this.ws.onmessage = ({ data }) => {
-            this.startKeepAlive();
+            this.debouncedKeepAlive();
             try {
                 const { type, payload } = JSON.parse(data);
                 console.log(`FROM WS: type: ${type}, payload:`, payload);
@@ -127,7 +123,7 @@ class ServerClient {
     public send<T extends ToServerMessageType>(type: T, payload?: ToServerMessagePayloadMap[T]) {
         if (!this.ws) return;
         const message = JSON.stringify({ type, payload });
-        this.startKeepAlive();
+        this.debouncedKeepAlive();
         this.ws.send(message);
         console.log("TO WS:", { type, payload });
     }
@@ -135,10 +131,10 @@ class ServerClient {
     public close() {
         if (!this.ws) return;
 
-        this.stopKeepAlive();
+        this.debouncedKeepAlive.cancel();
         this.ws.close();
         this.removeListeners();
-        this.ws = null;
+        this.ws = undefined;
     }
 
     public addHandler<T extends FromServerMessageType>(type: T, handler: MessageHandler<T>): void {
@@ -150,19 +146,7 @@ class ServerClient {
     }
 
     // https://developer.chrome.com/docs/extensions/how-to/web-platform/websockets
-    private startKeepAlive() {
-        this.stopKeepAlive();
-        this.keepAliveTimeout = setTimeout(
-            () => this.send(ToServerMessageType.ALIVE),
-            this.KEEP_ALIVE_INTERVAL,
-        );
-    }
-
-    private stopKeepAlive() {
-        if (!this.keepAliveTimeout) return;
-        clearTimeout(this.keepAliveTimeout);
-        this.keepAliveTimeout = null;
-    }
+    private debouncedKeepAlive = debounce(() => this.send(ToServerMessageType.ALIVE), 25 * 1000);
 }
 
 export default ServerClient;
