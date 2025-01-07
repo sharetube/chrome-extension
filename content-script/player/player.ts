@@ -23,6 +23,7 @@ class Player {
     private muted: boolean | null;
     private videoUrl: string;
     private isReady: boolean;
+    private isPlayAfterEndedHandled: boolean;
     private adShowing: boolean;
     private isDataLoaded: boolean;
     private ignoreSeekingCount: number;
@@ -48,6 +49,7 @@ class Player {
         this.muted = null;
         this.videoUrl = "";
         this.isReady = false;
+        this.isPlayAfterEndedHandled = true;
         this.adShowing = false;
         this.isDataLoaded = false;
         this.ignoreSeekingCount = 0;
@@ -162,7 +164,14 @@ class Player {
         ContentScriptMessagingClient.sendMessage(
             ExtensionMessageType.SKIP_CURRENT_VIDEO,
             dateNowInUs(),
-        );
+        ).then(res => {
+            if (res) return;
+
+            const state = this.getState();
+            state.is_ended = true;
+            this.setState(state);
+            this.handleStateChanged();
+        });
     }
 
     //? add same for isReady true
@@ -228,7 +237,6 @@ class Player {
             return;
         }
 
-        this.isReady = false;
         this.ignoreSeekingCount = 0;
         this.ignorePlayCount = 0;
         this.ignorePauseCount = 0;
@@ -279,6 +287,11 @@ class Player {
         log("play");
         if (this.adShowing) {
             log("ignored play because ad is showing");
+            return;
+        }
+        if (!this.isPlayAfterEndedHandled) {
+            this.isPlayAfterEndedHandled = true;
+            this.setActualState();
             return;
         }
 
@@ -343,13 +356,22 @@ class Player {
 
     public setState(state: PlayerStateType) {
         let ct;
-        if (state.is_playing) {
-            ct =
-                Math.round(
-                    state.current_time + (dateNowInUs() - state.updated_at) * state.playback_rate,
-                ) / 1e6;
+        if (state.is_ended) {
+            // 1s - too low
+            // 2s - ok
+            // todo: try to low as possible, in range 1-2s
+            ct = this.player.duration - 2;
+            this.isPlayAfterEndedHandled = false;
         } else {
-            ct = state.current_time / 1e6;
+            if (state.is_playing) {
+                ct =
+                    Math.round(
+                        state.current_time +
+                            (dateNowInUs() - state.updated_at) * state.playback_rate,
+                    ) / 1e6;
+            } else {
+                ct = state.current_time / 1e6;
+            }
         }
 
         if (state.is_playing && !this.getIsPlaying()) {
@@ -358,7 +380,6 @@ class Player {
             this.ignorePauseCount++;
         }
         this.player[state.is_playing ? "play" : "pause"]();
-
         this.player.currentTime = ct;
         this.ignoreSeekingCount++;
 
@@ -381,6 +402,7 @@ class Player {
             updated_at: dateNowInUs(),
             current_time: Math.round(this.player.currentTime * 1e6),
             playback_rate: this.player.playbackRate,
+            is_ended: false,
             is_playing: this.getIsPlaying(),
         };
         log("get state returned: ", s);
@@ -401,6 +423,7 @@ class Player {
 
     private updateVideo(videoUrl: string) {
         window.postMessage({ type: "SKIP", payload: videoUrl }, "*");
+        this.isReady = false;
         this.adShowing = false;
         this.isDataLoaded = false;
     }
@@ -428,7 +451,7 @@ class Player {
         this.observer = null;
     }
 
-    // Ad showing
+    // Ad handling
     private handleAdChanged(cl: DOMTokenList): void {
         const adShowing = cl.contains("ad-showing");
         if (this.adShowing === adShowing) return;
