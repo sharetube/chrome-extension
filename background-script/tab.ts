@@ -97,18 +97,8 @@ chrome.tabs.onRemoved.addListener(async tabId => {
     getPrimaryTabIdOrUnset();
 });
 
-// function reloadTab(tabId: number) {
-//     chrome.tabs.reload(tabId, {}, () => {
-//         if (chrome.runtime.lastError) {
-//             console.error(`Error reloading tab ${tabId}: ${chrome.runtime.lastError.message}`);
-//         } else {
-//             console.log(`Tab ${tabId} reloaded successfully.`);
-//         }
-//     });
-// }
-
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
-    if (changeInfo.url === undefined) {
+    if (!changeInfo.url) {
         return;
     }
 
@@ -116,15 +106,18 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     if (primaryTabId !== tabId) {
         return;
     }
+    console.log("tab updated", tabId, primaryTabId, changeInfo.url);
 
     if (!tab.url?.match(domainRegex)) {
         clearPrimaryTab();
         return;
     }
 
+    //? maybe better way
     if (
-        changeInfo.url &&
-        changeInfo.url !== `https://www.youtube.com/watch?v=${globalState.room.player.video_url}`
+        changeInfo.url !== `https://www.youtube.com/watch?v=${globalState.room.player.video_url}` &&
+        changeInfo.url !==
+            `https://www.youtube.com/watch?v=${globalState.room.player.video_url}&t=0`
     ) {
         clearPrimaryTab();
     }
