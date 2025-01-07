@@ -4,8 +4,8 @@ import Button from "@shared/ui/Button/Button";
 import Expand from "@shared/ui/Expand/Expand";
 import Members from "@shared/ui/Members/Members";
 import Share from "@shared/ui/Share/Share";
+import MemberList from "@widgets/Memberlist/Memberlist";
 import Playlist from "@widgets/Playlist/Playlist";
-import Room from "@widgets/Room/Room";
 import React, { useState } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
@@ -53,7 +53,7 @@ const Panel: React.FC = () => {
             <div
                 className={`${isExpanded ? "block" : "hidden"} bg-background-primary border-b border-solid border-spec-outline border-t-0 border-l-0 border-r-0`}
             >
-                <Room callback={setUserCount} />
+                <MemberList callback={setUserCount} />
             </div>
             <div className="flex-grow overflow-y-auto">
                 <DndProvider backend={HTML5Backend}>
