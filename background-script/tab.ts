@@ -78,8 +78,8 @@ export async function getPrimaryTabIdOrUnset(): Promise<number | null> {
             .get(primaryTabId)
             .then(() => resolve(primaryTabId))
             .catch(async () => {
-                console.log("clearing primary tab");
-                clearPrimaryTab();
+                tabStorage.removeTab(primaryTabId);
+                await clearPrimaryTab();
                 resolve(null);
             });
     });
