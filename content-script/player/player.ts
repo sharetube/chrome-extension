@@ -80,6 +80,7 @@ class Player {
         this._contentScriptMessagingClient.addHandler(
             ExtensionMessageType.ADMIN_STATUS_UPDATED,
             (payload: ExtensionMessagePayloadMap[ExtensionMessageType.ADMIN_STATUS_UPDATED]) => {
+                log("admin status updated", payload);
                 this._isAdmin = payload;
             },
         );
@@ -123,9 +124,6 @@ class Player {
         this._player.addEventListener("emptied", this.handleEmptied.bind(this), {
             signal: this.abortController.signal,
         });
-        // this._player.addEventListener("error", () => log("error"));
-        // this._player.addEventListener("playing", () => log("playing"));
-        // this._player.addEventListener("loadstart", () => log("loadstart"));
 
         document.addEventListener("keydown", this.handleKeyDown.bind(this), {
             signal: this.abortController.signal,
@@ -231,7 +229,9 @@ class Player {
         }
 
         this._isReady = false;
-        this._isDataLoaded = false;
+        this._ignoreSeekingCount = 0;
+        this._ignorePlayCount = 0;
+        this._ignorePauseCount = 0;
     }
 
     private handlePause() {
@@ -341,10 +341,6 @@ class Player {
         }
     }
 
-    private setIsPlaying(isPlaying: boolean) {
-        this._player[isPlaying ? "play" : "pause"]();
-    }
-
     public setState(state: PlayerStateType) {
         let ct;
         if (state.is_playing) {
@@ -361,7 +357,7 @@ class Player {
         } else if (!state.is_playing && this.getIsPlaying()) {
             this._ignorePauseCount++;
         }
-        this.setIsPlaying(state.is_playing);
+        this._player[state.is_playing ? "play" : "pause"]();
 
         this._player.currentTime = ct;
         this._ignoreSeekingCount++;
@@ -405,6 +401,8 @@ class Player {
 
     private updateVideo(videoUrl: string) {
         window.postMessage({ type: "SKIP", payload: videoUrl }, "*");
+        this._adShowing = false;
+        this._isDataLoaded = false;
     }
 
     private observeElement(): void {
@@ -440,11 +438,9 @@ class Player {
         if (this._adShowing) {
             this._isReady = false;
             ContentScriptMessagingClient.sendMessage(ExtensionMessageType.UPDATE_READY, false);
-            // this.setIsPlaying(true);
         } else {
             this._isReady = true;
             ContentScriptMessagingClient.sendMessage(ExtensionMessageType.UPDATE_READY, true);
-            this.setActualState();
         }
     }
 

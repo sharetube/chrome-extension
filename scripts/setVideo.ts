@@ -6,7 +6,7 @@ const updateVideoUrl = (videoUrl: string) => {
             const a = t.querySelector("a");
             if (a) {
                 (a as any).data.watchEndpoint.videoId = videoUrl;
-                (a as any).data.commandMetadata.webCommandMetadata.url = `/watch?v=${videoUrl}`;
+                (a as any).data.commandMetadata.webCommandMetadata.url = `/watch?v=${videoUrl}&t=0`;
                 a.click();
             }
         }
