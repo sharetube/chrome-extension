@@ -69,14 +69,19 @@ const Playlist: React.FC = () => {
     return (
         <ul className="st-playlist m-0">
             {lastVideo && (
-                <Video videoId={lastVideo.id} videoUrl={lastVideo.url} last actions={isAdmin} />
+                <Video
+                    videoId={lastVideo.id}
+                    videoUrl={lastVideo.url}
+                    type="last"
+                    isAdmin={isAdmin}
+                />
             )}
             {currentVideoUrl && (
                 <Video
                     videoId={currentVideoUrl}
                     videoUrl={currentVideoUrl}
-                    current
-                    actions={isAdmin}
+                    type="current"
+                    isAdmin={isAdmin}
                 />
             )}
             {videos &&
@@ -87,7 +92,8 @@ const Playlist: React.FC = () => {
                         videoId={video.id}
                         videoUrl={video.url}
                         number={index + 1}
-                        actions={isAdmin}
+                        type="number"
+                        isAdmin={isAdmin}
                     />
                 ))}
         </ul>

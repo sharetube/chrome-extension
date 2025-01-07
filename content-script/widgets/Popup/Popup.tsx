@@ -4,7 +4,7 @@ import { ContentScriptMessagingClient } from "@shared/client/client";
 import ShareTube from "@shared/ui/ShareTube/ShareTube";
 import { defaultProfile } from "constants/defaultProfile";
 import React, { useEffect, useState } from "react";
-import { ExtensionMessageType } from "types/extensionMessage";
+import { ExtensionMessagePayloadMap, ExtensionMessageType } from "types/extensionMessage";
 import { ProfileType } from "types/profile.type";
 
 const Popup: React.FC = () => {
@@ -21,7 +21,7 @@ const Popup: React.FC = () => {
         setIsExpanded(false);
     };
 
-    const MessageClient = new ContentScriptMessagingClient();
+    const contentScriptMessagingClient = new ContentScriptMessagingClient();
 
     useEffect(() => {
         const handleDocumentClick = (e: MouseEvent) => handleClick(e);
@@ -43,15 +43,19 @@ const Popup: React.FC = () => {
     useEffect(() => {
         ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_PROFILE).then(
             (payload: ProfileType) => {
+                console.log("get profile", payload);
                 setUser(payload);
             },
         );
     }, []);
 
     useEffect(() => {
-        MessageClient.addHandler(ExtensionMessageType.PROFILE_UPDATED, (payload: ProfileType) => {
-            setUser(payload);
-        });
+        contentScriptMessagingClient.addHandler(
+            ExtensionMessageType.PROFILE_UPDATED,
+            (payload: ExtensionMessagePayloadMap[ExtensionMessageType.PROFILE_UPDATED]) => {
+                setUser(payload);
+            },
+        );
     }, []);
 
     return (

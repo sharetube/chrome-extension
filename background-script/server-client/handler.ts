@@ -16,14 +16,14 @@ export function joinedRoom(
     globalState.room = payload.room;
     globalState.is_admin = payload.joined_member.is_admin;
 
-    const videoPageLink = `https://youtube.com/watch?v=${payload.room.player.video_url}`;
+    const videoPageLink = `https://youtube.com/watch?v=${payload.room.player.video_url}&t=0`;
     const targetPrimaryTabId = takeTargetPrimaryTabId();
     if (targetPrimaryTabId) {
         chrome.tabs.update(targetPrimaryTabId, { url: videoPageLink });
         // todo: skip that if target primary tab was primary tab
+        bgMessagingClient.broadcastMessage(ExtensionMessageType.PRIMARY_TAB_SET);
         tabStorage.addTab(targetPrimaryTabId);
         tabStorage.setPrimaryTab(targetPrimaryTabId);
-        bgMessagingClient.broadcastMessage(ExtensionMessageType.PRIMARY_TAB_SET);
     } else {
         console.error("No target primary tab found");
     }
@@ -123,6 +123,12 @@ export const playerVideoUpdated = (
 ): void => {
     globalState.room.playlist = payload.playlist;
     globalState.room.player = payload.player;
+    globalState.room.members = payload.members;
+
+    bgMessagingClient.sendMessageToPrimaryTab(
+        ExtensionMessageType.PLAYER_VIDEO_UPDATED,
+        payload.player.video_url,
+    );
 
     bgMessagingClient.sendMessageToPrimaryTab(
         ExtensionMessageType.PLAYLIST_UPDATED,
@@ -130,8 +136,8 @@ export const playerVideoUpdated = (
     );
 
     bgMessagingClient.sendMessageToPrimaryTab(
-        ExtensionMessageType.PLAYER_VIDEO_UPDATED,
-        payload.player.video_url,
+        ExtensionMessageType.MEMBERS_UPDATED,
+        payload.members,
     );
 
     if (payload.playlist.last_video) {
@@ -140,4 +146,9 @@ export const playerVideoUpdated = (
             payload.playlist.last_video,
         );
     }
+};
+
+export const kickedFromRoom = (): void => {
+    console.log("kicked from room");
+    bgMessagingClient.sendMessageToPrimaryTab(ExtensionMessageType.KICKED);
 };

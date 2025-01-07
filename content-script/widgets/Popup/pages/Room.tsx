@@ -15,25 +15,24 @@ interface RoomProps {
 }
 
 const Room: React.FC<RoomProps> = ({ profile, changePage }) => {
-    const [isRoom, setIsRoom] = useState<boolean>(true);
+    const [isPrimaryTabExists, setIsPrimaryTabExists] = useState<boolean>(true);
 
     const contentSciptMessagingClient = new ContentScriptMessagingClient();
 
     useEffect(() => {
         ContentScriptMessagingClient.sendMessage(ExtensionMessageType.IS_PRIMARY_TAB_EXISTS).then(
             response => {
-                console.log("IS_PRIMARY_TAB_EXISTS", response);
-                setIsRoom(response);
+                setIsPrimaryTabExists(response);
                 setIsNavigateButtonDisabled(!response);
             },
         );
         contentSciptMessagingClient.addHandler(ExtensionMessageType.PRIMARY_TAB_SET, () => {
-            setIsRoom(true);
+            setIsPrimaryTabExists(true);
             setIsNavigateButtonDisabled(false);
         });
 
         contentSciptMessagingClient.addHandler(ExtensionMessageType.PRIMARY_TAB_UNSET, () => {
-            setIsRoom(false);
+            setIsPrimaryTabExists(false);
             setIsNavigateButtonDisabled(true);
         });
     }, []);
@@ -106,14 +105,14 @@ const Room: React.FC<RoomProps> = ({ profile, changePage }) => {
                     <Next />
                 </div>
             </section>
-            {isRoom && !isPrimaryTab && (
+            {isPrimaryTabExists && !isPrimaryTab && (
                 <section className="flex items-center justify-center p-[16px]">
                     <Button disabled={isNavigateButtonDisabled} onClick={switchToPrimaryTab}>
                         Navigate to player tab
                     </Button>
                 </section>
             )}
-            {!isRoom && (
+            {!isPrimaryTabExists && (
                 <section className="p-[16px]">
                     <Title>Initial video</Title>
                     <Input value={initVideoValue} onChange={handleInitVideoLinkChange} />

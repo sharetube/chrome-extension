@@ -1,9 +1,6 @@
-const waitForElement = (
-    selector: string,
-    timeout = 10000,
-    retries = 3,
-): Promise<HTMLElement | null> =>
-    new Promise(resolve => {
+//? import somehow
+const waitForElement = (selector: string, timeout = 2000, retries = 3): Promise<HTMLElement> =>
+    new Promise((resolve, reject) => {
         const attempt = (retryCount: number) => {
             const element = document.querySelector(selector);
             if (element instanceof HTMLElement) return resolve(element);
@@ -25,10 +22,10 @@ const waitForElement = (
             const timeoutId = setTimeout(() => {
                 observer.disconnect();
                 if (retryCount > 0) {
-                    console.log("Retrying...", retryCount);
+                    console.log("Retrying...", retryCount, selector);
                     attempt(retryCount - 1);
                 } else {
-                    resolve(null);
+                    reject(`Failed to find element with selector: ${selector}`);
                 }
             }, timeout);
         };
@@ -121,7 +118,7 @@ waitForElement("ytd-popup-container")
             });
         };
 
-        new MutationObserver(handlePopupMutation).observe(elem!, {
+        new MutationObserver(handlePopupMutation).observe(elem, {
             childList: true,
             attributeFilter: ["style"],
         });

@@ -1,4 +1,4 @@
-export async function connectToWS(url: string): Promise<WebSocket | null> {
+export async function connectToWS(url: string): Promise<WebSocket> {
     return new Promise((resolve: (val: WebSocket) => void, reject) => {
         const ws = new WebSocket(url);
         ws.onopen = () => {

@@ -1,5 +1,6 @@
 import { globalState } from "background-script/state";
 import config from "config";
+import debounce from "lodash.debounce";
 import { connectToWS } from "pkg/ws/ws";
 import { ProfileType } from "types/profile.type";
 import {
@@ -15,6 +16,8 @@ type MessageHandler<T extends FromServerMessageType> = (
     payload: FromServerMessagePayloadMap[T],
 ) => void;
 
+type CloseCodeHandler = () => void;
+
 const buildQueryParams = (params: Record<string, string>): string =>
     Object.entries(params)
         .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
@@ -22,16 +25,14 @@ const buildQueryParams = (params: Record<string, string>): string =>
 
 class ServerClient {
     private static instance: ServerClient;
-    private ws: WebSocket | null;
+    private ws: WebSocket | undefined;
     // todo: remove any
     private handlers: Map<FromServerMessageType, MessageHandler<any>>;
-    private keepAliveTimeout: NodeJS.Timeout | null;
-    private KEEP_ALIVE_INTERVAL: number = 25 * 1000;
+    private closeCodeHandlers: Map<number, CloseCodeHandler>;
 
     private constructor() {
         this.handlers = new Map();
-        this.ws = null;
-        this.keepAliveTimeout = null;
+        this.closeCodeHandlers = new Map();
     }
 
     public static getInstance(): ServerClient {
@@ -45,7 +46,7 @@ class ServerClient {
             connectToWS(url).then(ws => {
                 this.ws = ws;
                 this.addListeners();
-                this.startKeepAlive();
+                this.debouncedKeepAlive();
                 resolve();
             });
         });
@@ -58,17 +59,29 @@ class ServerClient {
             this.close();
         };
 
-        this.ws.onclose = event => {
-            console.log("WS CLOSED", event);
+        this.ws.onclose = (event: CloseEvent) => {
+            console.log("WS CLOSED", event.code, event.reason);
+            const handler = this.closeCodeHandlers.get(event.code);
+            if (handler) {
+                handler();
+            } else {
+                console.log("WS: Unknown close code:", event.code);
+            }
+
             this.close();
         };
 
         this.ws.onmessage = ({ data }) => {
-            this.startKeepAlive();
+            this.debouncedKeepAlive();
             try {
                 const { type, payload } = JSON.parse(data);
                 console.log(`FROM WS: type: ${type}, payload:`, payload);
-                this.handlers.get(type)?.(payload);
+                const handler = this.handlers.get(type);
+                if (handler) {
+                    handler(payload);
+                } else {
+                    console.log("WS: Unknown message type:", type);
+                }
             } catch (error) {
                 console.error("WS ERROR: Parsing message:", error);
             }
@@ -77,6 +90,7 @@ class ServerClient {
 
     private removeListeners() {
         if (!this.ws) return;
+
         this.ws.onerror = null;
         this.ws.onclose = null;
         this.ws.onmessage = null;
@@ -109,7 +123,7 @@ class ServerClient {
     public send<T extends ToServerMessageType>(type: T, payload?: ToServerMessagePayloadMap[T]) {
         if (!this.ws) return;
         const message = JSON.stringify({ type, payload });
-        this.startKeepAlive();
+        this.debouncedKeepAlive();
         this.ws.send(message);
         console.log("TO WS:", { type, payload });
     }
@@ -117,30 +131,22 @@ class ServerClient {
     public close() {
         if (!this.ws) return;
 
-        this.stopKeepAlive();
-        this.removeListeners();
+        this.debouncedKeepAlive.cancel();
         this.ws.close();
-        this.ws = null;
+        this.removeListeners();
+        this.ws = undefined;
     }
 
     public addHandler<T extends FromServerMessageType>(type: T, handler: MessageHandler<T>): void {
         this.handlers.set(type, handler);
     }
 
-    // https://developer.chrome.com/docs/extensions/how-to/web-platform/websockets
-    private startKeepAlive() {
-        this.stopKeepAlive();
-        this.keepAliveTimeout = setTimeout(
-            () => this.send(ToServerMessageType.ALIVE),
-            this.KEEP_ALIVE_INTERVAL,
-        );
+    public addCloseCodeHandler(closeCode: number, handler: CloseCodeHandler): void {
+        this.closeCodeHandlers.set(closeCode, handler);
     }
 
-    private stopKeepAlive() {
-        if (!this.keepAliveTimeout) return;
-        clearTimeout(this.keepAliveTimeout);
-        this.keepAliveTimeout = null;
-    }
+    // https://developer.chrome.com/docs/extensions/how-to/web-platform/websockets
+    private debouncedKeepAlive = debounce(() => this.send(ToServerMessageType.ALIVE), 25 * 1000);
 }
 
 export default ServerClient;

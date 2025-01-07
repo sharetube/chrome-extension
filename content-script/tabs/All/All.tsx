@@ -7,7 +7,8 @@ import ReactDOM from "react-dom";
 waitForElement("#end")
     .then(elem => {
         const container = document.createElement("div");
-        elem?.prepend(container);
+        container.id = "st-popup-container";
+        elem.prepend(container);
         ReactDOM.render(<Popup />, container);
     })
     .catch(error => console.error("ST: Failed to render popup", error));
