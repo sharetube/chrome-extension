@@ -15,6 +15,8 @@ type MessageHandler<T extends FromServerMessageType> = (
     payload: FromServerMessagePayloadMap[T],
 ) => void;
 
+type CloseCodeHandler = () => void;
+
 const buildQueryParams = (params: Record<string, string>): string =>
     Object.entries(params)
         .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
@@ -25,12 +27,14 @@ class ServerClient {
     private ws: WebSocket | null;
     // todo: remove any
     private handlers: Map<FromServerMessageType, MessageHandler<any>>;
+    private closeCodeHandlers: Map<number, CloseCodeHandler>;
     // todo: use lodash debounce
     private keepAliveTimeout: NodeJS.Timeout | null;
     private KEEP_ALIVE_INTERVAL: number = 25 * 1000;
 
     private constructor() {
         this.handlers = new Map();
+        this.closeCodeHandlers = new Map();
         this.ws = null;
         this.keepAliveTimeout = null;
     }
@@ -59,8 +63,15 @@ class ServerClient {
             this.close();
         };
 
-        this.ws.onclose = event => {
-            console.log("WS CLOSED", event);
+        this.ws.onclose = (event: CloseEvent) => {
+            console.log("WS CLOSED", event.code, event.reason);
+            const handler = this.closeCodeHandlers.get(event.code);
+            if (handler) {
+                handler();
+            } else {
+                console.log("WS: Unknown close code:", event.code);
+            }
+
             this.close();
         };
 
@@ -69,7 +80,12 @@ class ServerClient {
             try {
                 const { type, payload } = JSON.parse(data);
                 console.log(`FROM WS: type: ${type}, payload:`, payload);
-                this.handlers.get(type)?.(payload);
+                const handler = this.handlers.get(type);
+                if (handler) {
+                    handler(payload);
+                } else {
+                    console.log("WS: Unknown message type:", type);
+                }
             } catch (error) {
                 console.error("WS ERROR: Parsing message:", error);
             }
@@ -120,14 +136,17 @@ class ServerClient {
         if (!this.ws) return;
 
         this.stopKeepAlive();
-        this.removeListeners();
         this.ws.close();
+        this.removeListeners();
         this.ws = null;
-        console.log("WS CLOSED");
     }
 
     public addHandler<T extends FromServerMessageType>(type: T, handler: MessageHandler<T>): void {
         this.handlers.set(type, handler);
+    }
+
+    public addCloseCodeHandler(closeCode: number, handler: CloseCodeHandler): void {
+        this.closeCodeHandlers.set(closeCode, handler);
     }
 
     // https://developer.chrome.com/docs/extensions/how-to/web-platform/websockets

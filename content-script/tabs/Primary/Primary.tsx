@@ -45,6 +45,10 @@ contentScriptMessageClient.addHandler(ExtensionMessageType.PRIMARY_TAB_UNSET, ()
 });
 update();
 
+contentScriptMessageClient.addHandler(ExtensionMessageType.KICKED, () => {
+    window.postMessage({ type: "GO_TO_MAIN" }, "*");
+});
+
 let player: Player | null = null;
 function initPlayer() {
     waitForElement(".html5-video-player").then(e => {

@@ -13,11 +13,26 @@ const updateVideoUrl = (videoUrl: string) => {
     }
 };
 
+function goToMain() {
+    const logo = document.querySelector(
+        ".yt-simple-endpoint .style-scope .ytd-topbar-logo-renderer",
+    ) as HTMLElement;
+    if (!logo) return;
+
+    logo.click();
+}
+
 window.addEventListener("message", event => {
     const { type, payload } = event.data;
     // todo: add to constants
-    if (type === "SKIP") {
-        console.log("SKIP");
-        updateVideoUrl(payload);
+    switch (type) {
+        case "GO_TO_MAIN":
+            goToMain();
+            break;
+        case "SKIP":
+            updateVideoUrl(payload);
+            break;
+        default:
+            console.log("Unknown message type", type);
     }
 });

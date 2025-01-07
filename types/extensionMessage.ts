@@ -16,6 +16,7 @@ export enum ExtensionMessageType {
     // Room
     GET_IS_ADMIN = "GET_ADMIN_STATUS",
     ADMIN_STATUS_UPDATED = "ADMIN_STATUS_UPDATED",
+    KICKED = "KICKED",
     GET_PLAYLIST = "GET_PLAYLIST",
     PLAYLIST_UPDATED = "PLAYLIST_UPDATED",
     UPDATE_PLAYLIST = "UPDATE_PLAYLIST",
@@ -79,6 +80,7 @@ export type ExtensionMessagePayloadMap = {
     [ExtensionMessageType.UPDATE_READY]: boolean;
     [ExtensionMessageType.GET_LAST_VIDEO]: void;
     [ExtensionMessageType.GET_PLAYLIST]: void;
+    [ExtensionMessageType.KICKED]: void;
 };
 export type ExtensionMessageResponseMap = {
     [ExtensionMessageType.GET_PLAYLIST]: PlaylistType;
