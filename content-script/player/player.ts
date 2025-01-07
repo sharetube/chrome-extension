@@ -14,74 +14,74 @@ interface MastheadElement extends HTMLElement {
 }
 
 class Player {
-    private _e: HTMLElement; // todo: rename
-    private _player: HTMLVideoElement;
+    private e: HTMLElement; // todo: rename
+    private player: HTMLVideoElement;
 
-    private _isAdmin: boolean;
+    private isAdmin: boolean;
 
-    private _mode: Mode;
-    private _muted: boolean | null;
-    private _videoUrl: string;
-    private _isReady: boolean;
-    private _adShowing: boolean;
-    private _isDataLoaded: boolean;
-    private _ignoreSeekingCount: number;
-    private _ignorePlayCount: number;
-    private _ignorePauseCount: number;
+    private mode: Mode;
+    private muted: boolean | null;
+    private videoUrl: string;
+    private isReady: boolean;
+    private adShowing: boolean;
+    private isDataLoaded: boolean;
+    private ignoreSeekingCount: number;
+    private ignorePlayCount: number;
+    private ignorePauseCount: number;
 
-    private _contentScriptMessagingClient: ContentScriptMessagingClient;
+    private contentScriptMessagingClient: ContentScriptMessagingClient;
     private observer: MutationObserver | null = null;
     private abortController: AbortController;
 
     public constructor(e: HTMLElement, p: HTMLVideoElement) {
-        this._e = e;
-        this._player = p;
-        this._isAdmin = false;
+        this.e = e;
+        this.player = p;
+        this.isAdmin = false;
 
         ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_IS_ADMIN).then(
             (res: ExtensionMessageResponseMap[ExtensionMessageType.GET_IS_ADMIN]) => {
-                this._isAdmin = res;
+                this.isAdmin = res;
             },
         );
 
-        this._mode = Mode.DEFAULT;
-        this._muted = null;
-        this._videoUrl = "";
-        this._isReady = false;
-        this._adShowing = false;
-        this._isDataLoaded = false;
-        this._ignoreSeekingCount = 0;
-        this._ignorePlayCount = 0;
-        this._ignorePauseCount = 0;
+        this.mode = Mode.DEFAULT;
+        this.muted = null;
+        this.videoUrl = "";
+        this.isReady = false;
+        this.adShowing = false;
+        this.isDataLoaded = false;
+        this.ignoreSeekingCount = 0;
+        this.ignorePlayCount = 0;
+        this.ignorePauseCount = 0;
 
-        this._contentScriptMessagingClient = new ContentScriptMessagingClient();
+        this.contentScriptMessagingClient = new ContentScriptMessagingClient();
         ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_PLAYER_VIDEO_URL).then(
             (url: string) => {
-                this._videoUrl = url;
+                this.videoUrl = url;
             },
         );
 
-        this._contentScriptMessagingClient.addHandler(
+        this.contentScriptMessagingClient.addHandler(
             ExtensionMessageType.PLAYER_VIDEO_UPDATED,
             (videoUrl: ExtensionMessagePayloadMap[ExtensionMessageType.PLAYER_VIDEO_UPDATED]) => {
-                this._videoUrl = videoUrl;
+                this.videoUrl = videoUrl;
                 this.updateVideo(videoUrl);
             },
         );
 
-        this._contentScriptMessagingClient.addHandler(
+        this.contentScriptMessagingClient.addHandler(
             ExtensionMessageType.PLAYER_STATE_UPDATED,
             (state: ExtensionMessagePayloadMap[ExtensionMessageType.PLAYER_STATE_UPDATED]) => {
-                if (this._adShowing) return;
+                if (this.adShowing) return;
                 this.setState(state);
             },
         );
 
-        this._contentScriptMessagingClient.addHandler(
+        this.contentScriptMessagingClient.addHandler(
             ExtensionMessageType.ADMIN_STATUS_UPDATED,
             (payload: ExtensionMessagePayloadMap[ExtensionMessageType.ADMIN_STATUS_UPDATED]) => {
                 log("admin status updated", payload);
-                this._isAdmin = payload;
+                this.isAdmin = payload;
             },
         );
 
@@ -94,34 +94,34 @@ class Player {
 
     private addEventListeners() {
         // Mute handle
-        this._player.addEventListener("volumechange", this.handleMute.bind(this), {
+        this.player.addEventListener("volumechange", this.handleMute.bind(this), {
             signal: this.abortController.signal,
         });
-        this._player.addEventListener("play", this.handlePlay.bind(this), {
+        this.player.addEventListener("play", this.handlePlay.bind(this), {
             signal: this.abortController.signal,
         });
-        this._player.addEventListener("pause", this.handlePause.bind(this), {
+        this.player.addEventListener("pause", this.handlePause.bind(this), {
             signal: this.abortController.signal,
         });
-        this._player.addEventListener("seeking", this.handleSeeking.bind(this), {
+        this.player.addEventListener("seeking", this.handleSeeking.bind(this), {
             signal: this.abortController.signal,
         });
-        this._player.addEventListener("ratechange", this.handleRatechange.bind(this), {
+        this.player.addEventListener("ratechange", this.handleRatechange.bind(this), {
             signal: this.abortController.signal,
         });
-        this._player.addEventListener("waiting", this.handleWaiting.bind(this), {
+        this.player.addEventListener("waiting", this.handleWaiting.bind(this), {
             signal: this.abortController.signal,
         });
-        this._player.addEventListener("canplay", this.handleCanplay.bind(this), {
+        this.player.addEventListener("canplay", this.handleCanplay.bind(this), {
             signal: this.abortController.signal,
         });
-        this._player.addEventListener("loadeddata", this.handleLoadedData.bind(this), {
+        this.player.addEventListener("loadeddata", this.handleLoadedData.bind(this), {
             signal: this.abortController.signal,
         });
-        this._player.addEventListener("ended", this.handleEnded.bind(this), {
+        this.player.addEventListener("ended", this.handleEnded.bind(this), {
             signal: this.abortController.signal,
         });
-        this._player.addEventListener("emptied", this.handleEmptied.bind(this), {
+        this.player.addEventListener("emptied", this.handleEmptied.bind(this), {
             signal: this.abortController.signal,
         });
 
@@ -136,9 +136,9 @@ class Player {
     }
 
     private clearContentScriptHandlers() {
-        this._contentScriptMessagingClient.removeHandler(ExtensionMessageType.PLAYER_VIDEO_UPDATED);
-        this._contentScriptMessagingClient.removeHandler(ExtensionMessageType.PLAYER_STATE_UPDATED);
-        this._contentScriptMessagingClient.removeHandler(ExtensionMessageType.ADMIN_STATUS_UPDATED);
+        this.contentScriptMessagingClient.removeHandler(ExtensionMessageType.PLAYER_VIDEO_UPDATED);
+        this.contentScriptMessagingClient.removeHandler(ExtensionMessageType.PLAYER_STATE_UPDATED);
+        this.contentScriptMessagingClient.removeHandler(ExtensionMessageType.ADMIN_STATUS_UPDATED);
     }
 
     public clearAll() {
@@ -170,9 +170,9 @@ class Player {
     private setUpdateIsReadyFalseTimeout(): void {
         this.clearUpdateIsReadyFalseTimeout();
         this.udpateIsReadyFalseTimeout = setTimeout(() => {
-            if (!this._isReady) return;
+            if (!this.isReady) return;
             log("update is ready false timeout");
-            this._isReady = false;
+            this.isReady = false;
             ContentScriptMessagingClient.sendMessage(ExtensionMessageType.UPDATE_READY, false);
             this.clearUpdateIsReadyFalseTimeout();
         }, 500);
@@ -193,15 +193,15 @@ class Player {
         switch (event.key) {
             case "ArrowRight":
                 log("ArrowRight: video diration, current time");
-                this._ignorePlayCount--;
-                if (this._isAdmin && this._player.duration - this._player.currentTime < 5) {
+                this.ignorePlayCount--;
+                if (this.isAdmin && this.player.duration - this.player.currentTime < 5) {
                     this.sendSkip();
                 }
 
                 break;
             case "ArrowLeft":
                 log("ArrowLeft");
-                this._ignorePlayCount--;
+                this.ignorePlayCount--;
 
                 break;
         }
@@ -209,41 +209,41 @@ class Player {
 
     private handleWaiting() {
         log("waiting");
-        if (this._isDataLoaded) {
+        if (this.isDataLoaded) {
             this.setUpdateIsReadyFalseTimeout();
         }
     }
 
     private handleEnded() {
         log("ended");
-        if (this._isAdmin) {
+        if (this.isAdmin) {
             this.sendSkip();
         }
     }
 
     private handleEmptied() {
         log("emptied");
-        if (this._adShowing) {
+        if (this.adShowing) {
             log("ignored emptied because ad is showing");
             return;
         }
 
-        this._isReady = false;
-        this._ignoreSeekingCount = 0;
-        this._ignorePlayCount = 0;
-        this._ignorePauseCount = 0;
+        this.isReady = false;
+        this.ignoreSeekingCount = 0;
+        this.ignorePlayCount = 0;
+        this.ignorePauseCount = 0;
     }
 
     private handlePause() {
         log("pause");
-        if (this._adShowing) {
+        if (this.adShowing) {
             log("ignored pause because ad is showing");
             return;
         }
 
-        if (this._ignorePauseCount > 0) {
+        if (this.ignorePauseCount > 0) {
             log("pause ignored");
-            this._ignorePauseCount--;
+            this.ignorePauseCount--;
             return;
         }
 
@@ -252,14 +252,14 @@ class Player {
 
     private handleCanplay() {
         log("canplay");
-        if (this._adShowing) {
+        if (this.adShowing) {
             log("ignored canplay because ad is showing");
             return;
         }
 
         if (!this.clearUpdateIsReadyFalseTimeout()) {
-            if (this._isReady) return;
-            this._isReady = true;
+            if (this.isReady) return;
+            this.isReady = true;
             this.setActualState();
             ContentScriptMessagingClient.sendMessage(ExtensionMessageType.UPDATE_READY, true);
         }
@@ -267,29 +267,29 @@ class Player {
 
     private handleLoadedData() {
         log("loaded data");
-        if (this._adShowing) {
+        if (this.adShowing) {
             log("ignored loaded data because ad is showing");
             return;
         }
 
-        this._isDataLoaded = true;
+        this.isDataLoaded = true;
     }
 
     private handlePlay() {
         log("play");
-        if (this._adShowing) {
+        if (this.adShowing) {
             log("ignored play because ad is showing");
             return;
         }
 
-        if (!this._isDataLoaded) {
+        if (!this.isDataLoaded) {
             log("play ignored because data not loaded");
             return;
         }
 
-        if (this._ignorePlayCount > 0) {
+        if (this.ignorePlayCount > 0) {
             log("play ignored");
-            this._ignorePlayCount--;
+            this.ignorePlayCount--;
             return;
         }
 
@@ -298,27 +298,27 @@ class Player {
 
     private handleSeeking() {
         log("seeking");
-        if (this._adShowing) {
+        if (this.adShowing) {
             log("ignored seeking because ad is showing");
             return;
         }
 
-        if (this._ignoreSeekingCount > 0) {
+        if (this.ignoreSeekingCount > 0) {
             log("seeking ignored");
-            this._ignoreSeekingCount--;
+            this.ignoreSeekingCount--;
             return;
         }
 
-        if (this._isDataLoaded && this.getIsPlaying()) {
-            log("ignore play count ++", this._ignorePlayCount);
-            this._ignorePlayCount++;
+        if (this.isDataLoaded && this.getIsPlaying()) {
+            log("ignore play count ++", this.ignorePlayCount);
+            this.ignorePlayCount++;
         }
         this.handleStateChanged();
     }
 
     private handleRatechange() {
         log("ratechange");
-        if (this._adShowing) {
+        if (this.adShowing) {
             log("ignored ratechange because ad is showing");
             return;
         }
@@ -328,15 +328,15 @@ class Player {
 
     // Mute
     private sendMute() {
-        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.UPDATE_MUTED, this._muted!);
+        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.UPDATE_MUTED, this.muted!);
     }
 
     private handleMute() {
         log("mute");
-        if (this._player.muted === this._muted) {
+        if (this.player.muted === this.muted) {
             return;
         } else {
-            this._muted = this._player.muted;
+            this.muted = this.player.muted;
             this.sendMute();
         }
     }
@@ -353,16 +353,16 @@ class Player {
         }
 
         if (state.is_playing && !this.getIsPlaying()) {
-            this._ignorePlayCount++;
+            this.ignorePlayCount++;
         } else if (!state.is_playing && this.getIsPlaying()) {
-            this._ignorePauseCount++;
+            this.ignorePauseCount++;
         }
-        this._player[state.is_playing ? "play" : "pause"]();
+        this.player[state.is_playing ? "play" : "pause"]();
 
-        this._player.currentTime = ct;
-        this._ignoreSeekingCount++;
+        this.player.currentTime = ct;
+        this.ignoreSeekingCount++;
 
-        this._player.playbackRate = state.playback_rate;
+        this.player.playbackRate = state.playback_rate;
 
         log("setted player state", {
             current_time: ct,
@@ -372,15 +372,15 @@ class Player {
     }
 
     public getIsPlaying(): boolean {
-        return !this._player.paused;
+        return !this.player.paused;
     }
 
     public getState(): PlayerType {
         const s = {
-            video_url: this._videoUrl,
+            video_url: this.videoUrl,
             updated_at: dateNowInUs(),
-            current_time: Math.round(this._player.currentTime * 1e6),
-            playback_rate: this._player.playbackRate,
+            current_time: Math.round(this.player.currentTime * 1e6),
+            playback_rate: this.player.playbackRate,
             is_playing: this.getIsPlaying(),
         };
         log("get state returned: ", s);
@@ -388,8 +388,8 @@ class Player {
     }
 
     private handleStateChanged() {
-        if (!this._isReady) return;
-        if (this._isAdmin) {
+        if (!this.isReady) return;
+        if (this.isAdmin) {
             ContentScriptMessagingClient.sendMessage(
                 ExtensionMessageType.UPDATE_PLAYER_STATE,
                 this.getState(),
@@ -401,8 +401,8 @@ class Player {
 
     private updateVideo(videoUrl: string) {
         window.postMessage({ type: "SKIP", payload: videoUrl }, "*");
-        this._adShowing = false;
-        this._isDataLoaded = false;
+        this.adShowing = false;
+        this.isDataLoaded = false;
     }
 
     private observeElement(): void {
@@ -410,13 +410,13 @@ class Player {
             // todo: optimize by breaking loop
             mutations.forEach(mutation => {
                 if (mutation.type === "attributes" && mutation.attributeName === "class") {
-                    this.handleAdChanged(this._e.classList);
-                    this.handleModeChanged(this._e.classList);
+                    this.handleAdChanged(this.e.classList);
+                    this.handleModeChanged(this.e.classList);
                 }
             });
         });
 
-        this.observer.observe(this._e, {
+        this.observer.observe(this.e, {
             attributes: true,
             attributeFilter: ["class"],
         });
@@ -431,15 +431,15 @@ class Player {
     // Ad showing
     private handleAdChanged(cl: DOMTokenList): void {
         const adShowing = cl.contains("ad-showing");
-        if (this._adShowing === adShowing) return;
+        if (this.adShowing === adShowing) return;
 
-        log("ad showing", this._adShowing, adShowing);
-        this._adShowing = adShowing;
-        if (this._adShowing) {
-            this._isReady = false;
+        log("ad showing", this.adShowing, adShowing);
+        this.adShowing = adShowing;
+        if (this.adShowing) {
+            this.isReady = false;
             ContentScriptMessagingClient.sendMessage(ExtensionMessageType.UPDATE_READY, false);
         } else {
-            this._isReady = true;
+            this.isReady = true;
             ContentScriptMessagingClient.sendMessage(ExtensionMessageType.UPDATE_READY, true);
         }
     }
@@ -472,8 +472,8 @@ class Player {
     }
 
     private setMode(mode: Mode) {
-        if (this._mode === mode) return;
-        this._mode = mode;
+        if (this.mode === mode) return;
+        this.mode = mode;
     }
 }
 
