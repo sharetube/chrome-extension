@@ -147,3 +147,8 @@ export const playerVideoUpdated = (
         );
     }
 };
+
+export const kickedFromRoom = (): void => {
+    console.log("kicked from room");
+    bgMessagingClient.sendMessageToPrimaryTab(ExtensionMessageType.KICKED);
+};
