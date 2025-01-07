@@ -113,7 +113,6 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
         return;
     }
 
-    //? maybe better way
     if (
         changeInfo.url !== `https://www.youtube.com/watch?v=${globalState.room.player.video_url}` &&
         changeInfo.url !==

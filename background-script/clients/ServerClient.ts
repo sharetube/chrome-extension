@@ -25,6 +25,7 @@ class ServerClient {
     private ws: WebSocket | null;
     // todo: remove any
     private handlers: Map<FromServerMessageType, MessageHandler<any>>;
+    // todo: use lodash debounce
     private keepAliveTimeout: NodeJS.Timeout | null;
     private KEEP_ALIVE_INTERVAL: number = 25 * 1000;
 

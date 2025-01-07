@@ -92,7 +92,9 @@ export type FromServerMessagePayloadMap = {
         removed_video_id: string;
         playlist: PlaylistType;
     };
-    [FROM.PLAYLIST_REORDERED]: { playlist: PlaylistType };
+    [FROM.PLAYLIST_REORDERED]: {
+        playlist: PlaylistType;
+    };
     [FROM.MEMBER_JOINED]: {
         joined_member: MemberType;
         members: MemberType[];

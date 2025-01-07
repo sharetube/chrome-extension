@@ -93,6 +93,7 @@ export type ExtensionMessageResponseMap = {
     [ExtensionMessageType.GET_PLAYER_STATE]: PlayerType;
     [ExtensionMessageType.GET_PLAYER_VIDEO_URL]: string;
     [ExtensionMessageType.GET_LAST_VIDEO]: VideoType | null;
+    [ExtensionMessageType.SKIP_CURRENT_VIDEO]: boolean;
 };
 
 export interface ExtensionMessage<T extends ExtensionMessageType> {

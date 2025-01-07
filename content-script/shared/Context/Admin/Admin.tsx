@@ -1,6 +1,5 @@
 import { ContentScriptMessagingClient } from "@shared/client/client";
 import React, { ReactNode, createContext, useEffect, useState } from "react";
-import { log } from "shared/log";
 import {
     ExtensionMessagePayloadMap as EMPM,
     ExtensionMessageResponseMap as EMRM,
@@ -27,7 +26,6 @@ const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
     useEffect(() => {
         ContentScriptMessagingClient.sendMessage(EMType.GET_IS_ADMIN).then(
             (res: EMRM[EMType.GET_IS_ADMIN]) => {
-                log("isAdmin set", res);
                 setIsAdmin(res);
             },
         );

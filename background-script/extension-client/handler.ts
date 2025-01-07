@@ -51,12 +51,19 @@ export function removeMember(memberId: EMPM[EMType.REMOVE_MEMBER]): void {
     server.send(TSMType.REMOVE_MEMBER, { member_id: memberId });
 }
 
-export function skipCurrentVideo(updatedAt: EMPM[EMType.SKIP_CURRENT_VIDEO]): void {
-    if (globalState.room.playlist.videos.length === 0) return;
+export function skipCurrentVideo(
+    updatedAt: EMPM[EMType.SKIP_CURRENT_VIDEO],
+): EMRM[EMType.SKIP_CURRENT_VIDEO] {
+    if (globalState.room.playlist.videos.length === 0) {
+        server.send(TSMType.UPDATE_PLAYER_STATE, globalState.room.player);
+        return false;
+    }
+
     server.send(TSMType.UPDATE_PLAYER_VIDEO, {
         video_id: globalState.room.playlist.videos[0].id,
         updated_at: updatedAt,
     });
+    return true;
 }
 
 export function updatePlayerVideo({ videoId, updatedAt }: EMPM[EMType.UPDATE_PLAYER_VIDEO]): void {
@@ -114,7 +121,7 @@ export async function createRoom(
     payload: EMPM[EMType.CREATE_ROOM],
     sender: chrome.runtime.MessageSender,
 ) {
-    if (sender.tab?.id !== undefined) setTargetPrimaryTabId(sender.tab.id);
+    if (sender?.tab?.id !== undefined) setTargetPrimaryTabId(sender.tab.id);
     const profile = await profileStorage.get();
     server.createRoom(profile, payload.videoUrl).then(() => {
         console.log("room created");
@@ -129,9 +136,9 @@ export function switchToPrimaryTab() {
 
 export async function isPrimaryTab(
     _: EMPM[EMType.IS_PRIMARY_TAB],
-    sender: chrome.runtime.MessageSender,
+    sender?: chrome.runtime.MessageSender,
 ): EMRM[EMType.IS_PRIMARY_TAB] {
-    if (sender.tab?.id === undefined) {
+    if (sender?.tab?.id === undefined) {
         return false;
     }
 

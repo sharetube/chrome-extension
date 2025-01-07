@@ -19,6 +19,7 @@ export const defaultState: State = {
             video_url: "",
             current_time: 0,
             is_playing: false,
+            is_ended: false,
             playback_rate: 1,
             updated_at: 0,
         },
