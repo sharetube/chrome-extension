@@ -66,74 +66,80 @@ function disablePlayer() {
     player.clearAll();
 }
 
-function hideElement(elem: HTMLElement) {
-    elem.style.transform = "scale(0)";
+type ElementWithOriginalDisplay = HTMLElement & { originalDisplay?: string };
+
+function hideElement(elem: ElementWithOriginalDisplay) {
+    elem.originalDisplay = elem.style.display;
+    elem.style.display = "none";
 }
 
-function showElement(elem: HTMLElement) {
-    elem.style.transform = "scale(1)";
+function showElement(elem: ElementWithOriginalDisplay) {
+    if (!elem.originalDisplay) return;
+    elem.style.display = elem.originalDisplay;
+    elem.originalDisplay = undefined;
 }
 
 function hideAutoplayButton() {
     waitForElement(".ytp-autonav-toggle-button-container").then(elem => {
-        hideElement(elem);
+        hideElement(elem as ElementWithOriginalDisplay);
     });
     // .then(error => console.log("Failed to remove autoplay button", error));
 }
 
 function showAutoplayButton() {
     waitForElement(".ytp-autonav-toggle-button-container").then(elem => {
-        showElement(elem);
+        showElement(elem as ElementWithOriginalDisplay);
     });
     // .catch(error => console.log("Failed to remove autoplay button", error));
 }
 
 function hideNextVideoButton() {
     waitForElement(".ytp-next-button.ytp-button").then(elem => {
-        hideElement(elem);
+        hideElement(elem as ElementWithOriginalDisplay);
     });
     // .catch(error => console.log("Failed to remove next button", error));
 }
 
 function showNextVideoButton() {
     waitForElement(".ytp-next-button.ytp-button").then(elem => {
-        showElement(elem);
+        showElement(elem as ElementWithOriginalDisplay);
     });
     // .catch(error => console.log("Failed to remove next button", error));
 }
 
 function hideClipButton() {
     waitForElement("#flexible-item-buttons").then(elem => {
-        hideElement(elem);
+        hideElement(elem as ElementWithOriginalDisplay);
     });
     // .catch(error => console.log("Failed to remove clip button", error));
 }
 
 function showClipButton() {
     waitForElement("#flexible-item-buttons").then(elem => {
-        showElement(elem);
+        showElement(elem as ElementWithOriginalDisplay);
     });
     // .catch(error => console.log("Failed to remove clip button", error));
 }
 
 function hideBottomPanel() {
     waitForElement("yt-button-shape#button-shape").then(elem => {
-        hideElement(elem);
+        hideElement(elem as ElementWithOriginalDisplay);
     });
     // .catch(error => console.log("Failed to shape button", error));
 }
 
 function showBottomPanel() {
     waitForElement("yt-button-shape#button-shape").then(elem => {
-        showElement(elem);
+        showElement(elem as ElementWithOriginalDisplay);
     });
     // .catch(error => console.log("Failed to shape button", error));
 }
 
 function showMainPanel() {
     waitForElement("#secondary-inner").then(elem => {
-        hideElement(elem);
+        hideElement(elem as ElementWithOriginalDisplay);
         const container = document.createElement("div");
+        container.id = "st-main-panel";
         elem.parentElement?.prepend(container);
 
         ReactDOM.createRoot(container).render(
@@ -147,7 +153,7 @@ function showMainPanel() {
 
 function hideMainPanel() {
     waitForElement("#secondary-inner").then(elem => {
-        showElement(elem);
+        showElement(elem as ElementWithOriginalDisplay);
         elem.parentElement?.firstChild?.remove();
     });
     // .catch(error => console.log("Failed to render main panel", error));
@@ -155,8 +161,9 @@ function hideMainPanel() {
 
 function initSearch() {
     waitForElement("#center").then(elem => {
-        hideElement(elem.firstElementChild as HTMLElement);
+        hideElement(elem as ElementWithOriginalDisplay);
         const container = document.createElement("div");
+        container.id = "st-search-input";
         container.style.width = "100%";
         elem.prepend(container);
 
@@ -172,18 +179,18 @@ function initSearch() {
 function disableSearch() {
     waitForElement("#center").then(elem => {
         elem.firstChild!.remove();
-        showElement(elem.firstElementChild as HTMLElement);
+        showElement(elem as ElementWithOriginalDisplay);
     });
 }
 
 function showVoiceSearchButton() {
     waitForElement("#voice-search-button").then(elem => {
-        showElement(elem);
+        showElement(elem as ElementWithOriginalDisplay);
     });
 }
 
 function hideVoiceSearchButton() {
     waitForElement("#voice-search-button").then(elem => {
-        hideElement(elem);
+        hideElement(elem as ElementWithOriginalDisplay);
     });
 }
