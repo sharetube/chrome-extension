@@ -28,6 +28,7 @@ const waitForElement = (
                     console.log("Retrying...", retryCount, selector);
                     attempt(retryCount - 1);
                 } else {
+                    //? reject
                     resolve(null);
                 }
             }, timeout);
