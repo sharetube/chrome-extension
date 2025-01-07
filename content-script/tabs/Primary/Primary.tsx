@@ -76,7 +76,6 @@ function showElement(elem: HTMLElement) {
 
 function hideAutoplayButton() {
     waitForElement(".ytp-autonav-toggle-button-container").then(elem => {
-        if (!elem) return;
         hideElement(elem);
     });
     // .then(error => console.log("Failed to remove autoplay button", error));
@@ -84,7 +83,6 @@ function hideAutoplayButton() {
 
 function showAutoplayButton() {
     waitForElement(".ytp-autonav-toggle-button-container").then(elem => {
-        if (!elem) return;
         showElement(elem);
     });
     // .catch(error => console.log("Failed to remove autoplay button", error));
@@ -92,7 +90,6 @@ function showAutoplayButton() {
 
 function hideNextVideoButton() {
     waitForElement(".ytp-next-button.ytp-button").then(elem => {
-        if (!elem) return;
         hideElement(elem);
     });
     // .catch(error => console.log("Failed to remove next button", error));
@@ -100,7 +97,6 @@ function hideNextVideoButton() {
 
 function showNextVideoButton() {
     waitForElement(".ytp-next-button.ytp-button").then(elem => {
-        if (!elem) return;
         showElement(elem);
     });
     // .catch(error => console.log("Failed to remove next button", error));
@@ -108,7 +104,6 @@ function showNextVideoButton() {
 
 function hideClipButton() {
     waitForElement("#flexible-item-buttons").then(elem => {
-        if (!elem) return;
         hideElement(elem);
     });
     // .catch(error => console.log("Failed to remove clip button", error));
@@ -116,7 +111,6 @@ function hideClipButton() {
 
 function showClipButton() {
     waitForElement("#flexible-item-buttons").then(elem => {
-        if (!elem) return;
         showElement(elem);
     });
     // .catch(error => console.log("Failed to remove clip button", error));
@@ -124,7 +118,6 @@ function showClipButton() {
 
 function hideBottomPanel() {
     waitForElement("yt-button-shape#button-shape").then(elem => {
-        if (!elem) return;
         hideElement(elem);
     });
     // .catch(error => console.log("Failed to shape button", error));
@@ -132,7 +125,6 @@ function hideBottomPanel() {
 
 function showBottomPanel() {
     waitForElement("yt-button-shape#button-shape").then(elem => {
-        if (!elem) return;
         showElement(elem);
     });
     // .catch(error => console.log("Failed to shape button", error));
@@ -140,7 +132,6 @@ function showBottomPanel() {
 
 function showMainPanel() {
     waitForElement("#secondary-inner").then(elem => {
-        if (!elem) return;
         hideElement(elem);
         const container = document.createElement("div");
         elem.parentElement?.prepend(container);
@@ -156,7 +147,6 @@ function showMainPanel() {
 
 function hideMainPanel() {
     waitForElement("#secondary-inner").then(elem => {
-        if (!elem) return;
         showElement(elem);
         elem.parentElement?.firstChild?.remove();
     });
@@ -165,11 +155,10 @@ function hideMainPanel() {
 
 function initSearch() {
     waitForElement("#center").then(elem => {
-        if (!elem) return;
         hideElement(elem.firstElementChild as HTMLElement);
         const container = document.createElement("div");
         container.style.width = "100%";
-        elem!.prepend(container);
+        elem.prepend(container);
 
         ReactDOM.createRoot(container).render(
             <AdminProvider>
@@ -182,7 +171,6 @@ function initSearch() {
 
 function disableSearch() {
     waitForElement("#center").then(elem => {
-        if (!elem) return;
         elem.firstChild!.remove();
         showElement(elem.firstElementChild as HTMLElement);
     });
@@ -190,14 +178,12 @@ function disableSearch() {
 
 function showVoiceSearchButton() {
     waitForElement("#voice-search-button").then(elem => {
-        if (!elem) return;
         showElement(elem);
     });
 }
 
 function hideVoiceSearchButton() {
     waitForElement("#voice-search-button").then(elem => {
-        if (!elem) return;
         hideElement(elem);
     });
 }
