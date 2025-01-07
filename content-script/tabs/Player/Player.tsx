@@ -62,67 +62,84 @@ function disablePlayer() {
     player.clearAll();
 }
 
+function hideElement(elem: HTMLElement) {
+    elem.style.transform = "scale(0)";
+}
+
+function showElement(elem: HTMLElement) {
+    elem.style.transform = "scale(1)";
+}
+
 function hideAutoplayButton() {
     waitForElement(".ytp-autonav-toggle-button-container").then(elem => {
-        Object.assign(elem!.style, { transform: "scale(0)" });
+        if (!elem) return;
+        hideElement(elem);
     });
     // .then(error => console.log("Failed to remove autoplay button", error));
 }
 
 function showAutoplayButton() {
     waitForElement(".ytp-autonav-toggle-button-container").then(elem => {
-        Object.assign(elem!.style, { transform: "scale(1)" });
+        if (!elem) return;
+        showElement(elem);
     });
-    // .then(error => console.log("Failed to remove autoplay button", error));
+    // .catch(error => console.log("Failed to remove autoplay button", error));
 }
 
 function hideNextVideoButton() {
     waitForElement(".ytp-next-button.ytp-button").then(elem => {
-        Object.assign(elem!.style, { transform: "scale(0)" });
+        if (!elem) return;
+        hideElement(elem);
     });
     // .catch(error => console.log("Failed to remove next button", error));
 }
 
 function showNextVideoButton() {
     waitForElement(".ytp-next-button.ytp-button").then(elem => {
-        Object.assign(elem!.style, { transform: "scale(1)" });
+        if (!elem) return;
+        showElement(elem);
     });
     // .catch(error => console.log("Failed to remove next button", error));
 }
 
 function hideClipButton() {
     waitForElement("#flexible-item-buttons").then(elem => {
-        Object.assign(elem!.style, { transform: "scale(0)" });
+        if (!elem) return;
+        hideElement(elem);
     });
     // .catch(error => console.log("Failed to remove clip button", error));
 }
 
 function showClipButton() {
     waitForElement("#flexible-item-buttons").then(elem => {
-        Object.assign(elem!.style, { transform: "scale(1)" });
+        if (!elem) return;
+        showElement(elem);
     });
     // .catch(error => console.log("Failed to remove clip button", error));
 }
 
 function hideBottomPanel() {
     waitForElement("yt-button-shape#button-shape").then(elem => {
-        Object.assign(elem!.style, { transform: "scale(0)" });
+        if (!elem) return;
+        hideElement(elem);
     });
     // .catch(error => console.log("Failed to shape button", error));
 }
 
 function showBottomPanel() {
     waitForElement("yt-button-shape#button-shape").then(elem => {
-        Object.assign(elem!.style, { transform: "scale(1)" });
+        if (!elem) return;
+        showElement(elem);
     });
     // .catch(error => console.log("Failed to shape button", error));
 }
 
 function showMainPanel() {
     waitForElement("#secondary-inner").then(elem => {
-        Object.assign(elem!.style, { transform: "scale(0)" });
+        if (!elem) return;
+        hideElement(elem);
         const container = document.createElement("div");
-        elem?.parentElement?.prepend(container);
+        elem.parentElement?.prepend(container);
 
         ReactDOM.createRoot(container).render(
             <AdminProvider>
@@ -135,16 +152,17 @@ function showMainPanel() {
 
 function hideMainPanel() {
     waitForElement("#secondary-inner").then(elem => {
-        Object.assign(elem!.style, { transform: "scale(1)" });
-        elem?.parentElement?.firstChild?.remove();
+        if (!elem) return;
+        showElement(elem);
+        elem.parentElement?.firstChild?.remove();
     });
     // .catch(error => console.log("Failed to render main panel", error));
 }
 
-// todo: fix
 function initSearch() {
     waitForElement("#center").then(elem => {
-        Object.assign((elem!.firstElementChild as HTMLElement).style, { transform: "scale(0)" });
+        if (!elem) return;
+        hideElement(elem.firstElementChild as HTMLElement);
         const container = document.createElement("div");
         container.style.width = "100%";
         elem!.prepend(container);
@@ -160,19 +178,22 @@ function initSearch() {
 
 function disableSearch() {
     waitForElement("#center").then(elem => {
-        elem!.firstChild!.remove();
-        Object.assign((elem!.firstElementChild as HTMLElement).style, { transform: "scale(1)" });
+        if (!elem) return;
+        elem.firstChild!.remove();
+        showElement(elem.firstElementChild as HTMLElement);
     });
 }
 
 function showVoiceSearchButton() {
     waitForElement("#voice-search-button").then(elem => {
-        Object.assign(elem!.style, { transform: "scale(1)" });
+        if (!elem) return;
+        showElement(elem);
     });
 }
 
 function hideVoiceSearchButton() {
     waitForElement("#voice-search-button").then(elem => {
-        Object.assign(elem!.style, { transform: "scale(0)" });
+        if (!elem) return;
+        hideElement(elem);
     });
 }

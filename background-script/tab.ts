@@ -7,10 +7,9 @@ import { setTargetPrimaryTabId } from "./targetPrimaryTabId";
 import { ExtensionMessageType } from "types/extensionMessage";
 
 const server = ServerClient.getInstance();
-
 const tabStorage = TabStorage.getInstance();
-
 const bgMessagingClient = BackgroundMessagingClient.getInstance();
+const profileStorage = ProfileStorage.getInstance();
 
 const domainRegex = /^https:\/\/(www\.)?(youtu\.be|youtube\.com)/;
 const inviteLinkRegex = /^https:\/\/(www\.)?youtu\.be\/st\/(.+)$/;
@@ -41,7 +40,7 @@ const handleTab = async (tabId: number, url: string) => {
             server.close();
 
             setTargetPrimaryTabId(tabId);
-            const profile = await ProfileStorage.getInstance().get();
+            const profile = await profileStorage.get();
             server.joinRoom(profile, roomId).catch(() => {
                 showErrorPage();
             });
@@ -50,7 +49,7 @@ const handleTab = async (tabId: number, url: string) => {
             chrome.tabs.remove(tabId);
         }
     } else {
-        const profile = await ProfileStorage.getInstance().get();
+        const profile = await profileStorage.get();
 
         setTargetPrimaryTabId(tabId);
         // show loading screen
@@ -127,7 +126,6 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
         changeInfo.url &&
         changeInfo.url !== `https://www.youtube.com/watch?v=${globalState.room.player.video_url}`
     ) {
-        // reloadTab(tabId);
         clearPrimaryTab();
     }
 });

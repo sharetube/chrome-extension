@@ -126,6 +126,11 @@ export const playerVideoUpdated = (
     globalState.room.members = payload.members;
 
     bgMessagingClient.sendMessageToPrimaryTab(
+        ExtensionMessageType.PLAYER_VIDEO_UPDATED,
+        payload.player.video_url,
+    );
+
+    bgMessagingClient.sendMessageToPrimaryTab(
         ExtensionMessageType.PLAYLIST_UPDATED,
         payload.playlist,
     );
@@ -133,11 +138,6 @@ export const playerVideoUpdated = (
     bgMessagingClient.sendMessageToPrimaryTab(
         ExtensionMessageType.MEMBERS_UPDATED,
         payload.members,
-    );
-
-    bgMessagingClient.sendMessageToPrimaryTab(
-        ExtensionMessageType.PLAYER_VIDEO_UPDATED,
-        payload.player.video_url,
     );
 
     if (payload.playlist.last_video) {

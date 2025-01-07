@@ -8,13 +8,13 @@ import { memo } from "react";
 import { dateNowInUs } from "shared/dateNowInUs";
 import { ExtensionMessageType } from "types/extensionMessage";
 
-interface VideoProps {
+type VideoProps = {
     videoUrl: string;
     videoId: string;
-    actionsAvailable: boolean;
+    isAdmin: boolean;
     number?: number;
     type: "number" | "last" | "current";
-}
+};
 
 const LoadingSkeleton: React.FC = () => (
     <li className="flex items-stretch p-[4px_8px_4px_0] animate-pulse">
@@ -32,23 +32,23 @@ const LoadingSkeleton: React.FC = () => (
 const VideoContent: React.FC<VideoProps & { videoData: VideoData }> = memo(
     ({ videoData, videoId, ...props }) => {
         const deleteVideo = useCallback(() => {
-            if (props.type != "number" || !props.actionsAvailable) return;
+            if (props.type !== "number" || !props.isAdmin) return;
             ContentScriptMessagingClient.sendMessage(ExtensionMessageType.REMOVE_VIDEO, videoId);
-        }, [videoId, props.actionsAvailable, props.type]);
+        }, [videoId, props.isAdmin, props.type]);
 
         const playVideo = useCallback(() => {
-            if (props.type == "current" || !props.actionsAvailable) return;
+            if (props.type === "current" || !props.isAdmin) return;
             ContentScriptMessagingClient.sendMessage(ExtensionMessageType.UPDATE_PLAYER_VIDEO, {
                 videoId: videoId,
                 updatedAt: dateNowInUs(),
             });
-        }, [videoId, props.actionsAvailable, props.type]);
+        }, [videoId, props.isAdmin, props.type]);
 
         return (
             <li
-                title={props.type != "current" && props.actionsAvailable ? "Play video" : undefined}
-                className={`${props.type === "last" ? "opacity-60 hover:opacity-100" : null} ${props.type === "current" ? "bg-background-active" : null} ${props.actionsAvailable ? "hover:cursor-pointer" : null} select-none hover:bg-spec-badge-chip-background group flex items-stretch p-[4px_8px_4px_0]`}
-                onClick={props.type === "current" && props.actionsAvailable ? playVideo : undefined}
+                title={props.isAdmin && props.type !== "current" ? "Play video" : undefined}
+                className={`${props.type === "last" ? "opacity-60 hover:opacity-100" : null} ${props.type === "current" ? "bg-background-active" : null} ${props.isAdmin ? "hover:cursor-pointer" : null} select-none hover:bg-spec-badge-chip-background group flex items-stretch p-[4px_8px_4px_0]`}
+                onClick={props.isAdmin && props.type !== "current" ? playVideo : undefined}
             >
                 <div className="flex items-stretch">
                     <div className="flex">
@@ -73,7 +73,7 @@ const VideoContent: React.FC<VideoProps & { videoData: VideoData }> = memo(
                     </article>
                 </div>
 
-                {props.actionsAvailable && props.type == "number" && (
+                {props.isAdmin && props.type === "number" && (
                     <div className="ml-auto flex items-center justify-self-end hover:cursor-default">
                         <button
                             title="Remove video"
@@ -91,7 +91,6 @@ const VideoContent: React.FC<VideoProps & { videoData: VideoData }> = memo(
     },
 );
 
-// todo: rename
 const Video: React.FC<VideoProps> = props => {
     const { loading, videoData } = useVideoData(props.videoUrl);
     return loading ? <LoadingSkeleton /> : <VideoContent {...props} videoData={videoData} />;

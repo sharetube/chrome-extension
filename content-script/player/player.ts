@@ -63,8 +63,7 @@ class Player {
 
         this._contentScriptMessagingClient.addHandler(
             ExtensionMessageType.PLAYER_VIDEO_UPDATED,
-            (videoUrl: string) => {
-                log("received video updated", videoUrl);
+            (videoUrl: ExtensionMessagePayloadMap[ExtensionMessageType.PLAYER_VIDEO_UPDATED]) => {
                 this._videoUrl = videoUrl;
                 this.updateVideo(videoUrl);
             },
@@ -72,7 +71,8 @@ class Player {
 
         this._contentScriptMessagingClient.addHandler(
             ExtensionMessageType.PLAYER_STATE_UPDATED,
-            (state: PlayerStateType) => {
+            (state: ExtensionMessagePayloadMap[ExtensionMessageType.PLAYER_STATE_UPDATED]) => {
+                if (this._adShowing) return;
                 this.setState(state);
             },
         );
@@ -96,7 +96,6 @@ class Player {
         this._player.addEventListener("volumechange", this.handleMute.bind(this), {
             signal: this.abortController.signal,
         });
-        // State handle
         this._player.addEventListener("play", this.handlePlay.bind(this), {
             signal: this.abortController.signal,
         });
@@ -109,7 +108,6 @@ class Player {
         this._player.addEventListener("ratechange", this.handleRatechange.bind(this), {
             signal: this.abortController.signal,
         });
-        // Loading handle
         this._player.addEventListener("waiting", this.handleWaiting.bind(this), {
             signal: this.abortController.signal,
         });
@@ -132,24 +130,6 @@ class Player {
         document.addEventListener("keydown", this.handleKeyDown.bind(this), {
             signal: this.abortController.signal,
         });
-    }
-
-    private handleKeyDown(event: KeyboardEvent) {
-        switch (event.key) {
-            case "ArrowRight":
-                log("ArrowRight: video diration, current time");
-                this._ignorePlayCount--;
-                if (this._isAdmin && this._player.duration - this._player.currentTime < 5) {
-                    this.sendSkip();
-                }
-
-                break;
-            case "ArrowLeft":
-                log("ArrowLeft");
-                this._ignorePlayCount--;
-
-                break;
-        }
     }
 
     private clearEventListeners() {
@@ -211,6 +191,24 @@ class Player {
     }
 
     // Handlers
+    private handleKeyDown(event: KeyboardEvent) {
+        switch (event.key) {
+            case "ArrowRight":
+                log("ArrowRight: video diration, current time");
+                this._ignorePlayCount--;
+                if (this._isAdmin && this._player.duration - this._player.currentTime < 5) {
+                    this.sendSkip();
+                }
+
+                break;
+            case "ArrowLeft":
+                log("ArrowLeft");
+                this._ignorePlayCount--;
+
+                break;
+        }
+    }
+
     private handleWaiting() {
         log("waiting");
         if (this._isDataLoaded) {
@@ -227,12 +225,22 @@ class Player {
 
     private handleEmptied() {
         log("emptied");
+        if (this._adShowing) {
+            log("ignored emptied because ad is showing");
+            return;
+        }
+
         this._isReady = false;
         this._isDataLoaded = false;
     }
 
     private handlePause() {
         log("pause");
+        if (this._adShowing) {
+            log("ignored pause because ad is showing");
+            return;
+        }
+
         if (this._ignorePauseCount > 0) {
             log("pause ignored");
             this._ignorePauseCount--;
@@ -244,6 +252,11 @@ class Player {
 
     private handleCanplay() {
         log("canplay");
+        if (this._adShowing) {
+            log("ignored canplay because ad is showing");
+            return;
+        }
+
         if (!this.clearUpdateIsReadyFalseTimeout()) {
             if (this._isReady) return;
             this._isReady = true;
@@ -254,11 +267,21 @@ class Player {
 
     private handleLoadedData() {
         log("loaded data");
+        if (this._adShowing) {
+            log("ignored loaded data because ad is showing");
+            return;
+        }
+
         this._isDataLoaded = true;
     }
 
     private handlePlay() {
         log("play");
+        if (this._adShowing) {
+            log("ignored play because ad is showing");
+            return;
+        }
+
         if (!this._isDataLoaded) {
             log("play ignored because data not loaded");
             return;
@@ -275,6 +298,11 @@ class Player {
 
     private handleSeeking() {
         log("seeking");
+        if (this._adShowing) {
+            log("ignored seeking because ad is showing");
+            return;
+        }
+
         if (this._ignoreSeekingCount > 0) {
             log("seeking ignored");
             this._ignoreSeekingCount--;
@@ -290,6 +318,11 @@ class Player {
 
     private handleRatechange() {
         log("ratechange");
+        if (this._adShowing) {
+            log("ignored ratechange because ad is showing");
+            return;
+        }
+
         this.handleStateChanged();
     }
 
@@ -308,7 +341,10 @@ class Player {
         }
     }
 
-    // State
+    private setIsPlaying(isPlaying: boolean) {
+        this._player[isPlaying ? "play" : "pause"]();
+    }
+
     public setState(state: PlayerStateType) {
         let ct;
         if (state.is_playing) {
@@ -321,13 +357,11 @@ class Player {
         }
 
         if (state.is_playing && !this.getIsPlaying()) {
-            log("ignore play count ++", this._ignorePlayCount);
             this._ignorePlayCount++;
         } else if (!state.is_playing && this.getIsPlaying()) {
-            log("ignore pause count ++", this._ignorePauseCount);
             this._ignorePauseCount++;
         }
-        this._player[state.is_playing ? "play" : "pause"]();
+        this.setIsPlaying(state.is_playing);
 
         this._player.currentTime = ct;
         this._ignoreSeekingCount++;
@@ -375,6 +409,7 @@ class Player {
 
     private observeElement(): void {
         this.observer = new MutationObserver(mutations => {
+            // todo: optimize by breaking loop
             mutations.forEach(mutation => {
                 if (mutation.type === "attributes" && mutation.attributeName === "class") {
                     this.handleAdChanged(this._e.classList);
@@ -390,10 +425,9 @@ class Player {
     }
 
     private disconnectObserver(): void {
-        if (this.observer) {
-            this.observer.disconnect();
-            this.observer = null;
-        }
+        if (!this.observer) return;
+        this.observer.disconnect();
+        this.observer = null;
     }
 
     // Ad showing
@@ -401,10 +435,12 @@ class Player {
         const adShowing = cl.contains("ad-showing");
         if (this._adShowing === adShowing) return;
 
+        log("ad showing", this._adShowing, adShowing);
         this._adShowing = adShowing;
-        if (adShowing) {
+        if (this._adShowing) {
             this._isReady = false;
             ContentScriptMessagingClient.sendMessage(ExtensionMessageType.UPDATE_READY, false);
+            // this.setIsPlaying(true);
         } else {
             this._isReady = true;
             ContentScriptMessagingClient.sendMessage(ExtensionMessageType.UPDATE_READY, true);
