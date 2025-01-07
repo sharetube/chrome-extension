@@ -21,9 +21,9 @@ export function joinedRoom(
     if (targetPrimaryTabId) {
         chrome.tabs.update(targetPrimaryTabId, { url: videoPageLink });
         // todo: skip that if target primary tab was primary tab
+        bgMessagingClient.broadcastMessage(ExtensionMessageType.PRIMARY_TAB_SET);
         tabStorage.addTab(targetPrimaryTabId);
         tabStorage.setPrimaryTab(targetPrimaryTabId);
-        bgMessagingClient.broadcastMessage(ExtensionMessageType.PRIMARY_TAB_SET);
     } else {
         console.error("No target primary tab found");
     }

@@ -4,12 +4,11 @@ import React, { useCallback, useEffect, useState } from "react";
 import { ExtensionMessageType } from "types/extensionMessage";
 import { MemberType } from "types/member.type";
 
-interface RoomProps {
+type MemberListProps = {
     callback: (usersCount: number) => void;
-}
+};
 
-//? rename to MemberList
-const Room: React.FC<RoomProps> = ({ callback }) => {
+const MemberList: React.FC<MemberListProps> = ({ callback }) => {
     const [users, setUsers] = useState<MemberType[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -57,4 +56,4 @@ const Room: React.FC<RoomProps> = ({ callback }) => {
     );
 };
 
-export default Room;
+export default MemberList;
