@@ -1,9 +1,5 @@
-const waitForElement = (
-    selector: string,
-    timeout = 10000,
-    retries = 3,
-): Promise<HTMLElement | null> =>
-    new Promise(resolve => {
+const waitForElement = (selector: string, timeout = 2000, retries = 3): Promise<HTMLElement> =>
+    new Promise((resolve, reject) => {
         const attempt = (retryCount: number) => {
             const element = document.querySelector(selector);
             if (element instanceof HTMLElement) return resolve(element);
@@ -28,8 +24,7 @@ const waitForElement = (
                     console.log("Retrying...", retryCount, selector);
                     attempt(retryCount - 1);
                 } else {
-                    //? reject
-                    resolve(null);
+                    reject(`Failed to find element with selector: ${selector}`);
                 }
             }, timeout);
         };
