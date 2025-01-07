@@ -20,7 +20,7 @@ class Player {
     private isAdmin: boolean;
 
     private mode: Mode;
-    private muted: boolean | null;
+    private muted: boolean | undefined;
     private videoUrl: string;
     private isReady: boolean;
     private isPlayAfterEndedHandled: boolean;
@@ -31,7 +31,7 @@ class Player {
     private ignorePauseCount: number;
 
     private contentScriptMessagingClient: ContentScriptMessagingClient;
-    private observer: MutationObserver | null = null;
+    private observer: MutationObserver | undefined;
     private abortController: AbortController;
 
     public constructor(e: HTMLElement, p: HTMLVideoElement) {
@@ -46,7 +46,6 @@ class Player {
         );
 
         this.mode = Mode.DEFAULT;
-        this.muted = null;
         this.videoUrl = "";
         this.isReady = false;
         this.isPlayAfterEndedHandled = true;
@@ -175,7 +174,7 @@ class Player {
     }
 
     //? add same for isReady true
-    private udpateIsReadyFalseTimeout: NodeJS.Timeout | null = null;
+    private udpateIsReadyFalseTimeout: NodeJS.Timeout | undefined;
     private setUpdateIsReadyFalseTimeout(): void {
         this.clearUpdateIsReadyFalseTimeout();
         this.udpateIsReadyFalseTimeout = setTimeout(() => {
@@ -193,7 +192,7 @@ class Player {
         }
 
         clearTimeout(this.udpateIsReadyFalseTimeout);
-        this.udpateIsReadyFalseTimeout = null;
+        this.udpateIsReadyFalseTimeout = undefined;
         return true;
     }
 
@@ -448,7 +447,7 @@ class Player {
     private disconnectObserver(): void {
         if (!this.observer) return;
         this.observer.disconnect();
-        this.observer = null;
+        this.observer = undefined;
     }
 
     // Ad handling
@@ -484,7 +483,7 @@ class Player {
 
         const masthead = document.querySelector(
             "#content > #masthead-container > #masthead",
-        ) as MastheadElement | null;
+        ) as MastheadElement;
 
         if (masthead && masthead.hasAttribute("theater")) {
             this.setMode(Mode.THEATER);

@@ -9,10 +9,10 @@ import React, { useEffect, useState } from "react";
 import { ExtensionMessageType } from "types/extensionMessage";
 import { ProfileType } from "types/profile.type";
 
-type RoomProps = {
+interface RoomProps {
     changePage: () => void;
     profile: ProfileType;
-};
+}
 
 const Room: React.FC<RoomProps> = ({ profile, changePage }) => {
     const [isPrimaryTabExists, setIsPrimaryTabExists] = useState<boolean>(true);

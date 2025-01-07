@@ -4,9 +4,9 @@ import React, { useCallback, useEffect, useState } from "react";
 import { ExtensionMessageType } from "types/extensionMessage";
 import { MemberType } from "types/member.type";
 
-type MemberListProps = {
+interface MemberListProps {
     callback: (usersCount: number) => void;
-};
+}
 
 const MemberList: React.FC<MemberListProps> = ({ callback }) => {
     const [users, setUsers] = useState<MemberType[]>([]);

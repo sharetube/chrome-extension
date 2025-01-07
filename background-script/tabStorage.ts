@@ -1,30 +1,30 @@
 export class TabStorage {
-    private static _instance: TabStorage;
+    private static instance: TabStorage;
     private readonly PRIMARY_TAB_STORAGE_KEY = "st-primary-tab";
-    private _tabs: Set<number>;
+    private tabs: Set<number>;
 
     constructor() {
-        this._tabs = new Set();
+        this.tabs = new Set();
     }
 
     public static getInstance(): TabStorage {
-        return (TabStorage._instance ??= new TabStorage());
+        return (TabStorage.instance ??= new TabStorage());
     }
 
     public addTab(tabId: number): void {
-        if (!this._tabs.has(tabId)) this._tabs.add(tabId);
+        if (!this.tabs.has(tabId)) this.tabs.add(tabId);
     }
 
     public removeTab(tabId: number): void {
-        this._tabs.delete(tabId);
+        this.tabs.delete(tabId);
     }
 
     public tabExists(tabId: number): boolean {
-        return this._tabs.has(tabId);
+        return this.tabs.has(tabId);
     }
 
     public getTabs(): Set<number> {
-        return this._tabs;
+        return this.tabs;
     }
 
     public setPrimaryTab(tabId: number): Promise<void> {
