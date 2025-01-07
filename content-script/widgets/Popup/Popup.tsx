@@ -21,7 +21,7 @@ const Popup: React.FC = () => {
         setIsExpanded(false);
     };
 
-    const MessageClient = new ContentScriptMessagingClient();
+    const contentScriptMessagingClient = new ContentScriptMessagingClient();
 
     useEffect(() => {
         const handleDocumentClick = (e: MouseEvent) => handleClick(e);
@@ -50,7 +50,7 @@ const Popup: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        MessageClient.addHandler(
+        contentScriptMessagingClient.addHandler(
             ExtensionMessageType.PROFILE_UPDATED,
             (payload: ExtensionMessagePayloadMap[ExtensionMessageType.PROFILE_UPDATED]) => {
                 setUser(payload);

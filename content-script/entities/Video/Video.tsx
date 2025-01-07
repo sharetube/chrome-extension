@@ -8,13 +8,13 @@ import { memo } from "react";
 import { dateNowInUs } from "shared/dateNowInUs";
 import { ExtensionMessageType } from "types/extensionMessage";
 
-type VideoProps = {
+interface VideoProps {
     videoUrl: string;
     videoId: string;
     isAdmin: boolean;
     number?: number;
     type: "number" | "last" | "current";
-};
+}
 
 const LoadingSkeleton: React.FC = () => (
     <li className="flex items-stretch p-[4px_8px_4px_0] animate-pulse">
