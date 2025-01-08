@@ -32,16 +32,20 @@ function fixManifestOut(buildDir: string, browser: string) {
                 }
             }
 
-            // fix manifest for firefox
-            if (browser == "firefox") {
-                delete manifest.version_name;
-                delete manifest.minimum_chrome_version;
-                manifest.background.scripts = [manifest.background.service_worker];
-                delete manifest.background.service_worker;
+            switch (browser) {
+                case "firefox":
+                    // fix manifest
+                    delete manifest.version_name;
+                    delete manifest.minimum_chrome_version;
+                    manifest.background.scripts = [manifest.background.service_worker];
+                    delete manifest.background.service_worker;
 
-                manifest.web_accessible_resources.forEach(element => {
-                    delete element.use_dynamic_url;
-                });
+                    manifest.web_accessible_resources.forEach(element => {
+                        delete element.use_dynamic_url;
+                    });
+                case "chrome":
+                    delete manifest.browser_specific_settings;
+                    break;
             }
             fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
         },
