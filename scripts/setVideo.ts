@@ -1,5 +1,7 @@
 const updateVideoUrl = (videoUrl: string) => {
-    const a = document.body.querySelector("ytd-thumbnail > a") as HTMLElement;
+    const a = document.body.querySelector(
+        "ytd-compact-video-renderer ytd-thumbnail > a",
+    ) as HTMLElement;
     if (!a) return;
 
     (a as any).data.watchEndpoint.videoId = videoUrl;
