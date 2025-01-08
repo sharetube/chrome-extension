@@ -40,8 +40,8 @@ function fixManifestOut(buildDir: string, browser: string) {
                     manifest.background.scripts = [manifest.background.service_worker];
                     delete manifest.background.service_worker;
 
-                    manifest.web_accessible_resources.forEach(element => {
-                        delete element.use_dynamic_url;
+                    manifest.web_accessible_resources.forEach(elem => {
+                        delete elem.use_dynamic_url;
                     });
                     break;
                 case "chrome":

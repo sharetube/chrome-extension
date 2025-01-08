@@ -1,7 +1,9 @@
+import { ContentScriptMessagingClient } from "@shared/client/client";
 import waitForElement from "@shared/lib/waitForElement";
 import ContextItem from "@widgets/ContextItem/ContextItem";
 import Popup from "@widgets/Popup/Popup";
 import ReactDOM from "react-dom";
+import { ExtensionMessageType } from "types/extensionMessage";
 
 // Render popup
 waitForElement("#end")
@@ -31,4 +33,9 @@ window.addEventListener("message", event => {
         const listboxElem = dropdown?.querySelector("tp-yt-paper-listbox");
         listboxElem!.prepend(container);
     }
+});
+
+const contentScriptMessageClient = new ContentScriptMessagingClient();
+contentScriptMessageClient.addHandler(ExtensionMessageType.GO_TO_VIDEO, (videoId: string) => {
+    window.postMessage({ type: "SKIP", payload: videoId }, "*");
 });
