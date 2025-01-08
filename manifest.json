@@ -4,11 +4,9 @@
   "version_name": "0.5.0 beta (Oly)",
   "name": "ShareTube",
   "short_name": "ST",
-  "author": {
-    "email": "sharetube.team@gmail.com"
-  },
+  "author": "Sharetube team",
   "description": "A browser extension that lets you watch yotube videos together with your friends in real-time!",
-  "permissions": ["storage", "activeTab", "tabs", "scripting", "webNavigation"],
+  "permissions": ["storage", "tabs", "webNavigation"],
   "minimum_chrome_version": "116",
   "icons": {
     "16": "assets/icon16.png",

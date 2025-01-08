@@ -43,6 +43,7 @@ function fixManifestOut(buildDir: string, browser: string) {
                     manifest.web_accessible_resources.forEach(element => {
                         delete element.use_dynamic_url;
                     });
+                    break;
                 case "chrome":
                     delete manifest.browser_specific_settings;
                     break;
