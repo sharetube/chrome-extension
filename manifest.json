@@ -14,7 +14,7 @@
     "128": "assets/icon128.png"
   },
   "background": {
-    "service_worker": "./background-script/index.ts"
+    "service_worker": "background-script/index.ts"
   },
   "content_scripts": [
     {
@@ -41,5 +41,11 @@
       "resources": ["pages/error.html", "pages/loading.html", "pages/cat-sleep.gif"],
       "use_dynamic_url": false
     }
-  ]
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "sharetube.team@gmail.com",
+      "strict_min_version": "91.0"
+    }
+  }
 }
