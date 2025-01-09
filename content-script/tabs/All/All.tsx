@@ -1,76 +1,71 @@
 import { AdminProvider } from "@shared/Context/Admin/Admin";
-import { ContentScriptMessagingClient } from "@shared/client/client";
 import waitForElement from "@shared/lib/waitForElement";
 import ContextItem from "@widgets/ContextItem/ContextItem";
 import Popup from "@widgets/Popup/Popup";
+import React from "react";
 import ReactDOM from "react-dom";
-import { ExtensionMessageType } from "types/extensionMessage";
 
 // Render popup
 waitForElement("#end")
     .then(elem => {
-        const container = document.createElement("div");
-        container.id = "st-popup-container";
-        container.className = "sharetube";
-        elem.prepend(container);
-        ReactDOM.render(<Popup />, container);
+        const popupContainer = document.createElement("div");
+        popupContainer.id = "st-popup-container";
+        popupContainer.className = "sharetube";
+
+        ReactDOM.render(<Popup />, popupContainer);
+        elem.prepend(popupContainer);
     })
     .catch(error => console.error("ST: Failed to render popup", error));
 
 // Context item renderer
-const container = document.createElement("div");
-container.id = "st-context-menu";
-container.style.minWidth = "149px";
+const contextMenuContainer = document.createElement("div");
+contextMenuContainer.id = "st-context-menu";
+contextMenuContainer.className = "sharetube";
+contextMenuContainer.style.minWidth = "149px";
 
-const regex = /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([^&]+)/;
+const ytVideoRegex = /^https:\/\/(www\.)?(youtu\.be|youtube\.com)\/watch\?v=([^&]+)/;
 
-const getThambnail = (e: Element): string => {
+const videoUrlFromThumbnail = (e: Element): string => {
     const thumbnail = e.querySelector("a#thumbnail");
-    if (thumbnail) {
-        const match = (thumbnail as HTMLAnchorElement).href.match(regex);
-        return match ? match[1] : "";
-    }
-    return "";
+    if (!thumbnail) return "";
+
+    const match = (thumbnail as HTMLAnchorElement).href.match(ytVideoRegex);
+    return match ? match[3] : "";
 };
 
-const getUrl = (): string => {
-    const match = window.location.href.match(regex);
-    return match ? match[1] : "";
+const videoUrlFromLocation = (): string => {
+    const match = window.location.href.match(ytVideoRegex);
+    return match ? match[3] : "";
 };
 
-const gg = (e: Element) => {
-    const dropdowns = Array.from(
-        document.querySelector("ytd-popup-container")!.querySelectorAll("tp-yt-iron-dropdown"),
-    );
-    const element = dropdowns
-        .find(e => !(e as HTMLElement).id)
-        ?.querySelector("tp-yt-paper-listbox");
+const handleClick = (e: MouseEvent) => {
+    const tagNames = ["ytd-compact-video-renderer", "ytd-rich-item-renderer", "ytd-watch-metadata"];
 
-    const url = getThambnail(e);
-    const id = !!url ? url : getUrl();
+    for (const tagName of tagNames) {
+        const elem = (e.target as HTMLElement).closest(tagName);
+        if (elem) {
+            const dropdowns = Array.from(
+                document
+                    .querySelector("ytd-popup-container")!
+                    .querySelectorAll("tp-yt-iron-dropdown"),
+            );
+            const listbox = dropdowns
+                .find(e => !(e as HTMLElement).id)
+                ?.querySelector("tp-yt-paper-listbox");
 
-    ReactDOM.render(
-        <AdminProvider>
-            <ContextItem id={id} />
-        </AdminProvider>,
-        container,
-    );
-    element.prepend(container);
-};
+            const url = videoUrlFromThumbnail(elem) || videoUrlFromLocation();
 
-const clickHandle = (e: MouseEvent) => {
-    const a = (e.target as HTMLElement).closest("ytd-compact-video-renderer");
-    const b = (e.target as HTMLElement).closest("ytd-rich-item-renderer");
+            ReactDOM.render(
+                <AdminProvider>
+                    <ContextItem videoUrl={url} />
+                </AdminProvider>,
+                contextMenuContainer,
+            );
 
-    const c = (e.target as HTMLElement).closest("ytd-watch-metadata");
-
-    if (a) {
-        gg(a);
-    } else if (b) {
-        gg(b);
-    } else if (c) {
-        gg(c);
+            listbox?.prepend(contextMenuContainer);
+            break;
+        }
     }
 };
 
-document.addEventListener("click", clickHandle);
+document.addEventListener("click", handleClick);
