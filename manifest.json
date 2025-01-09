@@ -28,12 +28,6 @@
       "matches": ["https://*.youtube.com/*"],
       "world": "MAIN",
       "run_at": "document_start"
-    },
-    {
-      "js": ["scripts/contextMenu.ts"],
-      "matches": ["https://*.youtube.com/*"],
-      "world": "MAIN",
-      "run_at": "document_start"
     }
   ],
   "web_accessible_resources": [

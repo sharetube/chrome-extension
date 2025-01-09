@@ -29,6 +29,6 @@ window.addEventListener("message", event => {
             updateVideoUrl(payload);
             break;
         default:
-            console.log("Unknown message type", type);
+            return;
     }
 });
