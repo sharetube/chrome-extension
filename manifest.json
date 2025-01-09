@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "version": "0.5.0",
-  "version_name": "0.5.0 beta (Oly)",
+  "version": "1.0.0",
+  "version_name": "1.0.0 beta (Oly)",
   "name": "ShareTube",
   "short_name": "ST",
   "author": "Sharetube team",
