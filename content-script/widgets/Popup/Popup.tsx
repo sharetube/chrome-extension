@@ -59,7 +59,7 @@ const Popup: React.FC = () => {
     }, []);
 
     return (
-        <div className="st-popup h-[40px] w-[40px] box-border relative m-[0_8px_0_0]">
+        <div className="sharetube st-popup h-[40px] w-[40px] box-border relative m-[0_8px_0_0]">
             <div
                 className="hover:bg-spec-button-chip-background-hover hover:cursor-pointer text-spec-wordmark-text h-[40px] w-[40px] box-border flex rounded-full"
                 onClick={expandChange}
