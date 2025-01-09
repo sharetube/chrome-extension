@@ -22,18 +22,23 @@ const container = document.createElement("div");
 container.id = "st-context-menu";
 container.style.minWidth = "149px";
 
+const regex = /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([^&]+)/;
+
+const getThambnail = (e: Element): string => {
+    const thumbnail = e.querySelector("a#thumbnail");
+    if (thumbnail) {
+        const match = (thumbnail as HTMLAnchorElement).href.match(regex);
+        return match ? match[1] : "";
+    }
+    return "";
+};
+
+const getUrl = (): string => {
+    const match = window.location.href.match(regex);
+    return match ? match[1] : "";
+};
+
 const gg = (e: Element) => {
-    const regex = /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([^&]+)/;
-
-    const getUrl = (): string => {
-        const thumbnail = e.querySelector("a#thumbnail");
-        if (thumbnail) {
-            const match = (thumbnail as HTMLAnchorElement).href.match(regex);
-            return match ? match[1] : "";
-        }
-        return "";
-    };
-
     const dropdowns = Array.from(
         document.querySelector("ytd-popup-container")!.querySelectorAll("tp-yt-iron-dropdown"),
     );
@@ -41,9 +46,12 @@ const gg = (e: Element) => {
         .find(e => !(e as HTMLElement).id)
         ?.querySelector("tp-yt-paper-listbox");
 
+    const url = getThambnail(e);
+    const id = !!url ? url : getUrl();
+
     ReactDOM.render(
         <AdminProvider>
-            <ContextItem id={getUrl()} />
+            <ContextItem id={id} />
         </AdminProvider>,
         container,
     );
@@ -54,10 +62,14 @@ const clickHandle = (e: MouseEvent) => {
     const a = (e.target as HTMLElement).closest("ytd-compact-video-renderer");
     const b = (e.target as HTMLElement).closest("ytd-rich-item-renderer");
 
+    const c = (e.target as HTMLElement).closest("ytd-watch-metadata");
+
     if (a) {
         gg(a);
     } else if (b) {
         gg(b);
+    } else if (c) {
+        gg(c);
     }
 };
 
