@@ -21,7 +21,7 @@ const waitForElement = (selector: string, timeout = 2000, retries = 3): Promise<
             const timeoutId = setTimeout(() => {
                 observer.disconnect();
                 if (retryCount > 0) {
-                    console.log("Retrying...", retryCount, selector);
+                    console.log("ST: ", "Retrying... ", retryCount, selector);
                     attempt(retryCount - 1);
                 } else {
                     reject(`Failed to find element with selector: ${selector}`);
