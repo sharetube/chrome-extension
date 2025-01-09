@@ -1,5 +1,5 @@
 {
-  "name": "react-content-script",
+  "name": "sharetube-extension",
   "private": true,
   "version": "1.1.0",
   "type": "module",
@@ -7,9 +7,11 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "prepare": "husky",
-    "build": "tsc && vite build",
     "format": "prettier --write \"**/*.{ts,tsx}\"",
-    "format:check": "prettier --check \"**/*.{ts,tsx}\""
+    "format:check": "prettier --check \"**/*.{ts,tsx}\"",
+    "build": "vite build",
+    "build:chrome": "BROWSER=chrome vite build",
+    "build:firefox": "BROWSER=firefox vite build"
   },
   "lint-staged": {
     "**/*.{ts,tsx}": "prettier --write"

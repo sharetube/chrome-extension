@@ -69,14 +69,11 @@ function disablePlayer() {
 type ElementWithOriginalDisplay = HTMLElement & { originalDisplay?: string };
 
 function hideElement(elem: ElementWithOriginalDisplay) {
-    elem.originalDisplay = elem.style.display;
     elem.style.display = "none";
 }
 
 function showElement(elem: ElementWithOriginalDisplay) {
-    if (!elem.originalDisplay) return;
-    elem.style.display = elem.originalDisplay;
-    elem.originalDisplay = undefined;
+    elem.style.display = "";
 }
 
 function hideAutoplayButton() {
@@ -161,7 +158,9 @@ function hideMainPanel() {
 
 function initSearch() {
     waitForElement("#center").then(elem => {
-        hideElement(elem as ElementWithOriginalDisplay);
+        Array.from(elem.children).forEach(child => {
+            hideElement(child as ElementWithOriginalDisplay);
+        });
         const container = document.createElement("div");
         container.id = "st-search-input";
         container.style.width = "100%";
@@ -179,7 +178,9 @@ function initSearch() {
 function disableSearch() {
     waitForElement("#center").then(elem => {
         elem.firstChild!.remove();
-        showElement(elem as ElementWithOriginalDisplay);
+        Array.from(elem.children).forEach(child => {
+            showElement(child as ElementWithOriginalDisplay);
+        });
     });
 }
 

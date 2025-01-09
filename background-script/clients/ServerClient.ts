@@ -122,7 +122,7 @@ class ServerClient {
 
     public send<T extends ToServerMessageType>(type: T, payload?: ToServerMessagePayloadMap[T]) {
         if (!this.ws) return;
-        const message = JSON.stringify({ type, payload });
+        const message = JSON.stringify({ type, payload: payload || null });
         this.debouncedKeepAlive();
         this.ws.send(message);
         console.log("TO WS:", { type, payload });
@@ -135,6 +135,7 @@ class ServerClient {
         this.ws.close();
         this.removeListeners();
         this.ws = undefined;
+        console.log("WS CLOSED");
     }
 
     public addHandler<T extends FromServerMessageType>(type: T, handler: MessageHandler<T>): void {
