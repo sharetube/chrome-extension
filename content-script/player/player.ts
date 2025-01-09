@@ -459,9 +459,6 @@ class Player {
         if (this.adShowing) {
             this.isReady = false;
             ContentScriptMessagingClient.sendMessage(ExtensionMessageType.UPDATE_READY, false);
-        } else {
-            this.isReady = true;
-            ContentScriptMessagingClient.sendMessage(ExtensionMessageType.UPDATE_READY, true);
         }
     }
 

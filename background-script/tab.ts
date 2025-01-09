@@ -89,7 +89,7 @@ chrome.webNavigation.onBeforeNavigate.addListener(
     details => {
         if (details.url) handleTab(details.tabId, details.url);
     },
-    { url: [{ hostSuffix: "youtu.be" }, { hostSuffix: "youtube.com" }] },
+    { url: [{ hostSuffix: "youtu.be" }] },
 );
 
 chrome.tabs.onRemoved.addListener(async tabId => {

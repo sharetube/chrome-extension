@@ -10,6 +10,7 @@ export enum ExtensionMessageType {
     GET_PROFILE = "GET_PROFILE",
     UPDATE_PROFILE = "UPDATE_PROFILE",
     CREATE_ROOM = "CREATE_ROOM",
+    GO_TO_VIDEO = "GO_TO_VIDEO",
     SWITCH_TO_PRIMARY_TAB = "SWITCH_TO_PRIMARY_TAB",
     IS_PRIMARY_TAB_EXISTS = "IS_PRIMARY_TAB_EXISTS",
     IS_PRIMARY_TAB = "IS_PRIMARY_TAB",
@@ -51,6 +52,7 @@ export type ExtensionMessagePayloadMap = {
     [ExtensionMessageType.IS_PRIMARY_TAB_EXISTS]: void;
     [ExtensionMessageType.IS_PRIMARY_TAB]: void;
     [ExtensionMessageType.CREATE_ROOM]: { videoUrl: string };
+    [ExtensionMessageType.GO_TO_VIDEO]: string;
     // Room
     [ExtensionMessageType.GET_IS_ADMIN]: void;
     [ExtensionMessageType.ADMIN_STATUS_UPDATED]: boolean;
