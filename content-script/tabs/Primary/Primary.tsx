@@ -11,6 +11,7 @@ import { ExtensionMessageType } from "types/extensionMessage";
 const contentScriptMessageClient = new ContentScriptMessagingClient();
 let isPrimaryTab = false;
 
+const hideShareStyleId = "hide-share-style";
 function update() {
     ContentScriptMessagingClient.sendMessage(ExtensionMessageType.IS_PRIMARY_TAB).then(
         (res: boolean) => {
@@ -18,6 +19,20 @@ function update() {
             isPrimaryTab = res;
 
             if (res) {
+                let hideShareStyle = document.getElementById(hideShareStyleId);
+
+                if (!hideShareStyle) {
+                    hideShareStyle = document.createElement("style");
+                    hideShareStyle.id = hideShareStyleId;
+                    document.head.appendChild(hideShareStyle);
+                }
+                hideShareStyle.textContent = `
+                    tp-yt-iron-overlay-backdrop,
+                    tp-yt-paper-dialog {
+                        display: none !important;
+                    }
+                `;
+
                 initPlayer();
                 initSearch();
                 hideAutoplayButton();
@@ -26,6 +41,26 @@ function update() {
                 hideClipButton();
                 hideVoiceSearchButton();
                 showMainPanel();
+
+                // open share panel
+                waitForElement(
+                    "#above-the-fold #menu > ytd-menu-renderer yt-button-view-model button",
+                ).then(openButton => {
+                    openButton.click();
+
+                    // closing share panel
+                    waitForElement(
+                        "yt-copy-link-renderer yt-button-renderer .yt-spec-touch-feedback-shape",
+                    ).then(() => {
+                        (
+                            document.body.querySelector(
+                                "ytd-unified-share-panel-renderer yt-icon-button > button",
+                            ) as HTMLElement
+                        ).click();
+
+                        setTimeout(() => (hideShareStyle.textContent = ``), 200);
+                    });
+                });
             } else {
                 disablePlayer();
                 disableSearch();
