@@ -98,10 +98,7 @@ export const isAdminUpdated = (
     payload: FromServerMessagePayloadMap[FromServerMessageType.IS_ADMIN_UPDATED],
 ): void => {
     globalState.is_admin = payload.is_admin;
-    bgMessagingClient.sendMessageToPrimaryTab(
-        ExtensionMessageType.ADMIN_STATUS_UPDATED,
-        payload.is_admin,
-    );
+    bgMessagingClient.broadcastMessage(ExtensionMessageType.ADMIN_STATUS_UPDATED, payload.is_admin);
 };
 
 export const playerStateUpdated = (

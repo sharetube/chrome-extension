@@ -137,6 +137,7 @@ function showMainPanel() {
         hideElement(elem as ElementWithOriginalDisplay);
         const container = document.createElement("div");
         container.id = "st-main-panel";
+        container.className = "sharetube";
         elem.parentElement?.prepend(container);
 
         ReactDOM.createRoot(container).render(

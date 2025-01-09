@@ -1,3 +1,4 @@
+import { AdminProvider } from "@shared/Context/Admin/Admin";
 import { ContentScriptMessagingClient } from "@shared/client/client";
 import waitForElement from "@shared/lib/waitForElement";
 import ContextItem from "@widgets/ContextItem/ContextItem";
@@ -10,32 +11,54 @@ waitForElement("#end")
     .then(elem => {
         const container = document.createElement("div");
         container.id = "st-popup-container";
+        container.className = "sharetube";
         elem.prepend(container);
         ReactDOM.render(<Popup />, container);
     })
     .catch(error => console.error("ST: Failed to render popup", error));
 
-// Modify context menus
+// Context item renderer
 const container = document.createElement("div");
 container.id = "st-context-menu";
 container.style.minWidth = "149px";
 
-ReactDOM.render(<ContextItem />, container);
+const gg = (e: Element) => {
+    const regex = /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([^&]+)/;
 
-window.addEventListener("message", event => {
-    const { type } = event.data;
-    // todo: add to constants
-    if (type === "CONTEXT") {
-        const dropdown = Array.from(document.body.querySelectorAll("tp-yt-iron-dropdown")).find(
-            d => !d.id,
-        );
+    const getUrl = (): string => {
+        const thumbnail = e.querySelector("a#thumbnail");
+        if (thumbnail) {
+            const match = (thumbnail as HTMLAnchorElement).href.match(regex);
+            return match ? match[1] : "";
+        }
+        return "";
+    };
 
-        const listboxElem = dropdown?.querySelector("tp-yt-paper-listbox");
-        listboxElem!.prepend(container);
+    const dropdowns = Array.from(
+        document.querySelector("ytd-popup-container")!.querySelectorAll("tp-yt-iron-dropdown"),
+    );
+    const element = dropdowns
+        .find(e => !(e as HTMLElement).id)
+        ?.querySelector("tp-yt-paper-listbox");
+
+    ReactDOM.render(
+        <AdminProvider>
+            <ContextItem id={getUrl()} />
+        </AdminProvider>,
+        container,
+    );
+    element.prepend(container);
+};
+
+const clickHandle = (e: MouseEvent) => {
+    const a = (e.target as HTMLElement).closest("ytd-compact-video-renderer");
+    const b = (e.target as HTMLElement).closest("ytd-rich-item-renderer");
+
+    if (a) {
+        gg(a);
+    } else if (b) {
+        gg(b);
     }
-});
+};
 
-const contentScriptMessageClient = new ContentScriptMessagingClient();
-contentScriptMessageClient.addHandler(ExtensionMessageType.GO_TO_VIDEO, (videoId: string) => {
-    window.postMessage({ type: "SKIP", payload: videoId }, "*");
-});
+document.addEventListener("click", clickHandle);
