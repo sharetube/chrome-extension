@@ -7,8 +7,6 @@ import Share from "@shared/ui/Share/Share";
 import MemberList from "@widgets/Memberlist/Memberlist";
 import Playlist from "@widgets/Playlist/Playlist";
 import React, { useState } from "react";
-import { DndProvider } from "react-dnd";
-import { HTML5Backend } from "react-dnd-html5-backend";
 
 const Panel: React.FC = () => {
     const { isFullScreen, height } = useResize();
@@ -56,9 +54,7 @@ const Panel: React.FC = () => {
                 <MemberList callback={setUserCount} />
             </div>
             <div className="flex-grow overflow-y-auto">
-                <DndProvider backend={HTML5Backend}>
-                    <Playlist />
-                </DndProvider>
+                <Playlist />
             </div>
         </div>
     );
