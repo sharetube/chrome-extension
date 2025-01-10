@@ -2,6 +2,7 @@ import Video from "@entities/Video/Video";
 import useAdmin from "@shared/Context/Admin/hooks/useAdmin";
 import { ContentScriptMessagingClient } from "@shared/client/client";
 import React, { useEffect, useState } from "react";
+import { DragDropContext, Draggable, DropResult, Droppable } from "react-beautiful-dnd";
 import { ExtensionMessageType } from "types/extensionMessage";
 import type { VideoType as IVideo, PlaylistType } from "types/video.type";
 
@@ -66,8 +67,18 @@ const Playlist: React.FC = () => {
         };
     }, []);
 
+    const handleOnDragEnd = (result: DropResult) => {
+        if (!result.destination) return;
+
+        const newVideos = Array.from(videos);
+        const [reorderedItem] = newVideos.splice(result.source.index, 1);
+        newVideos.splice(result.destination.index, 0, reorderedItem);
+
+        setVideos(newVideos);
+    };
+
     return (
-        <ul className="st-playlist m-0">
+        <div className="st-playlist m-0">
             {lastVideo && (
                 <Video
                     videoId={lastVideo.id}
@@ -84,19 +95,37 @@ const Playlist: React.FC = () => {
                     isAdmin={isAdmin}
                 />
             )}
-            {videos &&
-                videos.length > 0 &&
-                videos.map((video, index) => (
-                    <Video
-                        key={video.id}
-                        videoId={video.id}
-                        videoUrl={video.url}
-                        number={index + 1}
-                        type="number"
-                        isAdmin={isAdmin}
-                    />
-                ))}
-        </ul>
+            <DragDropContext onDragEnd={handleOnDragEnd}>
+                <Droppable droppableId="playlist">
+                    {provided => (
+                        <ul {...provided.droppableProps} ref={provided.innerRef}>
+                            {videos &&
+                                videos.length > 0 &&
+                                videos.map((video, index) => (
+                                    <Draggable key={video.id} draggableId={video.id} index={index}>
+                                        {provided => (
+                                            <li
+                                                {...provided.draggableProps}
+                                                {...provided.dragHandleProps}
+                                                ref={provided.innerRef}
+                                            >
+                                                <Video
+                                                    key={video.id}
+                                                    videoId={video.id}
+                                                    videoUrl={video.url}
+                                                    number={index + 1}
+                                                    type="number"
+                                                    isAdmin={isAdmin}
+                                                />
+                                            </li>
+                                        )}
+                                    </Draggable>
+                                ))}
+                        </ul>
+                    )}
+                </Droppable>
+            </DragDropContext>
+        </div>
     );
 };
 
