@@ -65,7 +65,6 @@ const handleClick = (e: MouseEvent) => {
         }
     };
     const callback = () => {
-        (dropdown as HTMLElement).style.display = "none";
         removeRender();
         document.body.click();
     };
