@@ -39,32 +39,61 @@ const videoUrlFromLocation = (): string => {
 };
 
 const handleClick = (e: MouseEvent) => {
-    const tagNames = ["ytd-compact-video-renderer", "ytd-rich-item-renderer", "ytd-watch-metadata"];
+    const tagNames = [
+        "ytd-compact-video-renderer",
+        "ytd-rich-item-renderer",
+        "ytd-playlist-video-renderer",
+        "ytd-grid-video-renderer",
+        "ytd-video-renderer",
+        "ytd-watch-metadata",
+    ];
+
+    let enteredIf: boolean = false;
+
+    const dropdowns = Array.from(
+        document.querySelector("ytd-popup-container")!.querySelectorAll("tp-yt-iron-dropdown"),
+    );
+    const dropdown = dropdowns.find(e => !(e as HTMLElement).id);
+    const listbox = dropdown?.querySelector("tp-yt-paper-listbox");
+
+    const removeRender = () => {
+        if (listbox) {
+            const contextMenu = listbox.querySelector("#st-context-menu");
+            if (contextMenu) {
+                listbox.removeChild(contextMenu);
+            }
+        }
+    };
+    const callback = () => {
+        (dropdown as HTMLElement).style.display = "none";
+        removeRender();
+    };
 
     for (const tagName of tagNames) {
         const elem = (e.target as HTMLElement).closest(tagName);
+
         if (elem) {
-            const dropdowns = Array.from(
-                document
-                    .querySelector("ytd-popup-container")!
-                    .querySelectorAll("tp-yt-iron-dropdown"),
-            );
-            const listbox = dropdowns
-                .find(e => !(e as HTMLElement).id)
-                ?.querySelector("tp-yt-paper-listbox");
+            enteredIf = true;
 
             const url = videoUrlFromThumbnail(elem) || videoUrlFromLocation();
 
             ReactDOM.render(
                 <AdminProvider>
-                    <ContextItem videoUrl={url} />
+                    <ContextItem videoUrl={url} callback={callback} />
                 </AdminProvider>,
                 contextMenuContainer,
             );
 
-            listbox?.prepend(contextMenuContainer);
+            if (listbox) {
+                listbox.prepend(contextMenuContainer);
+            }
+
             break;
         }
+    }
+
+    if (!enteredIf) {
+        removeRender();
     }
 };
 
