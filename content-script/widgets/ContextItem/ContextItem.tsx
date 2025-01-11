@@ -6,9 +6,10 @@ import { ExtensionMessageType } from "types/extensionMessage";
 
 interface ContextItemProps {
     videoUrl: string;
+    callback: () => void;
 }
 
-const ContextItem: React.FC<ContextItemProps> = ({ videoUrl }) => {
+const ContextItem: React.FC<ContextItemProps> = ({ videoUrl, callback }) => {
     const { isAdmin } = useAdmin();
     const [isPrimaryTabExists, setIsPrimaryTabExists] = useState<boolean>(true);
 
@@ -43,11 +44,13 @@ const ContextItem: React.FC<ContextItemProps> = ({ videoUrl }) => {
         e.stopPropagation();
 
         if (!isPrimaryTabExists) {
+            callback();
             sendCreateRoom();
             return;
         }
 
         if (isPrimaryTabExists && isAdmin) {
+            callback();
             sendAddVideo();
             return;
         }
