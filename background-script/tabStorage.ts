@@ -1,4 +1,5 @@
 import DevMode from "./devMode";
+import browser from "webextension-polyfill";
 
 export class TabStorage {
     private static instance: TabStorage;
@@ -31,14 +32,12 @@ export class TabStorage {
 
     public setPrimaryTab(tabId: number): Promise<void> {
         DevMode.log("Setting primary tab", { tabId: tabId });
-        return chrome.storage.local.set({ [this.PRIMARY_TAB_STORAGE_KEY]: tabId });
+        return browser.storage.local.set({ [this.PRIMARY_TAB_STORAGE_KEY]: tabId });
     }
 
     public async getPrimaryTab(): Promise<number | null> {
-        const primaryTabId =
-            (await chrome.storage.local.get(this.PRIMARY_TAB_STORAGE_KEY))[
-                this.PRIMARY_TAB_STORAGE_KEY
-            ] || null;
+        const result = await browser.storage.local.get(this.PRIMARY_TAB_STORAGE_KEY);
+        const primaryTabId = result[this.PRIMARY_TAB_STORAGE_KEY] as number | undefined;
         if (!primaryTabId) return null;
 
         return primaryTabId;
@@ -48,6 +47,6 @@ export class TabStorage {
         const primaryTabId = await this.getPrimaryTab();
         if (!primaryTabId) return;
 
-        return chrome.storage.local.remove(this.PRIMARY_TAB_STORAGE_KEY);
+        return browser.storage.local.remove(this.PRIMARY_TAB_STORAGE_KEY);
     }
 }

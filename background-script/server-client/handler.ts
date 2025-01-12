@@ -5,6 +5,7 @@ import { TabStorage } from "background-script/tabStorage";
 import { takeTargetPrimaryTabId } from "background-script/targetPrimaryTabId";
 import { ExtensionMessageType } from "types/extensionMessage";
 import { FromServerMessagePayloadMap, FromServerMessageType } from "types/serverMessage";
+import browser from "webextension-polyfill";
 
 const bgMessagingClient = BackgroundMessagingClient.getInstance();
 const tabStorage = TabStorage.getInstance();
@@ -20,7 +21,7 @@ export function joinedRoom(
     const videoPageLink = `https://youtube.com/watch?v=${payload.room.player.video_url}&t=0`;
     const targetPrimaryTabId = takeTargetPrimaryTabId();
     if (targetPrimaryTabId) {
-        chrome.tabs.update(targetPrimaryTabId, { url: videoPageLink });
+        browser.tabs.update(targetPrimaryTabId, { url: videoPageLink });
         // bgMessagingClient.sendMessage(
         //     targetPrimaryTabId,
         //     ExtensionMessageType.GO_TO_VIDEO,
@@ -31,7 +32,7 @@ export function joinedRoom(
         tabStorage.addTab(targetPrimaryTabId);
         tabStorage.setPrimaryTab(targetPrimaryTabId);
     } else {
-        console.error("No target primary tab found");
+        DevMode.log("No target primary tab found");
     }
 }
 
