@@ -1,7 +1,8 @@
 {
-  "manifest_version": 3,
+  "{{chrome}}.manifest_version": 3,
+  "{{firefox}}.manifest_version": 2,
   "version": "1.0.0",
-  "version_name": "1.0.0 beta (Oly)",
+  "{{chrome}}.version_name": "1.0.0 beta (Oly)",
   "name": "ShareTube",
   "short_name": "ST",
   "author": "Sharetube team",
@@ -18,9 +19,6 @@
   "action": {
     "default_popup": "./pages/popup/popup.html"
   },
-  "background": {
-    "service_worker": "background-script/index.ts"
-  },
   "content_scripts": [
     {
       "matches": ["https://*.youtube.com/*"],
@@ -34,14 +32,25 @@
       "run_at": "document_start"
     }
   ],
-  "web_accessible_resources": [
+  "background": {
+    "{{chrome}}.service_worker": "background-script/index.ts",
+    "{{firefox}}.scripts": ["background-script/index.ts"],
+    "{{firefox}}.persistent": true
+  },
+  "{{chrome}}.minimum_chrome_version": "116",
+  "{{chrome}}.web_accessible_resources": [
     {
       "matches": [],
       "resources": ["pages/error.html", "pages/loading.html", "pages/cat-sleep.gif"],
       "use_dynamic_url": false
     }
   ],
-  "browser_specific_settings": {
+  "{{firefox}}.web_accessible_resources": [
+    "pages/error.html",
+    "pages/loading.html",
+    "pages/cat-sleep.gif"
+  ],
+  "{{firefox}}.browser_specific_settings": {
     "gecko": {
       "id": "sharetube.team@gmail.com",
       "strict_min_version": "78.0"
