@@ -39,6 +39,10 @@ export enum ExtensionMessageType {
     LAST_VIDEO_UPDATED = "LAST_VIDEO_UPDATED",
     UPDATE_MUTED = "UPDATE_MUTED",
     UPDATE_READY = "UPDATE_READY",
+    // Devmode
+    GET_DEVMODE = "GET_DEVMODE",
+    SET_DEVMODE = "SET_DEVMODE",
+    DEVMODE_UPDATED = "DEVMODE_UPDATED",
 }
 
 export type ExtensionMessagePayloadMap = {
@@ -83,7 +87,12 @@ export type ExtensionMessagePayloadMap = {
     [ExtensionMessageType.GET_LAST_VIDEO]: void;
     [ExtensionMessageType.GET_PLAYLIST]: void;
     [ExtensionMessageType.KICKED]: void;
+    // Devmode
+    [ExtensionMessageType.GET_DEVMODE]: void;
+    [ExtensionMessageType.SET_DEVMODE]: boolean;
+    [ExtensionMessageType.DEVMODE_UPDATED]: boolean;
 };
+
 export type ExtensionMessageResponseMap = {
     [ExtensionMessageType.GET_PLAYLIST]: PlaylistType;
     [ExtensionMessageType.GET_PROFILE]: Promise<ProfileType>;
@@ -98,6 +107,9 @@ export type ExtensionMessageResponseMap = {
     [ExtensionMessageType.GET_PLAYER_VIDEO_URL]: string;
     [ExtensionMessageType.GET_LAST_VIDEO]: VideoType | null;
     [ExtensionMessageType.SKIP_CURRENT_VIDEO]: boolean;
+    // Devmode
+    [ExtensionMessageType.GET_DEVMODE]: boolean;
+    [ExtensionMessageType.DEVMODE_UPDATED]: boolean;
 };
 
 export interface ExtensionMessage<T extends ExtensionMessageType> {

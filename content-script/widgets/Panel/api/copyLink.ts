@@ -1,4 +1,5 @@
 import { ContentScriptMessagingClient } from "@shared/client/client";
+import DevMode from "@shared/client/devMode";
 import { ExtensionMessageType } from "types/extensionMessage";
 
 function callOncePerInterval(func, delay) {
@@ -19,7 +20,6 @@ const throttledCopyLink = callOncePerInterval(() => {
     document
         .querySelector("yt-copy-link-renderer yt-button-renderer .yt-spec-touch-feedback-shape")!
         .click();
-    console.log("Copied link to clipboard");
 }, 3500);
 
 const copyLink = () => {
@@ -27,6 +27,7 @@ const copyLink = () => {
         const link = `https://youtu.be/st/${payload}`;
         throttledCopyLink();
         navigator.clipboard.writeText(link);
+        DevMode.log("LINK COPIED", { link });
     });
 };
 
