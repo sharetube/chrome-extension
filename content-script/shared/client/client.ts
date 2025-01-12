@@ -5,6 +5,7 @@ import {
     ExtensionMessagePayloadMap,
     ExtensionMessageType,
 } from "types/extensionMessage";
+import browser from "webextension-polyfill";
 
 export class ContentScriptMessagingClient extends BaseMessagingClient {
     public constructor() {
@@ -16,11 +17,13 @@ export class ContentScriptMessagingClient extends BaseMessagingClient {
         payload?: ExtensionMessagePayloadMap[T],
     ): Promise<any> {
         const message: ExtensionMessage<T> = { type, payload };
-        return new Promise(resolve => {
+        try {
             log("sending message to bg worker", message);
-            chrome.runtime.sendMessage(message, (response: any) => {
-                resolve(response);
-            });
-        });
+            const response = await browser.runtime.sendMessage(message);
+            return response;
+        } catch (error) {
+            log("Error sending message:", error);
+            throw error;
+        }
     }
 }

@@ -12,6 +12,7 @@ import {
     ExtensionMessageType,
 } from "types/extensionMessage";
 import { ToServerMessageType as TSMType } from "types/serverMessage";
+import browser from "webextension-polyfill";
 
 const server = ServerClient.getInstance();
 
@@ -130,7 +131,7 @@ export async function createRoom(
 
 export function switchToPrimaryTab() {
     tabStorage.getPrimaryTab().then(primaryTabId => {
-        if (primaryTabId) chrome.tabs.update(primaryTabId, { active: true });
+        if (primaryTabId) browser.tabs.update(primaryTabId, { active: true });
     });
 }
 
