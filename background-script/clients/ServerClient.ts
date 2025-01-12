@@ -84,7 +84,7 @@ class ServerClient {
                     DevMode.log("WS: UNKNOWN MESSAGE TYPE", { type });
                 }
             } catch (error) {
-                console.error("WS ERROR: Parsing message:", error);
+                DevMode.log(`WS ERROR: Parsing message: ${error}`);
             }
         };
     }
@@ -147,7 +147,7 @@ class ServerClient {
         this.closeCodeHandlers.set(closeCode, handler);
     }
 
-    // https://developer.chrome.com/docs/extensions/how-to/web-platform/websockets
+    // https://developer.browser.com/docs/extensions/how-to/web-platform/websockets
     private debouncedKeepAlive = debounce(() => this.send(ToServerMessageType.ALIVE), 25 * 1000);
 }
 

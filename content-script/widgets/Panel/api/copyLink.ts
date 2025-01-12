@@ -27,7 +27,6 @@ const throttledCopyLink = callOncePerInterval(() => {
             "yt-copy-link-renderer yt-button-renderer .yt-spec-touch-feedback-shape",
         ) as HTMLElement
     ).click();
-    console.log("Copied link to clipboard");
 }, 3500);
 
 const copyLink = () => {
