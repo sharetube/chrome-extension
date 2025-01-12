@@ -6,7 +6,7 @@ import waitForElement from "@shared/lib/waitForElement";
 import Panel from "@widgets/Panel/Panel";
 import Search from "@widgets/Search/Search";
 import React from "react";
-import ReactDOM from "react-dom/client";
+import ReactDOM from "react-dom";
 import { ExtensionMessageType } from "types/extensionMessage";
 
 const contentScriptMessageClient = new ContentScriptMessagingClient();
@@ -174,10 +174,11 @@ function showMainPanel() {
         container.className = "sharetube";
         elem.parentElement?.prepend(container);
 
-        ReactDOM.createRoot(container).render(
+        ReactDOM.render(
             <AdminProvider>
                 <Panel />
             </AdminProvider>,
+            container,
         );
     });
     // .catch(error => console.log("Failed to render main panel", error));
@@ -202,10 +203,11 @@ function initSearch() {
         container.style.width = "100%";
         elem.prepend(container);
 
-        ReactDOM.createRoot(container).render(
+        ReactDOM.render(
             <AdminProvider>
                 <Search />
             </AdminProvider>,
+            container,
         );
     });
     // .catch(error => console.log("Failed to render input", error));
