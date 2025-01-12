@@ -6,6 +6,7 @@ import {
     ExtensionMessagePayloadMap,
     ExtensionMessageType,
 } from "types/extensionMessage";
+import browser from "webextension-polyfill";
 
 export class BackgroundMessagingClient extends BaseMessagingClient {
     private static instance: BackgroundMessagingClient;
@@ -26,7 +27,7 @@ export class BackgroundMessagingClient extends BaseMessagingClient {
         payload?: ExtensionMessagePayloadMap[T],
     ): void {
         const message: ExtensionMessage<T> = { type, payload };
-        chrome.tabs
+        browser.tabs
             .sendMessage(tabId, message)
             .catch(err => console.error("failed to send to tab", err, tabId));
 
@@ -45,7 +46,7 @@ export class BackgroundMessagingClient extends BaseMessagingClient {
 
         const message: ExtensionMessage<T> = { type, payload };
         DevMode.log("sending message to primary tab", message);
-        chrome.tabs
+        browser.tabs
             .sendMessage(primaryTabId, message)
             .catch(err => console.error("failed to send to primary tab", err));
     }
@@ -56,7 +57,7 @@ export class BackgroundMessagingClient extends BaseMessagingClient {
     ): void {
         const message: ExtensionMessage<T> = { type, payload };
         this.tabStorage.getTabs().forEach(tabId => {
-            chrome.tabs
+            browser.tabs
                 .sendMessage(tabId, message)
                 .catch(err =>
                     console.error("failed to send to tab while broadcasting", err, tabId),
