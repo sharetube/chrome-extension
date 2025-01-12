@@ -32,7 +32,7 @@ export function joinedRoom(
         tabStorage.addTab(targetPrimaryTabId);
         tabStorage.setPrimaryTab(targetPrimaryTabId);
     } else {
-        console.error("No target primary tab found");
+        DevMode.log("No target primary tab found");
     }
 }
 

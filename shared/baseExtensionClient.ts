@@ -3,7 +3,6 @@ import {
     ExtensionMessagePayloadMap,
     ExtensionMessageType,
 } from "../types/extensionMessage";
-import { log } from "./log";
 import browser from "webextension-polyfill";
 
 type MessageHandler<T extends ExtensionMessageType> = (
@@ -32,7 +31,7 @@ export abstract class BaseMessagingClient {
     ): Promise<any> {
         const handler = this.handlers.get(message.type);
         if (handler) {
-            log(`handling incoming message: type: ${message.type}, payload: `, message.payload);
+            // DevMode.log("handling incoming message", message);
             return handler(message.payload, sender);
         }
     }
