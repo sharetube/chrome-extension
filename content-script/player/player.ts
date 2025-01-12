@@ -151,6 +151,7 @@ class Player {
     }
 
     private setActualState() {
+        log("setActualState");
         ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_PLAYER_STATE).then(
             (state: PlayerStateType) => {
                 log("fetched player state", state);
@@ -236,9 +237,12 @@ class Player {
             return;
         }
 
+        this.adShowing = false;
         this.ignoreSeekingCount = 0;
         this.ignorePlayCount = 0;
         this.ignorePauseCount = 0;
+        this.isReady = false;
+        this.isDataLoaded = false;
     }
 
     private handlePause() {
@@ -267,8 +271,8 @@ class Player {
         if (!this.clearUpdateIsReadyFalseTimeout()) {
             if (this.isReady) return;
             this.isReady = true;
-            this.setActualState();
             ContentScriptMessagingClient.sendMessage(ExtensionMessageType.UPDATE_READY, true);
+            this.setActualState();
         }
     }
 
@@ -378,7 +382,14 @@ class Player {
         } else if (!state.is_playing && this.getIsPlaying()) {
             this.ignorePauseCount++;
         }
-        this.player[state.is_playing ? "play" : "pause"]();
+        if (state.is_playing) {
+            (this.player.play() as Promise<void>).catch(() => {
+                log("error calling play, clicking player...");
+                this.player.click();
+            });
+        } else {
+            this.player.pause();
+        }
         this.player.currentTime = ct;
         this.ignoreSeekingCount++;
 
@@ -422,9 +433,6 @@ class Player {
 
     private updateVideo(videoUrl: string) {
         window.postMessage({ type: "SKIP", payload: videoUrl }, "*");
-        this.isReady = false;
-        this.adShowing = false;
-        this.isDataLoaded = false;
     }
 
     private observeElement(): void {
