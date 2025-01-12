@@ -4,6 +4,7 @@ import {
     ExtensionMessageType,
 } from "../types/extensionMessage";
 import { log } from "./log";
+import browser from "webextension-polyfill";
 
 type MessageHandler<T extends ExtensionMessageType> = (
     payload: ExtensionMessagePayloadMap[T],
@@ -19,7 +20,7 @@ export abstract class BaseMessagingClient {
     }
 
     protected initMessageListener(): void {
-        chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+        browser.runtime.onMessage.addListener((message: any, sender: any, sendResponse) => {
             this.handleMessage(message, sender).then(sendResponse);
             return true;
         });
