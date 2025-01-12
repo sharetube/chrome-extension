@@ -151,6 +151,7 @@ class Player {
     }
 
     private setActualState() {
+        log("setActualState");
         ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_PLAYER_STATE).then(
             (state: PlayerStateType) => {
                 log("fetched player state", state);

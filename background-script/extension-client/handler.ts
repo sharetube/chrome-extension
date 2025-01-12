@@ -23,7 +23,7 @@ export function addVideo(videoUrl: EMPM[EMType.ADD_VIDEO]): void {
     server.send(TSMType.ADD_VIDEO, { video_url: videoUrl });
 }
 
-export function removeVideo(videoId: EMPM[EMType.ADD_VIDEO]): void {
+export function removeVideo(videoId: EMPM[EMType.REMOVE_VIDEO]): void {
     server.send(TSMType.REMOVE_VIDEO, { video_id: videoId });
 }
 

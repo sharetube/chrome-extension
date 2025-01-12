@@ -1,12 +1,12 @@
 import { ContentScriptMessagingClient } from "@shared/client/client";
 import { ExtensionMessageType } from "types/extensionMessage";
 
-function callOncePerInterval(func, delay) {
+function callOncePerInterval(func: () => void, delay: number) {
     let isAllowed = true;
 
-    return function (...args) {
+    return function () {
         if (isAllowed) {
-            func(...args); // Execute the function
+            func();
             isAllowed = false;
 
             setTimeout(() => {
@@ -16,9 +16,11 @@ function callOncePerInterval(func, delay) {
     };
 }
 const throttledCopyLink = callOncePerInterval(() => {
-    document
-        .querySelector("yt-copy-link-renderer yt-button-renderer .yt-spec-touch-feedback-shape")!
-        .click();
+    (
+        document.querySelector(
+            "yt-copy-link-renderer yt-button-renderer .yt-spec-touch-feedback-shape",
+        ) as HTMLElement
+    ).click();
     console.log("Copied link to clipboard");
 }, 3500);
 
