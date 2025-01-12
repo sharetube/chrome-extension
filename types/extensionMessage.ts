@@ -56,7 +56,7 @@ export type ExtensionMessagePayloadMap = {
     [ExtensionMessageType.IS_PRIMARY_TAB]: void;
     [ExtensionMessageType.CREATE_ROOM]: { videoUrl: string };
     [ExtensionMessageType.GO_TO_VIDEO]: string;
-    [ExtensionMessageType.REORDER_PLAYLIST]: string[];
+    [ExtensionMessageType.REORDER_PLAYLIST]: number[];
     // Room
     [ExtensionMessageType.GET_IS_ADMIN]: void;
     [ExtensionMessageType.ADMIN_STATUS_UPDATED]: boolean;
@@ -65,7 +65,7 @@ export type ExtensionMessagePayloadMap = {
     [ExtensionMessageType.GET_MEMBERS]: void;
     [ExtensionMessageType.MEMBERS_UPDATED]: MemberType[];
     [ExtensionMessageType.ADD_VIDEO]: string;
-    [ExtensionMessageType.REMOVE_VIDEO]: string;
+    [ExtensionMessageType.REMOVE_VIDEO]: number;
     [ExtensionMessageType.GET_ROOM_ID]: void;
     [ExtensionMessageType.PROMOTE_MEMBER]: string;
     [ExtensionMessageType.REMOVE_MEMBER]: string;
@@ -73,7 +73,7 @@ export type ExtensionMessagePayloadMap = {
     [ExtensionMessageType.UPDATE_PLAYER_STATE]: PlayerType;
     [ExtensionMessageType.PLAYER_STATE_UPDATED]: PlayerType;
     [ExtensionMessageType.UPDATE_PLAYER_VIDEO]: {
-        videoId: string;
+        videoId: number;
         updatedAt: number;
     };
     [ExtensionMessageType.SKIP_CURRENT_VIDEO]: number;
