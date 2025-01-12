@@ -1,5 +1,6 @@
 import { BackgroundMessagingClient } from "./clients/ExtensionClient";
 import ServerClient from "./clients/ServerClient";
+import DevMode from "./devMode";
 import { ProfileStorage } from "./profileStorage";
 import { globalState } from "./state";
 import { TabStorage } from "./tabStorage";
@@ -17,7 +18,6 @@ const roomIdRegex = /^[a-zA-Z0-9.-]{8}$/;
 
 const handleTab = async (tabId: number, url: string) => {
     const inviteLinkMatch = url.match(inviteLinkRegex);
-    console.log("inviteLinkMatch", inviteLinkMatch);
     if (!inviteLinkMatch) return;
 
     const showErrorPage = () => {
@@ -92,7 +92,7 @@ chrome.webNavigation.onBeforeNavigate.addListener(
 );
 
 chrome.tabs.onRemoved.addListener(async tabId => {
-    console.log("tab removed", tabId);
+    DevMode.log("tab removed", { tabdId: tabId });
     getPrimaryTabIdOrUnset();
 });
 

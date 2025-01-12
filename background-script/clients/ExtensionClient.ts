@@ -1,4 +1,5 @@
 import { BaseMessagingClient } from "../../shared/baseExtensionClient";
+import DevMode from "background-script/devMode";
 import { TabStorage } from "background-script/tabStorage";
 import {
     ExtensionMessage,
@@ -29,7 +30,7 @@ export class BackgroundMessagingClient extends BaseMessagingClient {
             .sendMessage(tabId, message)
             .catch(err => console.error("failed to send to tab", err, tabId));
 
-        console.log(`sending message to tab ${tabId}`, message);
+        DevMode.log(`sending message to tab ${tabId}`, message);
     }
 
     public async sendMessageToPrimaryTab<T extends ExtensionMessageType>(
@@ -43,7 +44,7 @@ export class BackgroundMessagingClient extends BaseMessagingClient {
         }
 
         const message: ExtensionMessage<T> = { type, payload };
-        console.log("sending message to primary tab", message);
+        DevMode.log("sending message to primary tab", message);
         chrome.tabs
             .sendMessage(primaryTabId, message)
             .catch(err => console.error("failed to send to primary tab", err));

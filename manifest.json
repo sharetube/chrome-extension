@@ -8,6 +8,7 @@
   "description": "A browser extension that lets you watch yotube videos together with your friends in real-time!",
   "permissions": ["storage", "tabs", "webNavigation"],
   "minimum_chrome_version": "116",
+  "options_page": "./pages/options/options.html",
   "icons": {
     "16": "assets/icon16.png",
     "32": "assets/icon32.png",

@@ -1,4 +1,5 @@
 import { BackgroundMessagingClient } from "background-script/clients/ExtensionClient";
+import DevMode from "background-script/devMode";
 import { globalState, resetState } from "background-script/state";
 import { TabStorage } from "background-script/tabStorage";
 import { takeTargetPrimaryTabId } from "background-script/targetPrimaryTabId";
@@ -151,6 +152,6 @@ export const playerVideoUpdated = (
 };
 
 export const kickedFromRoom = (): void => {
-    console.log("kicked from room");
+    DevMode.log("KICKED FROM ROOM", {});
     bgMessagingClient.sendMessageToPrimaryTab(ExtensionMessageType.KICKED);
 };

@@ -1,6 +1,7 @@
 import { setTargetPrimaryTabId } from "../targetPrimaryTabId";
 import { BackgroundMessagingClient } from "background-script/clients/ExtensionClient";
 import ServerClient from "background-script/clients/ServerClient";
+import DevMode from "background-script/devMode";
 import { ProfileStorage } from "background-script/profileStorage";
 import { globalState } from "background-script/state";
 import { getPrimaryTabIdOrUnset } from "background-script/tab";
@@ -124,7 +125,7 @@ export async function createRoom(
     if (sender?.tab?.id !== undefined) setTargetPrimaryTabId(sender.tab.id);
     const profile = await profileStorage.get();
     server.createRoom(profile, payload.videoUrl).then(() => {
-        console.log("room created");
+        DevMode.log("ROOM CREATED", { videoUrl: payload.videoUrl });
     });
 }
 
@@ -154,4 +155,12 @@ export function reorderPlaylist(payload: EMPM[EMType.REORDER_PLAYLIST]): void {
     server.send(TSMType.REORDER_PLAYLIST, {
         video_ids: payload,
     });
+}
+
+export function setDevMode(payload: EMPM[EMType.SET_DEVMODE]): void {
+    DevMode.setEnabled(payload);
+}
+
+export function getDevMode(): EMRM[EMType.GET_DEVMODE] {
+    return DevMode.isEnabled();
 }

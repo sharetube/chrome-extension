@@ -1,3 +1,5 @@
+import DevMode from "./devMode";
+
 export class TabStorage {
     private static instance: TabStorage;
     private readonly PRIMARY_TAB_STORAGE_KEY = "st-primary-tab";
@@ -28,7 +30,7 @@ export class TabStorage {
     }
 
     public setPrimaryTab(tabId: number): Promise<void> {
-        console.log("Setting primary tab", tabId);
+        DevMode.log("Setting primary tab", { tabId: tabId });
         return chrome.storage.local.set({ [this.PRIMARY_TAB_STORAGE_KEY]: tabId });
     }
 
