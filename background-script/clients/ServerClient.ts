@@ -84,7 +84,7 @@ class ServerClient {
                     DevMode.log("WS: UNKNOWN MESSAGE TYPE", { type });
                 }
             } catch (error) {
-                console.error("WS ERROR: Parsing message:", error);
+                DevMode.log(`WS ERROR: Parsing message: ${error}`);
             }
         };
     }

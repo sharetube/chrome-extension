@@ -8,16 +8,15 @@
   "author": "Sharetube team",
   "description": "A browser extension that lets you watch yotube videos together with your friends in real-time!",
   "permissions": ["storage", "tabs", "webNavigation"],
-  "minimum_chrome_version": "116",
-  "options_page": "./pages/options/options.html",
-  "icons": {
-    "16": "assets/icon16.png",
-    "32": "assets/icon32.png",
-    "48": "assets/icon48.png",
-    "128": "assets/icon128.png"
+  "options_ui": {
+    "page": "pages/options/options.html",
+    "open_in_tab": false
   },
-  "action": {
-    "default_popup": "./pages/popup/popup.html"
+  "icons": {
+    "16": "icon16.png",
+    "32": "icon32.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
   },
   "content_scripts": [
     {
@@ -36,6 +35,9 @@
     "{{chrome}}.service_worker": "background-script/index.ts",
     "{{firefox}}.scripts": ["background-script/index.ts"],
     "{{firefox}}.persistent": true
+  },
+  "{{chrome}}.action": {
+    "default_popup": "pages/popup/popup.html"
   },
   "{{chrome}}.minimum_chrome_version": "116",
   "{{chrome}}.web_accessible_resources": [

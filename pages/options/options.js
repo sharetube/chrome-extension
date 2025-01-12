@@ -1,6 +1,8 @@
+import browser from "webextension-polyfill";
+
 const checkbox = document.querySelector("input#devmode");
 
-chrome.runtime.sendMessage({ type: "GET_DEVMODE" }).then(value => {
+browser.runtime.sendMessage({ type: "GET_DEVMODE" }).then(value => {
     if (checkbox) {
         checkbox.checked = value;
     }
@@ -8,5 +10,5 @@ chrome.runtime.sendMessage({ type: "GET_DEVMODE" }).then(value => {
 
 checkbox.addEventListener("change", () => {
     const isChecked = checkbox.checked;
-    chrome.runtime.sendMessage({ type: "SET_DEVMODE", payload: isChecked });
+    browser.runtime.sendMessage({ type: "SET_DEVMODE", payload: isChecked });
 });

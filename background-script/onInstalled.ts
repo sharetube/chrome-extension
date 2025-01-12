@@ -7,5 +7,6 @@ browser.runtime.onInstalled.addListener(details => {
     DevMode.log("onInstalled", details);
     TabStorage.getInstance().unsetPrimaryTab();
     ProfileStorage.getInstance().get();
-    chrome.action.openPopup();
+
+    browser.action?.openPopup();
 });
