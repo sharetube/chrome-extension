@@ -58,10 +58,11 @@ const ContextItem: React.FC<ContextItemProps> = ({ videoUrl, callback }) => {
 
     return (
         <div
-            className={`st-context-item ${isPrimaryTabExists && !isAdmin ? "hover:cursor-not-allowed" : ""}`}
+            className={`st-context-item relative ${isPrimaryTabExists && !isAdmin ? "hover:cursor-not-allowed" : ""}`}
             title={isPrimaryTabExists && !isAdmin ? "You can't add videos" : ""}
             onClick={onClick}
         >
+            <div className="absolute top-[-8px] left-0 w-full h-[8px]"></div>
             <div className="flex items-center p-[0_12px_0_16px] h-[36px] hover:cursor-pointer hover:bg-spec-button-chip-background-hover">
                 <div className="m-[0_16px_0_0] text-text-primary">
                     <ShareTube />
