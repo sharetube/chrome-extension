@@ -18,7 +18,7 @@ const Playlist: React.FC = () => {
     useEffect(() => {
         ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_LAST_VIDEO).then(
             payload => {
-                setVideos(payload);
+                setLastVideo(payload);
             },
         );
 
