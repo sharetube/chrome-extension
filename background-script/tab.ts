@@ -15,7 +15,7 @@ const bgMessagingClient = BackgroundMessagingClient.getInstance();
 const profileStorage = ProfileStorage.getInstance();
 
 const domainRegex = /^https:\/\/(www\.)?(youtu\.be|youtube\.com)/;
-const inviteLinkRegex = /^https:\/\/(www\.)?youtu\.be\/st\/(.+)$/;
+const inviteLinkRegex = /^https:\/\/(www\.)?(youtu\.be|youtube\.com)\/st\/(.+)$/;
 const roomIdRegex = /^[a-zA-Z0-9.-]{8}$/;
 
 const handleTab = async (tabId: number, url: string) => {
@@ -28,7 +28,7 @@ const handleTab = async (tabId: number, url: string) => {
         });
     };
 
-    const roomId = inviteLinkMatch[2];
+    const roomId = inviteLinkMatch[3];
     const roomIdMatch = roomId.match(roomIdRegex);
     if (!roomIdMatch) {
         showErrorPage();
@@ -84,7 +84,7 @@ browser.webNavigation.onBeforeNavigate.addListener(
     details => {
         if (details.url) handleTab(details.tabId, details.url);
     },
-    { url: [{ hostSuffix: "youtu.be" }] },
+    { url: [{ hostSuffix: "youtu.be" }, { hostSuffix: "youtube.com" }] },
 );
 
 browser.tabs.onRemoved.addListener(async tabId => {
@@ -92,6 +92,7 @@ browser.tabs.onRemoved.addListener(async tabId => {
     getPrimaryTabIdOrUnset();
 });
 
+let ignoreNextTabUpdate = false;
 browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     if (!changeInfo.url) {
         return;
@@ -103,16 +104,25 @@ browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     }
     logger.log("tab updated", { tabId, url: changeInfo.url });
 
-    if (!tab.url?.match(domainRegex)) {
-        clearPrimaryTab();
+    if (ignoreNextTabUpdate) {
+        ignoreNextTabUpdate = false;
         return;
     }
 
     if (
-        changeInfo.url !== `https://www.youtube.com/watch?v=${globalState.room.player.video_url}` &&
-        changeInfo.url !==
-            `https://www.youtube.com/watch?v=${globalState.room.player.video_url}&t=0`
+        !tab.url?.match(domainRegex) ||
+        (changeInfo.url !==
+            `https://www.youtube.com/watch?v=${globalState.room.player.video_url}` &&
+            changeInfo.url !==
+                `https://www.youtube.com/watch?v=${globalState.room.player.video_url}&t=0`)
     ) {
         clearPrimaryTab();
+        return;
     }
+
+    ignoreNextTabUpdate = true;
+    bgMessagingClient.sendMessageToPrimaryTab(
+        ExtensionMessageType.UPDATE_URL,
+        `/st/${globalState.room.id}`,
+    );
 });

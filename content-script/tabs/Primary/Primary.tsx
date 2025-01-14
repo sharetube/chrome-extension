@@ -87,6 +87,10 @@ contentScriptMessageClient.addHandler(ExtensionMessageType.KICKED, () => {
     window.postMessage({ type: "GO_TO_MAIN" }, "*");
 });
 
+contentScriptMessageClient.addHandler(ExtensionMessageType.UPDATE_URL, url => {
+    window.history.replaceState({}, "", url);
+});
+
 let player: Player | null = null;
 function initPlayer() {
     waitForElement(".html5-video-player").then(e => {

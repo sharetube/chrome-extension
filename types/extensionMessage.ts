@@ -38,6 +38,7 @@ export enum ExtensionMessageType {
     GET_LAST_VIDEO = "GET_LAST_VIDEO",
     LAST_VIDEO_UPDATED = "LAST_VIDEO_UPDATED",
     UPDATE_MUTED = "UPDATE_MUTED",
+    UPDATE_URL = "UPDATE_URL",
     UPDATE_READY = "UPDATE_READY",
     // Devmode
     GET_DEVMODE = "GET_DEVMODE",
@@ -79,6 +80,7 @@ export type ExtensionMessagePayloadMap = {
     [ExtensionMessageType.SKIP_CURRENT_VIDEO]: number;
     [ExtensionMessageType.GET_PLAYER_STATE]: void;
     [ExtensionMessageType.GET_PLAYER_VIDEO_URL]: void;
+    [ExtensionMessageType.UPDATE_URL]: string;
     [ExtensionMessageType.PLAYER_VIDEO_UPDATED]: string;
     [ExtensionMessageType.LAST_VIDEO_UPDATED]: VideoType;
     // Profile
