@@ -17,7 +17,6 @@ function callOncePerInterval(func: () => void, delay: number) {
     };
 }
 const throttledFireCopyLinkNotification = callOncePerInterval(() => {
-    CSLogger.getInstance().log("firing copy link notif");
     (
         document.querySelector(
             "yt-copy-link-renderer yt-button-renderer .yt-spec-touch-feedback-shape",
