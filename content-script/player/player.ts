@@ -261,7 +261,7 @@ class Player {
             this.player.currentTime = 0;
         }
 
-        this.ignorePlayCount--;
+        this.isDataLoaded = false;
         this.isReady = false;
     }
 

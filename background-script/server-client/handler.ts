@@ -19,7 +19,7 @@ export function joinedRoom(
     globalState.room = payload.room;
     globalState.is_admin = payload.joined_member.is_admin;
 
-    const videoPageLink = `https://youtube.com/watch?v=${payload.room.player.video_url}&t=0`;
+    const videoPageLink = `https://youtube.com/watch?v=${payload.room.player.video_url}`;
     const targetPrimaryTabId = takeTargetPrimaryTabId();
     if (targetPrimaryTabId) {
         browser.tabs.update(targetPrimaryTabId, { url: videoPageLink });

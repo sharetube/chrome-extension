@@ -5,7 +5,7 @@ const updateVideoUrl = (videoUrl: string) => {
     if (!a) return;
 
     (a as any).data.watchEndpoint.videoId = videoUrl;
-    (a as any).data.commandMetadata.webCommandMetadata.url = `/watch?v=${videoUrl}&t=0`;
+    (a as any).data.commandMetadata.webCommandMetadata.url = `/watch?v=${videoUrl}`;
     a.click();
 };
 

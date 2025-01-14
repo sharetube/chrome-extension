@@ -20,13 +20,15 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://*.youtube.com/*"],
       "js": ["content-script/index.ts"],
-      "run_at": "document_start"
+      "matches": ["https://*.youtube.com/*", "https://*.youtu.be/*"],
+      "run_at": "document_start",
+      "{{firefox}}.match_about_blank": true,
+      "{{firefox}}.all_frames": true
     },
     {
       "js": ["scripts/setVideo.ts"],
-      "matches": ["https://*.youtube.com/*"],
+      "matches": ["https://*.youtube.com/*", "https://*.youtu.be/*"],
       "world": "MAIN",
       "run_at": "document_start"
     }

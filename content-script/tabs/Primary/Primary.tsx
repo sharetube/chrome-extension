@@ -88,6 +88,7 @@ contentScriptMessageClient.addHandler(ExtensionMessageType.KICKED, () => {
 });
 
 contentScriptMessageClient.addHandler(ExtensionMessageType.UPDATE_URL, url => {
+    logger.log("UPDATE_URL", { url });
     window.history.replaceState({}, "", url);
 });
 
