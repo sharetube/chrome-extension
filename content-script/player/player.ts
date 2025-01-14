@@ -261,10 +261,7 @@ class Player {
             this.player.currentTime = 0;
         }
 
-        this.adShowing = false;
-        this.ignoreSeekingCount = 0;
-        this.ignorePlayCount = 0;
-        this.ignorePauseCount = 0;
+        this.ignorePlayCount--;
         this.isReady = false;
     }
 
@@ -351,7 +348,7 @@ class Player {
 
         logger.log("seeking");
         if (this.isDataLoaded && this.getIsPlaying()) {
-            // logger.log("ignore play count ++", { playCountBefore: this.ignorePlayCount });
+            logger.log("ignore play count ++", { playCountBefore: this.ignorePlayCount });
             this.ignorePlayCount++;
         }
         this.setUpdateIsReadyFalseTimeout();
@@ -461,6 +458,10 @@ class Player {
     private updateVideo(videoUrl: string) {
         logger.log("updateVideo", { videoUrl });
         this.isDataLoaded = false;
+        this.adShowing = false;
+        this.ignoreSeekingCount = 0;
+        this.ignorePlayCount = 0;
+        this.ignorePauseCount = 0;
         this.moveToStartAfterVideoChange = true;
         window.postMessage({ type: "SKIP", payload: videoUrl }, "*");
     }
