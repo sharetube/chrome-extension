@@ -1,6 +1,6 @@
 import { dateNowInUs } from "../../shared/dateNowInUs";
 import { ContentScriptMessagingClient } from "@shared/client/client";
-import { CsLogger } from "@shared/logging/logger";
+import { CSLogger } from "@shared/logging/logger";
 import {
     ExtensionMessagePayloadMap,
     ExtensionMessageResponseMap,
@@ -13,7 +13,7 @@ interface MastheadElement extends HTMLElement {
     theater: boolean;
 }
 
-const logger = CsLogger.getInstance();
+const logger = CSLogger.getInstance();
 
 class Player {
     private e: HTMLElement; // todo: rename

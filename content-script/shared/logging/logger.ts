@@ -2,8 +2,8 @@ import { ContentScriptMessagingClient } from "@shared/client/client";
 import Logger from "shared/logger";
 import { ExtensionMessageType } from "types/extensionMessage";
 
-export class CsLogger extends Logger {
-    private static instance: CsLogger;
+export class CSLogger extends Logger {
+    private static instance: CSLogger;
 
     constructor() {
         super();
@@ -23,7 +23,7 @@ export class CsLogger extends Logger {
         );
     }
 
-    public static getInstance(): CsLogger {
-        return (CsLogger.instance ??= new CsLogger());
+    public static getInstance(): CSLogger {
+        return (CSLogger.instance ??= new CSLogger());
     }
 }

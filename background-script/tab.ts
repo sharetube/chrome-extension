@@ -1,6 +1,6 @@
 import { BackgroundMessagingClient } from "./clients/ExtensionClient";
 import ServerClient from "./clients/ServerClient";
-import { BgLogger } from "./logging/logger";
+import { BGLogger } from "./logging/logger";
 import { ProfileStorage } from "./profileStorage";
 import { globalState } from "./state";
 import { TabStorage } from "./tabStorage";
@@ -10,7 +10,7 @@ import browser from "webextension-polyfill";
 
 const server = ServerClient.getInstance();
 const tabStorage = TabStorage.getInstance();
-const logger = BgLogger.getInstance();
+const logger = BGLogger.getInstance();
 const bgMessagingClient = BackgroundMessagingClient.getInstance();
 const profileStorage = ProfileStorage.getInstance();
 

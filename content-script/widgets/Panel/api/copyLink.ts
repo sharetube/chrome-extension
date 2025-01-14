@@ -1,11 +1,11 @@
 import { ContentScriptMessagingClient } from "@shared/client/client";
-import { CsLogger } from "@shared/logging/logger";
+import { CSLogger } from "@shared/logging/logger";
 import { ExtensionMessageType } from "types/extensionMessage";
 
 function callOncePerInterval(func: () => void, delay: number) {
     let isAllowed = true;
 
-    return function () {
+    return () => {
         if (isAllowed) {
             func();
             isAllowed = false;
@@ -16,12 +16,8 @@ function callOncePerInterval(func: () => void, delay: number) {
         }
     };
 }
-const throttledCopyLink = callOncePerInterval(() => {
-    (
-        document.querySelector(
-            "yt-copy-link-renderer yt-button-renderer .yt-spec-touch-feedback-shape",
-        ) as HTMLElement
-    ).click();
+const throttledFireCopyLinkNotification = callOncePerInterval(() => {
+    CSLogger.getInstance().log("firing copy link notif");
     (
         document.querySelector(
             "yt-copy-link-renderer yt-button-renderer .yt-spec-touch-feedback-shape",
@@ -30,11 +26,12 @@ const throttledCopyLink = callOncePerInterval(() => {
 }, 3500);
 
 const copyLink = () => {
+    //? store roomId locally
     ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_ROOM_ID).then(payload => {
         const link = `https://youtu.be/st/${payload}`;
-        throttledCopyLink();
+        throttledFireCopyLinkNotification();
         navigator.clipboard.writeText(link);
-        CsLogger.getInstance().log("LINK COPIED", { link });
+        CSLogger.getInstance().log("link copied", { link });
     });
 };
 

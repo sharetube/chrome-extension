@@ -2,14 +2,14 @@ import Player from "@player/player";
 import { AdminProvider } from "@shared/Context/Admin/Admin";
 import { ContentScriptMessagingClient } from "@shared/client/client";
 import waitForElement from "@shared/lib/waitForElement";
-import { CsLogger } from "@shared/logging/logger";
+import { CSLogger } from "@shared/logging/logger";
 import Panel from "@widgets/Panel/Panel";
 import Search from "@widgets/Search/Search";
 import React from "react";
 import ReactDOM from "react-dom";
 import { ExtensionMessageType } from "types/extensionMessage";
 
-const logger = CsLogger.getInstance();
+const logger = CSLogger.getInstance();
 
 const contentScriptMessageClient = new ContentScriptMessagingClient();
 let isPrimaryTab = false;

@@ -1,5 +1,5 @@
 import { BackgroundMessagingClient } from "background-script/clients/ExtensionClient";
-import { BgLogger } from "background-script/logging/logger";
+import { BGLogger } from "background-script/logging/logger";
 import { globalState, resetState } from "background-script/state";
 import { TabStorage } from "background-script/tabStorage";
 import { takeTargetPrimaryTabId } from "background-script/targetPrimaryTabId";
@@ -9,7 +9,7 @@ import browser from "webextension-polyfill";
 
 const bgMessagingClient = BackgroundMessagingClient.getInstance();
 const tabStorage = TabStorage.getInstance();
-const logger = BgLogger.getInstance();
+const logger = BGLogger.getInstance();
 
 export function joinedRoom(
     payload: FromServerMessagePayloadMap[FromServerMessageType.JOINED_ROOM],

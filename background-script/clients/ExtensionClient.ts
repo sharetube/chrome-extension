@@ -1,5 +1,5 @@
 import { BaseMessagingClient } from "../../shared/baseExtensionClient";
-import { BgLogger } from "background-script/logging/logger";
+import { BGLogger } from "background-script/logging/logger";
 import { TabStorage } from "background-script/tabStorage";
 import {
     ExtensionMessage,
@@ -8,7 +8,7 @@ import {
 } from "types/extensionMessage";
 import browser from "webextension-polyfill";
 
-const logger = BgLogger.getInstance();
+const logger = BGLogger.getInstance();
 
 export class BackgroundMessagingClient extends BaseMessagingClient {
     private static instance: BackgroundMessagingClient;

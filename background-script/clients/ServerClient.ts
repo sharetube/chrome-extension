@@ -1,4 +1,4 @@
-import { BgLogger } from "background-script/logging/logger";
+import { BGLogger } from "background-script/logging/logger";
 import { globalState } from "background-script/state";
 import config from "config";
 import debounce from "lodash.debounce";
@@ -19,7 +19,7 @@ type MessageHandler<T extends FromServerMessageType> = (
 
 type CloseCodeHandler = () => void;
 
-const logger = BgLogger.getInstance();
+const logger = BGLogger.getInstance();
 
 const buildQueryParams = (params: Record<string, string>): string =>
     Object.entries(params)
