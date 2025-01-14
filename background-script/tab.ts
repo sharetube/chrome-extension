@@ -101,6 +101,7 @@ browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     if (primaryTabId !== tabId) {
         return;
     }
+    // logger.log("tab updated", { tabId, changeInfo, tab });
 
     if (!tab.url?.match(domainRegex)) {
         clearPrimaryTab();

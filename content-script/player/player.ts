@@ -26,6 +26,7 @@ class Player {
     private videoUrl: string;
     private isReady: boolean;
     private isPlayAfterEndedHandled: boolean;
+    private moveToStartAfterVideoChange: boolean;
     private adShowing: boolean;
     private isDataLoaded: boolean;
     private ignoreSeekingCount: number;
@@ -48,9 +49,10 @@ class Player {
         );
 
         this.mode = Mode.DEFAULT;
-        this.videoUrl = "";
+        this.videoUrl = ""; //? remove
         this.isReady = false;
         this.isPlayAfterEndedHandled = true;
+        this.moveToStartAfterVideoChange = true;
         this.adShowing = false;
         this.isDataLoaded = false;
         this.ignoreSeekingCount = 0;
@@ -145,6 +147,12 @@ class Player {
         this.contentScriptMessagingClient.removeHandler(ExtensionMessageType.ADMIN_STATUS_UPDATED);
     }
 
+    private disconnectObserver(): void {
+        if (!this.observer) return;
+        this.observer.disconnect();
+        this.observer = undefined;
+    }
+
     public clearAll() {
         logger.log("clearAll");
         this.clearUpdateIsReadyFalseTimeout();
@@ -189,10 +197,13 @@ class Player {
             this.isReady = false;
             ContentScriptMessagingClient.sendMessage(ExtensionMessageType.UPDATE_READY, false);
             this.clearUpdateIsReadyFalseTimeout();
-        }, 500);
+        }, 400);
     }
 
     private clearUpdateIsReadyFalseTimeout(): boolean {
+        logger.log("clearUpdateIsReadyFalseTimeout", {
+            udpateIsReadyFalseTimeout: this.udpateIsReadyFalseTimeout,
+        });
         if (!this.udpateIsReadyFalseTimeout) {
             return false;
         }
@@ -244,12 +255,17 @@ class Player {
         }
         logger.log("emptied");
 
+        if (this.moveToStartAfterVideoChange) {
+            logger.log("moveing to start after video change");
+            this.moveToStartAfterVideoChange = false;
+            this.player.currentTime = 0;
+        }
+
         this.adShowing = false;
         this.ignoreSeekingCount = 0;
         this.ignorePlayCount = 0;
         this.ignorePauseCount = 0;
         this.isReady = false;
-        this.isDataLoaded = false;
     }
 
     private handlePause() {
@@ -275,9 +291,10 @@ class Player {
         }
 
         logger.log("canplay");
-        if (!this.clearUpdateIsReadyFalseTimeout()) {
+        if (!this.clearUpdateIsReadyFalseTimeout() || !this.isReady) {
             if (this.isReady) return;
             this.isReady = true;
+            logger.log("sending is ready true");
             ContentScriptMessagingClient.sendMessage(ExtensionMessageType.UPDATE_READY, true);
             this.setActualState();
         }
@@ -337,6 +354,7 @@ class Player {
             // logger.log("ignore play count ++", { playCountBefore: this.ignorePlayCount });
             this.ignorePlayCount++;
         }
+        this.setUpdateIsReadyFalseTimeout();
         this.handleStateChanged();
     }
 
@@ -391,7 +409,9 @@ class Player {
         if (state.is_playing) {
             (this.player.play() as Promise<void>).catch(() => {
                 logger.log("error calling play, clicking player...");
-                this.player.click();
+                (
+                    document.querySelector(".ytp-cued-thumbnail-overlay-image") as HTMLElement
+                ).click();
             });
         } else {
             this.player.pause();
@@ -401,7 +421,7 @@ class Player {
 
         this.player.playbackRate = state.playback_rate;
 
-        logger.log("setted player state", {
+        logger.log("set player state", {
             current_time: ct,
             playback_rate: state.playback_rate,
             is_playing: state.is_playing,
@@ -439,6 +459,9 @@ class Player {
     }
 
     private updateVideo(videoUrl: string) {
+        logger.log("updateVideo", { videoUrl });
+        this.isDataLoaded = false;
+        this.moveToStartAfterVideoChange = true;
         window.postMessage({ type: "SKIP", payload: videoUrl }, "*");
     }
 
@@ -458,12 +481,6 @@ class Player {
         });
     }
 
-    private disconnectObserver(): void {
-        if (!this.observer) return;
-        this.observer.disconnect();
-        this.observer = undefined;
-    }
-
     // Ad handling
     private handleAdChanged(cl: DOMTokenList): void {
         const adShowing = cl.contains("ad-showing");
@@ -472,6 +489,7 @@ class Player {
         logger.log("ad changed", { was: this.adShowing, now: adShowing });
         this.adShowing = adShowing;
         if (this.adShowing) {
+            this.clearUpdateIsReadyFalseTimeout();
             this.isReady = false;
             ContentScriptMessagingClient.sendMessage(ExtensionMessageType.UPDATE_READY, false);
         }
