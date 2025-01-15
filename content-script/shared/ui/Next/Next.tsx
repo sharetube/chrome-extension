@@ -1,4 +1,3 @@
-import Icon from "../Icon/Icon";
 import React from "react";
 
 const Next: React.FC = () => {

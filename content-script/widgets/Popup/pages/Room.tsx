@@ -90,7 +90,6 @@ const Room: React.FC<RoomProps> = ({ profile, changePage }) => {
                     <Avatar
                         size="m"
                         url={profile.avatar_url}
-                        //? isn't [0] better
                         letter={profile.username.slice(0, 1)}
                         color={profile.color}
                     />

@@ -18,8 +18,8 @@ const Profile: React.FC<ProfileProps> = ({ user, changePage }) => {
     const [isUsernameChanged, setIsUsernameChanged] = useState<boolean>(false);
     const [isAvatarUrlChanged, setIsAvatarUrlChanged] = useState<boolean>(false);
     const [isColorChanged, setIsColorChanged] = useState<boolean>(false);
-    const [isValidImage, setIsValidImage] = useState<boolean>(true);
-    const [isValidUsername, setIsValidUsername] = useState<boolean>(true);
+    // const [isValidImage, setIsValidImage] = useState<boolean>(true);
+    // const [isValidUsername, setIsValidUsername] = useState<boolean>(true);
     const [selectedColor, setSelectedColor] = useState<string>(user.color);
     const [username, setUsername] = useState<string>(user.username);
     const [avatarUrl, setAvatarUrl] = useState<string>(user.avatar_url);
@@ -39,12 +39,12 @@ const Profile: React.FC<ProfileProps> = ({ user, changePage }) => {
     useEffect(() => {
         const validate = async () => {
             if (debouncedAvatarUrl === user.avatar_url) {
-                setIsValidImage(true);
+                // setIsValidImage(true);
                 setIsAvatarUrlChanged(false);
                 return;
             }
             const isValid = await validateImageUrl(debouncedAvatarUrl);
-            setIsValidImage(isValid);
+            // setIsValidImage(isValid);
             setIsAvatarUrlChanged(isValid && debouncedAvatarUrl !== user.avatar_url);
         };
 
@@ -80,7 +80,7 @@ const Profile: React.FC<ProfileProps> = ({ user, changePage }) => {
 
     const handleUsernameChange = (value: string) => {
         const isValid = value.length >= 1 && value.length <= 15;
-        setIsValidUsername(isValid);
+        // setIsValidUsername(isValid);
         setUsername(value);
         setIsUsernameChanged(isValid && value !== user.username);
     };

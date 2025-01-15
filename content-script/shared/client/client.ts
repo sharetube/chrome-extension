@@ -19,14 +19,7 @@ export class ContentScriptMessagingClient extends BaseMessagingClient {
         payload?: ExtensionMessagePayloadMap[T],
     ): Promise<any> {
         const message: ExtensionMessage<T> = { type, payload };
-        try {
-            // logger.log("sending message to bg worker", message);
-            const response = await browser.runtime.sendMessage(message);
-            // logger.log("recieved response", response as logObject);
-            return response;
-        } catch (error) {
-            // logger.log(`Error sending message: ${error}`);
-            throw error;
-        }
+        const response = await browser.runtime.sendMessage(message);
+        return response;
     }
 }

@@ -5,7 +5,7 @@ import BigShield from "@shared/ui/BigShield/BigShield";
 import MemberIcon from "@shared/ui/Member/Member";
 import Mute from "@shared/ui/Mute/Mute";
 import Shield from "@shared/ui/Shield/Shield";
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import { ExtensionMessageType } from "types/extensionMessage";
 import { MemberType } from "types/member.type";
 
@@ -21,57 +21,58 @@ const Member: React.FC<MemberProps> = ({
     is_admin,
 }) => {
     const { isAdmin: isAdminStatus } = useAdmin();
-    const [ignore, setIgnore] = React.useState(false); // used to ignore the click event after openMenu
     const [menu, setMenu] = React.useState(false);
+    const menuRef = useRef<HTMLDivElement>(null);
 
-    const handleClick = (e: MouseEvent) => {
-        if (ignore) {
-            setIgnore(false);
-            return;
-        }
+    const handleClickOutside = useCallback(
+        (event: MouseEvent) => {
+            // Skip if clicking the member element that opens the menu
+            if (
+                event.target instanceof Node &&
+                menuRef.current?.parentElement?.contains(event.target)
+            ) {
+                return;
+            }
 
-        if (menu && !(e.target as HTMLElement).classList.contains("st-member")) {
-            setMenu(false);
-        }
-    };
-
+            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+                setMenu(false);
+            }
+        },
+        [menuRef],
+    );
     useEffect(() => {
-        const handleDocumentClick = (e: MouseEvent) => handleClick(e);
-
-        if (menu) {
-            document.addEventListener("click", handleDocumentClick);
-        } else {
-            document.removeEventListener("click", handleDocumentClick);
-        }
-
+        document.addEventListener("mousedown", handleClickOutside);
         return () => {
-            document.removeEventListener("click", handleDocumentClick);
+            document.removeEventListener("mousedown", handleClickOutside);
         };
-    }, [menu]);
+    }, [handleClickOutside]);
 
-    const openMenu = useCallback(() => {
-        if (!isAdminStatus) return;
-        setIgnore(true);
-        setMenu(true);
-    }, [isAdminStatus]);
+    const handleClick = useCallback(
+        (event: React.MouseEvent) => {
+            event.stopPropagation();
+            if (!isAdminStatus || is_admin) return;
+            setMenu(prev => !prev);
+        },
+        [isAdminStatus, is_admin],
+    );
 
-    const promote = useCallback(() => {
-        if (!isAdminStatus) return;
+    const sendPromote = useCallback(() => {
+        if (!isAdminStatus || is_admin) return;
         setMenu(false);
         ContentScriptMessagingClient.sendMessage(ExtensionMessageType.PROMOTE_MEMBER, id);
-    }, [id, isAdminStatus]);
+    }, [id, isAdminStatus, is_admin]);
 
-    const kick = useCallback(() => {
-        if (!isAdminStatus) return;
+    const sendKick = useCallback(() => {
+        if (!isAdminStatus || is_admin) return;
         setMenu(false);
         ContentScriptMessagingClient.sendMessage(ExtensionMessageType.REMOVE_MEMBER, id);
-    }, [id, isAdminStatus]);
+    }, [id, isAdminStatus, is_admin]);
 
     return (
         <li className="relative">
             <div
-                className={`flex items-center  ${isAdminStatus ? "hover:cursor-pointer" : "hover:cursor-default"} ${is_ready ? "" : "animate-pulse"}`}
-                onClick={openMenu}
+                className={`flex items-center ${isAdminStatus && !is_admin ? "hover:cursor-pointer" : "hover:cursor-default"} ${is_ready ? "" : "animate-pulse"}`}
+                onClick={handleClick}
             >
                 <Avatar size="s" url={avatar_url} color={color} letter={username.slice(0, 1)} />
                 {/* Username */}
@@ -101,19 +102,14 @@ const Member: React.FC<MemberProps> = ({
             </div>
             {isAdminStatus && menu && !is_admin && (
                 <div
+                    ref={menuRef}
                     className="st-member absolute top-[36px] left-0 w-[150px] rounded-lg shadow-box-shadow bg-spec-menu-background z-[2300] p-[8px_0]"
-                    onClick={e => {
-                        e.stopPropagation();
-                    }}
                 >
-                    <div className="hover:cursor-pointer hover:bg-spec-button-chip-background-hover">
-                        <button
-                            onClick={e => {
-                                e.stopPropagation();
-                                promote();
-                            }}
-                            className="p-[0_16px] m-0 flex border-none rounded-[8px] bg-transparent items-center w-[24px] h-[36px] "
-                        >
+                    <div
+                        onClick={sendPromote}
+                        className="hover:cursor-pointer hover:bg-spec-button-chip-background-hover"
+                    >
+                        <button className="p-[0_16px] m-0 flex border-none rounded-[8px] bg-transparent items-center w-[24px] h-[36px] ">
                             <div className="h-[24px] w-[24px] flex items-center justify-center box-border text-text-primary hover:cursor-pointer">
                                 <BigShield />
                             </div>
@@ -122,14 +118,11 @@ const Member: React.FC<MemberProps> = ({
                             </p>
                         </button>
                     </div>
-                    <div className="hover:cursor-pointer hover:bg-spec-button-chip-background-hover">
-                        <button
-                            onClick={e => {
-                                e.stopPropagation();
-                                kick();
-                            }}
-                            className="p-[0_16px] m-0 flex border-none rounded-[8px] bg-transparent items-center w-[24px] h-[36px] hover:cursor-pointer"
-                        >
+                    <div
+                        onClick={sendKick}
+                        className="hover:cursor-pointer hover:bg-spec-button-chip-background-hover"
+                    >
+                        <button className="p-[0_16px] m-0 flex border-none rounded-[8px] bg-transparent items-center w-[24px] h-[36px] hover:cursor-pointer">
                             <div className="h-[24px] w-[24px] flex items-center justify-center box-border text-text-primary hover:cursor-pointer">
                                 <MemberIcon />
                             </div>

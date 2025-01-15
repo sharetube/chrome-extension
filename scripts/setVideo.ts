@@ -3,9 +3,10 @@ const updateVideoUrl = (videoUrl: string) => {
         "ytd-compact-video-renderer ytd-thumbnail > a",
     ) as HTMLElement;
     if (!a) return;
-
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (a as any).data.watchEndpoint.videoId = videoUrl;
-    (a as any).data.commandMetadata.webCommandMetadata.url = `/watch?v=${videoUrl}`;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (a as any).data.commandMetadata.webCommandMetadata.url = `/123watch?v=${videoUrl}`;
     a.click();
 };
 

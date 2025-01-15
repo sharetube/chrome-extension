@@ -6,7 +6,7 @@ import tsconfigPaths from "vite-tsconfig-paths";
 
 const baseOutDir = "dist";
 
-export default defineConfig(({}) => {
+export default defineConfig(() => {
     const browser: string = process.env.BROWSER || "chrome";
     const outDir = `${baseOutDir}/${browser}`;
 

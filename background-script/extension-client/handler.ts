@@ -124,7 +124,7 @@ export function getProfile(): EMRM[EMType.GET_PROFILE] {
 
 export async function createRoom(
     payload: EMPM[EMType.CREATE_ROOM],
-    sender: chrome.runtime.MessageSender,
+    sender: browser.Runtime.MessageSender,
 ) {
     if (sender?.tab?.id !== undefined) setTargetPrimaryTabId(sender.tab.id);
     const profile = await profileStorage.get();
@@ -141,7 +141,7 @@ export function switchToPrimaryTab() {
 
 export async function isPrimaryTab(
     _: EMPM[EMType.IS_PRIMARY_TAB],
-    sender?: chrome.runtime.MessageSender,
+    sender?: browser.Runtime.MessageSender,
 ): EMRM[EMType.IS_PRIMARY_TAB] {
     if (sender?.tab?.id === undefined) {
         return false;
