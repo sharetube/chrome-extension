@@ -406,7 +406,7 @@ class Player {
         if (state.is_playing) {
             (this.player.play() as Promise<void>).catch(() => {
                 logger.log("error calling play, clicking player...");
-                this.clickPlayButton();
+                // this.clickPlayButton();
             });
         } else {
             this.player.pause();
@@ -423,9 +423,9 @@ class Player {
         });
     }
 
-    private clickPlayButton() {
-        (document.querySelector(".ytp-cued-thumbnail-overlay > button") as HTMLElement).click();
-    }
+    // private clickPlayButton() {
+    //     (document.querySelector(".ytp-cued-thumbnail-overlay > button") as HTMLElement).click();
+    // }
 
     private getIsPlaying(): boolean {
         return !this.player.paused;
@@ -492,7 +492,7 @@ class Player {
         logger.log("ad changed", { was: this.adShowing, now: adShowing });
         this.adShowing = adShowing;
         if (this.adShowing) {
-            this.clickPlayButton();
+            // this.clickPlayButton();
             this.clearUpdateIsReadyFalseTimeout();
             this.isReady = false;
             ContentScriptMessagingClient.sendMessage(ExtensionMessageType.UPDATE_READY, false);

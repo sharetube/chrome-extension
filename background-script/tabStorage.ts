@@ -1,7 +1,4 @@
-import { BGLogger } from "./logging/logger";
 import browser from "webextension-polyfill";
-
-const logger = BGLogger.getInstance();
 
 export class TabStorage {
     private static instance: TabStorage;
@@ -33,7 +30,6 @@ export class TabStorage {
     }
 
     public setPrimaryTab(tabId: number): Promise<void> {
-        logger.log("Setting primary tab", { tabId: tabId });
         return browser.storage.local.set({ [this.PRIMARY_TAB_STORAGE_KEY]: tabId });
     }
 
