@@ -3,7 +3,7 @@ import waitForElement from "@shared/lib/waitForElement";
 import ContextItem from "@widgets/ContextItem/ContextItem";
 import Popup from "@widgets/Popup/Popup";
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 
 // Render popup
 waitForElement("#end")
@@ -12,7 +12,7 @@ waitForElement("#end")
         popupContainer.id = "st-popup-container";
         popupContainer.className = "sharetube";
 
-        ReactDOM.render(<Popup />, popupContainer);
+        createRoot(popupContainer).render(<Popup />);
         elem.prepend(popupContainer);
     })
     .catch(error => console.error("ST: Failed to render popup", error));
@@ -78,11 +78,10 @@ const handleClick = (e: MouseEvent) => {
 
             const url = videoUrlFromThumbnail(elem) || videoUrlFromLocation();
 
-            ReactDOM.render(
+            createRoot(contextMenuContainer).render(
                 <AdminProvider>
                     <ContextItem videoUrl={url} callback={callback} />
                 </AdminProvider>,
-                contextMenuContainer,
             );
 
             if (listbox) {

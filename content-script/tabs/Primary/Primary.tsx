@@ -6,7 +6,7 @@ import { CSLogger } from "@shared/logging/logger";
 import Panel from "@widgets/Panel/Panel";
 import Search from "@widgets/Search/Search";
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import { ExtensionMessageType } from "types/extensionMessage";
 
 const logger = CSLogger.getInstance();
@@ -181,11 +181,10 @@ function showMainPanel() {
         container.className = "sharetube";
         elem.parentElement?.prepend(container);
 
-        ReactDOM.render(
+        createRoot(container).render(
             <AdminProvider>
                 <Panel />
             </AdminProvider>,
-            container,
         );
     });
     // .catch(error => console.log("Failed to render main panel", error));
@@ -210,11 +209,10 @@ function initSearch() {
         container.style.width = "100%";
         elem.prepend(container);
 
-        ReactDOM.render(
+        createRoot(container).render(
             <AdminProvider>
                 <Search />
             </AdminProvider>,
-            container,
         );
     });
     // .catch(error => console.log("Failed to render input", error));

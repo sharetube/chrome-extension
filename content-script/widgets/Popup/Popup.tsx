@@ -3,7 +3,7 @@ import Room from "./pages/Room";
 import { ContentScriptMessagingClient } from "@shared/client/client";
 import ShareTubeIcon from "@shared/ui/ShareTubeIcon/ShareTubeIcon";
 import { defaultProfile } from "constants/defaultProfile";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { ExtensionMessagePayloadMap, ExtensionMessageType } from "types/extensionMessage";
 import { ProfileType } from "types/profile.type";
 
@@ -11,30 +11,37 @@ const Popup: React.FC = () => {
     const [isExpanded, setIsExpanded] = useState<boolean>(false);
     const [isProfileEdit, setIsProfileEdit] = useState<boolean>(false);
     const [user, setUser] = useState<ProfileType>(defaultProfile);
-
-    const expandChange = () => {
-        setIsExpanded(!isExpanded);
-    };
-
-    const handleClick = (e: MouseEvent) => {
-        if ((e.target as HTMLElement).classList.contains("st-popup__content")) return;
-        setIsExpanded(false);
-    };
+    const ref = useRef<HTMLDivElement>(null);
 
     const contentScriptMessagingClient = new ContentScriptMessagingClient();
 
-    useEffect(() => {
-        if (isExpanded) {
-            document.addEventListener("click", handleClick);
-        } else {
-            document.removeEventListener("click", handleClick);
-            setIsProfileEdit(false);
-        }
+    const handleClickOutside = useCallback(
+        (event: MouseEvent) => {
+            if (
+                event.target instanceof Node &&
+                ref.current?.parentElement?.contains(event.target)
+            ) {
+                return;
+            }
 
+            if (ref.current && !ref.current.contains(event.target as Node)) {
+                setIsExpanded(false);
+            }
+        },
+        [ref],
+    );
+
+    const handleClick = useCallback((event: React.MouseEvent) => {
+        event.stopPropagation();
+        setIsExpanded(prev => !prev);
+    }, []);
+
+    useEffect(() => {
+        document.addEventListener("mousedown", handleClickOutside);
         return () => {
-            document.removeEventListener("click", handleClick);
+            document.removeEventListener("mousedown", handleClickOutside);
         };
-    }, [isExpanded]);
+    }, [handleClickOutside]);
 
     const changePage = () => setIsProfileEdit(!isProfileEdit);
 
@@ -59,7 +66,7 @@ const Popup: React.FC = () => {
         <div className="st-popup h-[40px] w-[40px] box-border relative m-[0_8px_0_0]">
             <div
                 className="hover:bg-spec-button-chip-background-hover hover:cursor-pointer text-spec-wordmark-text h-[40px] w-[40px] box-border flex rounded-full"
-                onClick={expandChange}
+                onClick={handleClick}
             >
                 <div className="m-auto h-[24px] w-[24px]">
                     <ShareTubeIcon />
@@ -67,10 +74,11 @@ const Popup: React.FC = () => {
             </div>
             {isExpanded && (
                 <div
+                    ref={ref}
                     className="st-popup__content box-border w-[300px] rounded-[12px] bg-spec-menu-background absolute right-0 top-[40px] z-[2300] shadow-box-shadow"
-                    onClick={e => {
-                        e.stopPropagation();
-                    }}
+                    // onClick={e => {
+                    //     e.stopPropagation();
+                    // }}
                 >
                     {isProfileEdit ? (
                         <Profile changePage={changePage} user={user} />

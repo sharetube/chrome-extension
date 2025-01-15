@@ -21,7 +21,7 @@ const Member: React.FC<MemberProps> = ({
     is_admin,
 }) => {
     const { isAdmin: isAdminStatus } = useAdmin();
-    const [menu, setMenu] = React.useState(false);
+    const [isMenuOpened, setIsMenuOpened] = React.useState<boolean>(false);
     const menuRef = useRef<HTMLDivElement>(null);
 
     const handleClickOutside = useCallback(
@@ -35,11 +35,12 @@ const Member: React.FC<MemberProps> = ({
             }
 
             if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-                setMenu(false);
+                setIsMenuOpened(false);
             }
         },
         [menuRef],
     );
+
     useEffect(() => {
         document.addEventListener("mousedown", handleClickOutside);
         return () => {
@@ -51,20 +52,20 @@ const Member: React.FC<MemberProps> = ({
         (event: React.MouseEvent) => {
             event.stopPropagation();
             if (!isAdminStatus || is_admin) return;
-            setMenu(prev => !prev);
+            setIsMenuOpened(prev => !prev);
         },
         [isAdminStatus, is_admin],
     );
 
     const sendPromote = useCallback(() => {
         if (!isAdminStatus || is_admin) return;
-        setMenu(false);
+        setIsMenuOpened(false);
         ContentScriptMessagingClient.sendMessage(ExtensionMessageType.PROMOTE_MEMBER, id);
     }, [id, isAdminStatus, is_admin]);
 
     const sendKick = useCallback(() => {
         if (!isAdminStatus || is_admin) return;
-        setMenu(false);
+        setIsMenuOpened(false);
         ContentScriptMessagingClient.sendMessage(ExtensionMessageType.REMOVE_MEMBER, id);
     }, [id, isAdminStatus, is_admin]);
 
@@ -100,7 +101,7 @@ const Member: React.FC<MemberProps> = ({
                     )}
                 </div>
             </div>
-            {isAdminStatus && menu && !is_admin && (
+            {isAdminStatus && isMenuOpened && !is_admin && (
                 <div
                     ref={menuRef}
                     className="st-member absolute top-[36px] left-0 w-[150px] rounded-lg shadow-box-shadow bg-spec-menu-background z-[2300] p-[8px_0]"
