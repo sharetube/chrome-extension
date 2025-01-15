@@ -37,7 +37,7 @@ class Player {
     private observer: MutationObserver | undefined;
     private abortController: AbortController;
 
-    public constructor(e: HTMLElement, p: HTMLVideoElement) {
+    constructor(e: HTMLElement, p: HTMLVideoElement) {
         this.e = e;
         this.player = p;
         this.isAdmin = false;
@@ -406,9 +406,7 @@ class Player {
         if (state.is_playing) {
             (this.player.play() as Promise<void>).catch(() => {
                 logger.log("error calling play, clicking player...");
-                (
-                    document.querySelector(".ytp-cued-thumbnail-overlay-image") as HTMLElement
-                ).click();
+                this.clickPlayButton();
             });
         } else {
             this.player.pause();
@@ -425,11 +423,15 @@ class Player {
         });
     }
 
-    public getIsPlaying(): boolean {
+    private clickPlayButton() {
+        (document.querySelector(".ytp-cued-thumbnail-overlay > button") as HTMLElement).click();
+    }
+
+    private getIsPlaying(): boolean {
         return !this.player.paused;
     }
 
-    public getState(): PlayerType {
+    private getState(): PlayerType {
         const s = {
             video_url: this.videoUrl,
             updated_at: dateNowInUs(),
@@ -490,9 +492,12 @@ class Player {
         logger.log("ad changed", { was: this.adShowing, now: adShowing });
         this.adShowing = adShowing;
         if (this.adShowing) {
+            this.clickPlayButton();
             this.clearUpdateIsReadyFalseTimeout();
             this.isReady = false;
             ContentScriptMessagingClient.sendMessage(ExtensionMessageType.UPDATE_READY, false);
+        } else {
+            this.player.currentTime = 0;
         }
     }
 

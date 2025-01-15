@@ -1,4 +1,5 @@
 import { BackgroundMessagingClient } from "background-script/clients/ExtensionClient";
+import { JWTStorage } from "background-script/jwtStorage";
 import { BGLogger } from "background-script/logging/logger";
 import { globalState, resetState } from "background-script/state";
 import { TabStorage } from "background-script/tabStorage";
@@ -9,13 +10,14 @@ import browser from "webextension-polyfill";
 
 const bgMessagingClient = BackgroundMessagingClient.getInstance();
 const tabStorage = TabStorage.getInstance();
+const jwtStorage = JWTStorage.getInstance();
 const logger = BGLogger.getInstance();
 
 export function joinedRoom(
     payload: FromServerMessagePayloadMap[FromServerMessageType.JOINED_ROOM],
 ): void {
     resetState();
-    globalState.jwt = payload.jwt;
+    jwtStorage.set(payload.jwt);
     globalState.room = payload.room;
     globalState.is_admin = payload.joined_member.is_admin;
 

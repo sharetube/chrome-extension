@@ -1,13 +1,11 @@
 import { RoomType } from "types/room.type";
 
 type State = {
-    jwt: string;
     room: RoomType;
     is_admin: boolean;
 };
 
 export const defaultState: State = {
-    jwt: "",
     is_admin: false,
     room: {
         id: "",

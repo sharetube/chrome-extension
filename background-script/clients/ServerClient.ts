@@ -1,5 +1,5 @@
+import { JWTStorage } from "background-script/jwtStorage";
 import { BGLogger } from "background-script/logging/logger";
-import { globalState } from "background-script/state";
 import config from "config";
 import debounce from "lodash.debounce";
 import { connectToWS } from "pkg/ws/ws";
@@ -110,15 +110,16 @@ class ServerClient {
         };
     }
 
-    public createRoom(profile: ProfileType, videoUrl: string): Promise<void> {
+    public async createRoom(profile: ProfileType, videoUrl: string): Promise<void> {
         const params = this.buildParams(profile, { "video-url": videoUrl });
         logger.log("WS: CREATING ROOM", params);
         // todo: implement WSConnectionURLBuilder
         return this.init(`wss://${baseUrl}/api/v1/ws/room/create?${buildQueryParams(params)}`);
     }
 
-    public joinRoom(profile: ProfileType, room_id: string): Promise<void> {
-        const params = this.buildParams(profile, globalState.jwt ? { jwt: globalState.jwt } : {});
+    public async joinRoom(profile: ProfileType, room_id: string): Promise<void> {
+        const jwt = await JWTStorage.getInstance().get();
+        const params = this.buildParams(profile, jwt ? { jwt } : {});
         logger.log("WS: JOINING ROOM", params);
         return this.init(
             `wss://${baseUrl}/api/v1/ws/room/${room_id}/join?${buildQueryParams(params)}`,
