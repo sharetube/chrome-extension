@@ -380,7 +380,7 @@ class Player {
         this.sendMute();
     }
 
-    public setState(state: PlayerStateType) {
+    private setState(state: PlayerStateType) {
         let ct;
         if (state.is_ended) {
             // 1s - too low
