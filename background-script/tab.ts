@@ -15,7 +15,7 @@ const bgMessagingClient = BackgroundMessagingClient.getInstance();
 const profileStorage = ProfileStorage.getInstance();
 
 const domainRegex = /^https:\/\/(www\.)?(youtu\.be|youtube\.com)/;
-const inviteLinkRegex = /^https:\/\/(www\.)?(youtu\.be|youtube\.com)\/st\/(.+)$/;
+const inviteLinkRegex = /^https:\/\/(www\.)?(youtu\.be|youtube\.com)\/st\/(.+)/;
 const roomIdRegex = /^[a-zA-Z0-9.-]{8}$/;
 
 const handleTab = async (tabId: number, url: string) => {
@@ -111,11 +111,10 @@ browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 
     if (
         !tab.url?.match(domainRegex) ||
-        (changeInfo.url !== `https://www.youtube.com/st/${globalState.room.id}` &&
-            changeInfo.url !==
-                `https://www.youtube.com/watch?v=${globalState.room.player.video_url}` &&
-            changeInfo.url !==
-                `https://www.youtube.com/watch?v=${globalState.room.player.video_url}`)
+        (!changeInfo.url.startsWith(`https://www.youtube.com/st/${globalState.room.id}`) &&
+            !changeInfo.url.startsWith(
+                `https://www.youtube.com/watch?v=${globalState.room.player.video_url}`,
+            ))
     ) {
         clearPrimaryTab();
         return;
