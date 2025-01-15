@@ -1,7 +1,7 @@
 import Icon from "../Icon/Icon";
 import React from "react";
 
-const Settings: React.FC = () => {
+const SettingsIcon: React.FC = () => {
     return (
         <Icon>
             <svg
@@ -17,4 +17,4 @@ const Settings: React.FC = () => {
     );
 };
 
-export default Settings;
+export default SettingsIcon;

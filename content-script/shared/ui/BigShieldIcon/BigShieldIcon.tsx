@@ -1,6 +1,6 @@
 import React from "react";
 
-const BigShield: React.FC = () => {
+const BigShieldIcon: React.FC = () => {
     return (
         <svg
             width="17"
@@ -18,4 +18,4 @@ const BigShield: React.FC = () => {
     );
 };
 
-export default BigShield;
+export default BigShieldIcon;

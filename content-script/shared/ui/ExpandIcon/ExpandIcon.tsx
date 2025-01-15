@@ -1,12 +1,12 @@
 import Icon from "../Icon/Icon";
-import Top from "../Top/Top";
+import TopIcon from "../TopIcon/TopIcon";
 import React from "react";
 
 interface ExpandProps {
     isExpanded: boolean;
 }
 
-const Expand: React.FC<ExpandProps> = props => {
+const ExpandIcon: React.FC<ExpandProps> = props => {
     if (!props.isExpanded) {
         return (
             <Icon>
@@ -14,7 +14,7 @@ const Expand: React.FC<ExpandProps> = props => {
             </Icon>
         );
     }
-    return <Top />;
+    return <TopIcon />;
 };
 
-export default Expand;
+export default ExpandIcon;

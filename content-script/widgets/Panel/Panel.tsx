@@ -1,8 +1,8 @@
 import copyLink from "./api/copyLink";
 import Button from "@shared/ui/Button/Button";
-import Expand from "@shared/ui/Expand/Expand";
-import Members from "@shared/ui/Members/Members";
-import Share from "@shared/ui/Share/Share";
+import ExpandIcon from "@shared/ui/ExpandIcon/ExpandIcon";
+import MembersIcon from "@shared/ui/MembersIcon/MembersIcon";
+import ShareIcon from "@shared/ui/ShareIcon/ShareIcon";
 import MemberList from "@widgets/Memberlist/Memberlist";
 import Playlist from "@widgets/Playlist/Playlist";
 import React, { useState } from "react";
@@ -26,7 +26,7 @@ const Panel: React.FC = () => {
                 </p>
                 <div className="m-0 flex items-center p-0 text-text-primary">
                     <Button onClick={copyLink} title="Copy room link">
-                        <Share />
+                        <ShareIcon />
                     </Button>
                     <div
                         className="flex items-center"
@@ -34,13 +34,13 @@ const Panel: React.FC = () => {
                         onClick={toggleExpand}
                     >
                         <Button>
-                            <Members />
+                            <MembersIcon />
                         </Button>
                         <p className="m-[0_0_-2px] p-0 text-text-primary font-primary leading-[1.6rem] text-[1.4rem] font-semibold hover:cursor-pointer select-none">
                             {userCount > 0 && `Members (${userCount})`}
                         </p>
                         <Button>
-                            <Expand isExpanded={isExpanded} />
+                            <ExpandIcon isExpanded={isExpanded} />
                         </Button>
                     </div>
                 </div>

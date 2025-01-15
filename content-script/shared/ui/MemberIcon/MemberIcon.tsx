@@ -1,6 +1,6 @@
 import React from "react";
 
-const Member: React.FC = () => {
+const MemberIcon: React.FC = () => {
     return (
         <svg
             width="19"
@@ -17,4 +17,4 @@ const Member: React.FC = () => {
     );
 };
 
-export default Member;
+export default MemberIcon;

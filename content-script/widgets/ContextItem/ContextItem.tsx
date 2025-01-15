@@ -1,6 +1,6 @@
 import useAdmin from "@shared/Context/Admin/hooks/useAdmin";
 import { ContentScriptMessagingClient } from "@shared/client/client";
-import ShareTube from "@shared/ui/ShareTube/ShareTube";
+import ShareTubeIcon from "@shared/ui/ShareTubeIcon/ShareTubeIcon";
 import React, { useEffect, useState } from "react";
 import { ExtensionMessageType } from "types/extensionMessage";
 
@@ -65,7 +65,7 @@ const ContextItem: React.FC<ContextItemProps> = ({ videoUrl, callback }) => {
             <div className="absolute top-[-8px] left-0 w-full h-[8px]"></div>
             <div className="flex items-center p-[0_12px_0_16px] h-[36px] hover:cursor-pointer hover:bg-spec-button-chip-background-hover">
                 <div className="m-[0_16px_0_0] text-text-primary">
-                    <ShareTube />
+                    <ShareTubeIcon />
                 </div>
 
                 <p className="m-0 p-0 text-text-primary font-secondary text-[1.4rem] leading-[2rem] font-normal">

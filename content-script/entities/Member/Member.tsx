@@ -1,10 +1,10 @@
 import Avatar from "@entities/Avatar/Avatar";
 import useAdmin from "@shared/Context/Admin/hooks/useAdmin";
 import { ContentScriptMessagingClient } from "@shared/client/client";
-import BigShield from "@shared/ui/BigShield/BigShield";
-import MemberIcon from "@shared/ui/Member/Member";
-import Mute from "@shared/ui/Mute/Mute";
-import Shield from "@shared/ui/Shield/Shield";
+import BigShieldIcon from "@shared/ui/BigShieldIcon/BigShieldIcon";
+import MemberIcon from "@shared/ui/MemberIcon/MemberIcon";
+import MuteIcon from "@shared/ui/MuteIcon/MuteIcon";
+import ShieldIcon from "@shared/ui/ShieldIcon/ShieldIcon";
 import React, { useCallback, useEffect, useRef } from "react";
 import { ExtensionMessageType } from "types/extensionMessage";
 import { MemberType } from "types/member.type";
@@ -88,14 +88,14 @@ const Member: React.FC<MemberProps> = ({
                         <div
                             className={`text-text-primary h-[14px] w-[12px] box-border m-[0_0_0_4px]`}
                         >
-                            <Shield />
+                            <ShieldIcon />
                         </div>
                     )}
                     {is_muted && (
                         <div
                             className={`text-text-secondary h-[12px] w-[12px] box-border m-[0_-2px_0_4px]`}
                         >
-                            <Mute />
+                            <MuteIcon />
                         </div>
                     )}
                 </div>
@@ -111,7 +111,7 @@ const Member: React.FC<MemberProps> = ({
                     >
                         <button className="p-[0_16px] m-0 flex border-none rounded-[8px] bg-transparent items-center w-[24px] h-[36px] ">
                             <div className="h-[24px] w-[24px] flex items-center justify-center box-border text-text-primary hover:cursor-pointer">
-                                <BigShield />
+                                <BigShieldIcon />
                             </div>
                             <p className="text-[14px] leading-[2rem] font-normal font-secondary text-text-primary m-[0_24px_0_16px] hover:cursor-pointer">
                                 Promote

@@ -4,7 +4,7 @@ import Title from "../shared/Title/Title";
 import Avatar from "@entities/Avatar/Avatar";
 import getVideoUrlFromLink from "@shared/api/validateVideo";
 import { ContentScriptMessagingClient } from "@shared/client/client";
-import Next from "@shared/ui/Next/Next";
+import NextIcon from "@shared/ui/NextIcon/NextIcon";
 import React, { useEffect, useState } from "react";
 import { ExtensionMessageType } from "types/extensionMessage";
 import { ProfileType } from "types/profile.type";
@@ -101,7 +101,7 @@ const Room: React.FC<RoomProps> = ({ profile, changePage }) => {
                     </h2>
                 </div>
                 <div>
-                    <Next />
+                    <NextIcon />
                 </div>
             </section>
             {isPrimaryTabExists && !isPrimaryTab && (

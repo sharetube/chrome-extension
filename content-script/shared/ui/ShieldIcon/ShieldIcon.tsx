@@ -1,6 +1,6 @@
 import React from "react";
 
-const Shield: React.FC = () => {
+const ShieldIcon: React.FC = () => {
     return (
         <svg
             width="12"
@@ -15,4 +15,4 @@ const Shield: React.FC = () => {
     );
 };
 
-export default Shield;
+export default ShieldIcon;

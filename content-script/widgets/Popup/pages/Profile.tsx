@@ -5,7 +5,7 @@ import Button from "../shared/Button/Button";
 import Input from "../shared/Input/Input";
 import Title from "../shared/Title/Title";
 import Avatar from "@entities/Avatar/Avatar";
-import Back from "@shared/ui/Back/Back";
+import BackIcon from "@shared/ui/BackIcon/BackIcon";
 import React, { useEffect, useState } from "react";
 import { ProfileType } from "types/profile.type";
 
@@ -130,7 +130,7 @@ const Header: React.FC<{ changePage: () => void }> = ({ changePage }) => (
                 onClick={changePage}
                 title="Back"
             >
-                <Back />
+                <BackIcon />
             </button>
         </div>
         <h1 className="font-secondary text-text-primary text-[16px] leading-[22px] font-normal">

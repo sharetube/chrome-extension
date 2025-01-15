@@ -1,7 +1,7 @@
 import Profile from "./pages/Profile";
 import Room from "./pages/Room";
 import { ContentScriptMessagingClient } from "@shared/client/client";
-import ShareTube from "@shared/ui/ShareTube/ShareTube";
+import ShareTubeIcon from "@shared/ui/ShareTubeIcon/ShareTubeIcon";
 import { defaultProfile } from "constants/defaultProfile";
 import React, { useEffect, useState } from "react";
 import { ExtensionMessagePayloadMap, ExtensionMessageType } from "types/extensionMessage";
@@ -62,7 +62,7 @@ const Popup: React.FC = () => {
                 onClick={expandChange}
             >
                 <div className="m-auto h-[24px] w-[24px]">
-                    <ShareTube />
+                    <ShareTubeIcon />
                 </div>
             </div>
             {isExpanded && (

@@ -2,7 +2,7 @@
 import useVideoData from "./hooks/useVideoData";
 import VideoData from "./types/videoData.type";
 import { ContentScriptMessagingClient } from "@shared/client/client";
-import Trash from "@shared/ui/Trash/Trash";
+import TrashIcon from "@shared/ui/TrashIcon/TrashIcon";
 import React, { useCallback } from "react";
 import { memo } from "react";
 import { dateNowInUs } from "shared/dateNowInUs";
@@ -81,7 +81,7 @@ const VideoContent: React.FC<VideoProps & { videoData: VideoData }> = memo(
                             onClick={deleteVideo}
                         >
                             <div className="hidden h-[20px] w-[20px] text-icon-shape-color group-hover:block">
-                                <Trash />
+                                <TrashIcon />
                             </div>
                         </button>
                     </div>

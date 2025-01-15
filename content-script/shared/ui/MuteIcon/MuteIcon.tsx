@@ -1,6 +1,6 @@
 import React from "react";
 
-const Mute: React.FC = () => {
+const MuteIcon: React.FC = () => {
     return (
         <svg
             width="12"
@@ -15,4 +15,4 @@ const Mute: React.FC = () => {
     );
 };
 
-export default Mute;
+export default MuteIcon;

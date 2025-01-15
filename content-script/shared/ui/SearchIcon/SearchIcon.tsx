@@ -1,7 +1,7 @@
 import Icon from "../Icon/Icon";
 import React from "react";
 
-const Search: React.FC = () => {
+const SearchIcon: React.FC = () => {
     return (
         <Icon>
             <path
@@ -13,4 +13,4 @@ const Search: React.FC = () => {
     );
 };
 
-export default Search;
+export default SearchIcon;

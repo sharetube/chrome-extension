@@ -1,6 +1,6 @@
 import React from "react";
 
-const Next: React.FC = () => {
+const NextIcon: React.FC = () => {
     return (
         <svg
             width="7"
@@ -20,4 +20,4 @@ const Next: React.FC = () => {
     );
 };
 
-export default Next;
+export default NextIcon;
