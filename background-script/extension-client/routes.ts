@@ -32,7 +32,7 @@ bgMessagingClient.addHandler(EMT.UPDATE_PLAYER_VIDEO, Handler.updatePlayerVideo)
 
 bgMessagingClient.addHandler(EMT.GET_PLAYER_STATE, Handler.getPlayerState);
 
-bgMessagingClient.addHandler(EMT.GET_PLAYER_VIDEO_URL, Handler.getPlayerVideoUrl);
+bgMessagingClient.addHandler(EMT.GET_CURRENT_VIDEO, Handler.getPlayerVideoUrl);
 
 bgMessagingClient.addHandler(EMT.GET_LAST_VIDEO, Handler.getLastVideo);
 

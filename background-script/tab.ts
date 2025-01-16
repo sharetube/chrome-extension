@@ -113,7 +113,7 @@ browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
         !tab.url?.match(domainRegex) ||
         (!changeInfo.url.startsWith(`https://www.youtube.com/st/${globalState.room.id}`) &&
             !changeInfo.url.startsWith(
-                `https://www.youtube.com/watch?v=${globalState.room.player.video_url}`,
+                `https://www.youtube.com/watch?v=${globalState.room.playlist.current_video.url}`,
             ))
     ) {
         clearPrimaryTab();

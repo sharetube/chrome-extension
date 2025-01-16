@@ -12,10 +12,16 @@ export const defaultState: State = {
         playlist: {
             videos: [],
             last_video: null,
+            current_video: {
+                id: 0,
+                url: "",
+                title: "",
+                author_name: "",
+                thumbnail_url: "",
+            },
             version: 0,
         },
         player: {
-            video_url: "",
             current_time: 0,
             is_playing: false,
             is_ended: false,

@@ -82,8 +82,8 @@ export function getPlayerState(): EMRM[EMType.GET_PLAYER_STATE] {
     return globalState.room.player;
 }
 
-export function getPlayerVideoUrl(): EMRM[EMType.GET_PLAYER_VIDEO_URL] {
-    return globalState.room.player.video_url;
+export function getPlayerVideoUrl(): EMRM[EMType.GET_CURRENT_VIDEO] {
+    return globalState.room.playlist.current_video;
 }
 
 export function getLastVideo(): EMRM[EMType.GET_LAST_VIDEO] {
@@ -95,9 +95,9 @@ export function updateMuted(isMuted: EMPM[EMType.UPDATE_MUTED]): void {
 }
 
 export function updatePlayerState(playerState: EMPM[EMType.UPDATE_PLAYER_STATE]): void {
-    if (playerState.video_url !== globalState.room.player.video_url) {
-        return;
-    }
+    // if (playerState.video_url !== globalState.room.player.video_url) {
+    // return;
+    // }
 
     globalState.room.player.current_time = playerState.current_time;
     globalState.room.player.is_playing = playerState.is_playing;

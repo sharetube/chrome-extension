@@ -16,12 +16,12 @@ const logger = BGLogger.getInstance();
 export function joinedRoom(
     payload: FromServerMessagePayloadMap[FromServerMessageType.JOINED_ROOM],
 ): void {
-    resetState();
     jwtStorage.set(payload.jwt);
+    resetState();
     globalState.room = payload.room;
     globalState.is_admin = payload.joined_member.is_admin;
 
-    const videoPageLink = `https://youtube.com/watch?v=${payload.room.player.video_url}`;
+    const videoPageLink = `https://youtube.com/watch?v=${payload.room.playlist.current_video.url}`;
     const targetPrimaryTabId = takeTargetPrimaryTabId();
     if (targetPrimaryTabId) {
         browser.tabs.update(targetPrimaryTabId, { url: videoPageLink });
@@ -133,8 +133,8 @@ export const playerVideoUpdated = (
     globalState.room.members = payload.members;
 
     bgMessagingClient.sendMessageToPrimaryTab(
-        ExtensionMessageType.PLAYER_VIDEO_UPDATED,
-        payload.player.video_url,
+        ExtensionMessageType.CURRENT_VIDEO_UPDATED,
+        payload.playlist.current_video,
     );
 
     bgMessagingClient.sendMessageToPrimaryTab(

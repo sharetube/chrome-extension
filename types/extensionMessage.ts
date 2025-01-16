@@ -30,11 +30,11 @@ export enum ExtensionMessageType {
     REMOVE_MEMBER = "REMOVE_MEMBER",
     UPDATE_PLAYER_STATE = "UPDATE_PLAYER_STATE",
     PLAYER_STATE_UPDATED = "PLAYER_STATE_UPDATED",
-    PLAYER_VIDEO_UPDATED = "PLAYER_VIDEO_UPDATED",
+    CURRENT_VIDEO_UPDATED = "CURRENT_VIDEO_UPDATED",
     UPDATE_PLAYER_VIDEO = "UPDATE_PLAYER_VIDEO",
     SKIP_CURRENT_VIDEO = "SKIP_CURRENT_VIDEO",
     GET_PLAYER_STATE = "GET_PLAYER_STATE",
-    GET_PLAYER_VIDEO_URL = "GET_PLAYER_VIDEO_URL",
+    GET_CURRENT_VIDEO = "GET_CURRENT_VIDEO",
     GET_LAST_VIDEO = "GET_LAST_VIDEO",
     LAST_VIDEO_UPDATED = "LAST_VIDEO_UPDATED",
     UPDATE_MUTED = "UPDATE_MUTED",
@@ -79,9 +79,9 @@ export type ExtensionMessagePayloadMap = {
     };
     [ExtensionMessageType.SKIP_CURRENT_VIDEO]: number;
     [ExtensionMessageType.GET_PLAYER_STATE]: void;
-    [ExtensionMessageType.GET_PLAYER_VIDEO_URL]: void;
+    [ExtensionMessageType.GET_CURRENT_VIDEO]: void;
     [ExtensionMessageType.UPDATE_URL]: string;
-    [ExtensionMessageType.PLAYER_VIDEO_UPDATED]: string;
+    [ExtensionMessageType.CURRENT_VIDEO_UPDATED]: VideoType;
     [ExtensionMessageType.LAST_VIDEO_UPDATED]: VideoType;
     // Profile
     [ExtensionMessageType.UPDATE_MUTED]: boolean;
@@ -106,7 +106,7 @@ export type ExtensionMessageResponseMap = {
     [ExtensionMessageType.GET_ROOM_ID]: string;
     [ExtensionMessageType.GET_IS_ADMIN]: boolean;
     [ExtensionMessageType.GET_PLAYER_STATE]: PlayerType;
-    [ExtensionMessageType.GET_PLAYER_VIDEO_URL]: string;
+    [ExtensionMessageType.GET_CURRENT_VIDEO]: VideoType;
     [ExtensionMessageType.GET_LAST_VIDEO]: VideoType | null;
     [ExtensionMessageType.SKIP_CURRENT_VIDEO]: boolean;
     // Devmode

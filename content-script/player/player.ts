@@ -7,7 +7,7 @@ import {
     ExtensionMessageType,
 } from "types/extensionMessage";
 import { Mode } from "types/mode";
-import { PlayerStateType, PlayerType } from "types/player.type";
+import { PlayerType } from "types/player.type";
 
 interface MastheadElement extends HTMLElement {
     theater: boolean;
@@ -60,17 +60,17 @@ class Player {
         this.ignorePauseCount = 0;
 
         this.contentScriptMessagingClient = new ContentScriptMessagingClient();
-        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_PLAYER_VIDEO_URL).then(
+        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_CURRENT_VIDEO).then(
             (url: string) => {
                 this.videoUrl = url;
             },
         );
 
         this.contentScriptMessagingClient.addHandler(
-            ExtensionMessageType.PLAYER_VIDEO_UPDATED,
-            (videoUrl: ExtensionMessagePayloadMap[ExtensionMessageType.PLAYER_VIDEO_UPDATED]) => {
-                this.videoUrl = videoUrl;
-                this.updateVideo(videoUrl);
+            ExtensionMessageType.CURRENT_VIDEO_UPDATED,
+            (videoData: ExtensionMessagePayloadMap[ExtensionMessageType.CURRENT_VIDEO_UPDATED]) => {
+                this.videoUrl = videoData.url;
+                this.updateVideo(videoData.url);
             },
         );
 
@@ -142,7 +142,7 @@ class Player {
     }
 
     private clearContentScriptHandlers() {
-        this.contentScriptMessagingClient.removeHandler(ExtensionMessageType.PLAYER_VIDEO_UPDATED);
+        this.contentScriptMessagingClient.removeHandler(ExtensionMessageType.CURRENT_VIDEO_UPDATED);
         this.contentScriptMessagingClient.removeHandler(ExtensionMessageType.PLAYER_STATE_UPDATED);
         this.contentScriptMessagingClient.removeHandler(ExtensionMessageType.ADMIN_STATUS_UPDATED);
     }
@@ -164,7 +164,7 @@ class Player {
     private setActualState() {
         logger.log("setActualState");
         ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_PLAYER_STATE).then(
-            (state: PlayerStateType) => {
+            (state: PlayerType) => {
                 logger.log("fetched player state", state);
                 this.setState(state);
             },
@@ -256,7 +256,7 @@ class Player {
         logger.log("emptied");
 
         if (this.moveToStartAfterVideoChange) {
-            logger.log("moveing to start after video change");
+            logger.log("moving to start after video change");
             this.moveToStartAfterVideoChange = false;
             this.player.currentTime = 0;
         }
@@ -380,7 +380,7 @@ class Player {
         this.sendMute();
     }
 
-    private setState(state: PlayerStateType) {
+    private setState(state: PlayerType) {
         let ct;
         if (state.is_ended) {
             // 1s - too low

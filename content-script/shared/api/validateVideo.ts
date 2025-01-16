@@ -8,9 +8,7 @@ const getVideoUrlFromLink = (link: string): Promise<string> =>
         const regex = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|\?v=)([^#&?]*).*/;
         const match = link.match(regex);
         if (match && match[2].length === 11) {
-            fetch(`https://www.youtube.com/oembed?url=${link}`)
-                .then(res => (res.status === 200 ? resolve(match[2]) : reject("Invalid URL")))
-                .catch(() => reject("Invalid URL"));
+            resolve(match[2]);
         } else {
             reject("Invalid URL");
         }

@@ -8,7 +8,7 @@ import type { PlaylistType, VideoType } from "types/video.type";
 
 const Playlist: React.FC = () => {
     const [lastVideo, setLastVideo] = useState<VideoType>();
-    const [currentVideoUrl, setCurrentVideoUrl] = useState<string>();
+    const [currentVideo, setCurrentVideo] = useState<VideoType>();
     const [videos, setVideos] = useState<VideoType[]>([]);
     const { isAdmin } = useAdmin();
 
@@ -33,18 +33,21 @@ const Playlist: React.FC = () => {
 
     // Current
     useEffect(() => {
-        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_PLAYER_VIDEO_URL).then(
+        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_CURRENT_VIDEO).then(
             payload => {
-                setCurrentVideoUrl(payload);
+                setCurrentVideo(payload);
             },
         );
 
-        messageClient.addHandler(ExtensionMessageType.PLAYER_VIDEO_UPDATED, (payload: string) => {
-            if (payload) setCurrentVideoUrl(payload);
-        });
+        messageClient.addHandler(
+            ExtensionMessageType.CURRENT_VIDEO_UPDATED,
+            (videoData: VideoType) => {
+                if (videoData) setCurrentVideo(videoData);
+            },
+        );
 
         return () => {
-            messageClient.removeHandler(ExtensionMessageType.PLAYER_VIDEO_UPDATED);
+            messageClient.removeHandler(ExtensionMessageType.CURRENT_VIDEO_UPDATED);
         };
     }, []);
 
@@ -84,17 +87,10 @@ const Playlist: React.FC = () => {
 
     return (
         <div className="st-playlist m-0">
-            {lastVideo && (
-                <Video
-                    videoId={lastVideo.id}
-                    videoUrl={lastVideo.url}
-                    type="last"
-                    isAdmin={isAdmin}
-                />
-            )}
-            {currentVideoUrl && (
+            {lastVideo && <Video video={lastVideo} type="last" isAdmin={isAdmin} />}
+            {currentVideo && (
                 // fixme:
-                <Video videoId={0} videoUrl={currentVideoUrl} type="current" isAdmin={isAdmin} />
+                <Video video={currentVideo} type="current" isAdmin={isAdmin} />
             )}
             <DragDropContext onDragEnd={handleOnDragEnd}>
                 <Droppable droppableId="playlist">
@@ -116,8 +112,7 @@ const Playlist: React.FC = () => {
                                             >
                                                 <Video
                                                     key={video.id}
-                                                    videoId={video.id}
-                                                    videoUrl={video.url}
+                                                    video={video}
                                                     number={index + 1}
                                                     type="number"
                                                     isAdmin={isAdmin}
