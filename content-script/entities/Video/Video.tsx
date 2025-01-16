@@ -1,7 +1,6 @@
 import { ContentScriptMessagingClient } from "@shared/client/client";
 import TrashIcon from "@shared/ui/TrashIcon/TrashIcon";
 import React, { useCallback } from "react";
-import { memo } from "react";
 import { dateNowInUs } from "shared/dateNowInUs";
 import { ExtensionMessageType } from "types/extensionMessage";
 import { VideoType } from "types/video.type";
@@ -13,20 +12,7 @@ interface VideoProps {
     type: "number" | "last" | "current";
 }
 
-// const LoadingSkeleton: React.FC = () => (
-//     <li className="flex items-stretch p-[4px_8px_4px_0] animate-pulse">
-//         <div className="w-[24px]"></div>
-//         <div>
-//             <div className="h-[56px] w-[100px] rounded-lg bg-background-primary"></div>
-//         </div>
-//         <div className="p-[0_8px]">
-//             <h4 className="m-[0_0_4px] h-[34px] w-[195px] rounded-lg bg-background-primary p-0"></h4>
-//             <p className="h-[18px] w-[195px] rounded-lg bg-background-primary p-0 m-0"></p>
-//         </div>
-//     </li>
-// );
-
-const Video: React.FC<VideoProps> = memo(({ video, isAdmin, number, type }: VideoProps) => {
+const Video: React.FC<VideoProps> = ({ video, isAdmin, number, type }: VideoProps) => {
     const deleteVideo = useCallback(() => {
         if (type !== "number" || !isAdmin) return;
         ContentScriptMessagingClient.sendMessage(ExtensionMessageType.REMOVE_VIDEO, video.id);
@@ -41,6 +27,7 @@ const Video: React.FC<VideoProps> = memo(({ video, isAdmin, number, type }: Vide
     }, [video.id, isAdmin, type]);
 
     console.log("video rerendered");
+
     return (
         <div
             title={isAdmin && type !== "current" ? "Play video" : undefined}
@@ -85,8 +72,6 @@ const Video: React.FC<VideoProps> = memo(({ video, isAdmin, number, type }: Vide
             )}
         </div>
     );
-});
-
-Video.displayName = "Video";
+};
 
 export default Video;

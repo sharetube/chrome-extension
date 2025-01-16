@@ -1,8 +1,9 @@
+import DraggableVideo from "@entities/DraggableVideo/DraggableVideo";
 import Video from "@entities/Video/Video";
 import useAdmin from "@shared/Context/Admin/hooks/useAdmin";
 import { ContentScriptMessagingClient } from "@shared/client/client";
 import React, { useEffect, useState } from "react";
-import { DragDropContext, Draggable, DropResult, Droppable } from "react-beautiful-dnd";
+import { DragDropContext, DropResult, Droppable } from "react-beautiful-dnd";
 import { ExtensionMessageType } from "types/extensionMessage";
 import type { PlaylistType, VideoType } from "types/video.type";
 
@@ -88,38 +89,21 @@ const Playlist: React.FC = () => {
     return (
         <div className="st-playlist m-0">
             {lastVideo && <Video video={lastVideo} type="last" isAdmin={isAdmin} />}
-            {currentVideo && (
-                // fixme:
-                <Video video={currentVideo} type="current" isAdmin={isAdmin} />
-            )}
+            {currentVideo && <Video video={currentVideo} type="current" isAdmin={isAdmin} />}
             <DragDropContext onDragEnd={handleOnDragEnd}>
                 <Droppable droppableId="playlist">
                     {provided => (
                         <ul {...provided.droppableProps} ref={provided.innerRef}>
                             {videos &&
                                 videos.length > 0 &&
+                                // todo: memoize
                                 videos.map((video, index) => (
-                                    <Draggable
+                                    <DraggableVideo
                                         key={video.id}
-                                        draggableId={video.id.toString()}
                                         index={index}
-                                    >
-                                        {provided => (
-                                            <li
-                                                {...provided.draggableProps}
-                                                {...provided.dragHandleProps}
-                                                ref={provided.innerRef}
-                                            >
-                                                <Video
-                                                    key={video.id}
-                                                    video={video}
-                                                    number={index + 1}
-                                                    type="number"
-                                                    isAdmin={isAdmin}
-                                                />
-                                            </li>
-                                        )}
-                                    </Draggable>
+                                        video={video}
+                                        isAdmin={isAdmin}
+                                    />
                                 ))}
                         </ul>
                     )}
