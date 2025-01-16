@@ -337,10 +337,6 @@ class Player {
         }
 
         logger.log("seeking");
-        // if (this.isDataLoaded && this.getIsPlaying()) {
-        //     logger.log("ignore play count ++", { playCountBefore: this.ignorePlayCount });
-        //     this.ignorePlayCount++;
-        // }
         this.setUpdateIsReadyFalseTimeout();
         this.handleStateChanged();
     }

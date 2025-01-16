@@ -1,4 +1,3 @@
-/* eslint-disable */
 import { ContentScriptMessagingClient } from "@shared/client/client";
 import TrashIcon from "@shared/ui/TrashIcon/TrashIcon";
 import React, { useCallback } from "react";
@@ -14,63 +13,64 @@ interface VideoProps {
     type: "number" | "last" | "current";
 }
 
-const LoadingSkeleton: React.FC = () => (
-    <li className="flex items-stretch p-[4px_8px_4px_0] animate-pulse">
-        <div className="w-[24px]"></div>
-        <div>
-            <div className="h-[56px] w-[100px] rounded-lg bg-background-primary"></div>
-        </div>
-        <div className="p-[0_8px]">
-            <h4 className="m-[0_0_4px] h-[34px] w-[195px] rounded-lg bg-background-primary p-0"></h4>
-            <p className="h-[18px] w-[195px] rounded-lg bg-background-primary p-0 m-0"></p>
-        </div>
-    </li>
-);
+// const LoadingSkeleton: React.FC = () => (
+//     <li className="flex items-stretch p-[4px_8px_4px_0] animate-pulse">
+//         <div className="w-[24px]"></div>
+//         <div>
+//             <div className="h-[56px] w-[100px] rounded-lg bg-background-primary"></div>
+//         </div>
+//         <div className="p-[0_8px]">
+//             <h4 className="m-[0_0_4px] h-[34px] w-[195px] rounded-lg bg-background-primary p-0"></h4>
+//             <p className="h-[18px] w-[195px] rounded-lg bg-background-primary p-0 m-0"></p>
+//         </div>
+//     </li>
+// );
 
-const VideoContent: React.FC<VideoProps> = memo(props => {
+const Video: React.FC<VideoProps> = memo(({ video, isAdmin, number, type }: VideoProps) => {
     const deleteVideo = useCallback(() => {
-        if (props.type !== "number" || !props.isAdmin) return;
-        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.REMOVE_VIDEO, props.video.id);
-    }, [props.video.id, props.isAdmin, props.type]);
+        if (type !== "number" || !isAdmin) return;
+        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.REMOVE_VIDEO, video.id);
+    }, [video.id, isAdmin, type]);
 
     const playVideo = useCallback(() => {
-        if (props.type === "current" || !props.isAdmin) return;
+        if (type === "current" || !isAdmin) return;
         ContentScriptMessagingClient.sendMessage(ExtensionMessageType.UPDATE_PLAYER_VIDEO, {
-            videoId: props.video.id,
+            videoId: video.id,
             updatedAt: dateNowInUs(),
         });
-    }, [props.video.id, props.isAdmin, props.type]);
+    }, [video.id, isAdmin, type]);
 
+    console.log("video rerendered");
     return (
         <div
-            title={props.isAdmin && props.type !== "current" ? "Play video" : undefined}
-            className={`${props.type === "last" ? "opacity-60 hover:opacity-100" : null} ${props.type === "current" ? "bg-background-active" : null} ${props.isAdmin ? "hover:cursor-pointer" : null} select-none hover:bg-spec-badge-chip-background group flex items-stretch p-[4px_8px_4px_0]`}
-            onClick={props.isAdmin && props.type !== "current" ? playVideo : undefined}
+            title={isAdmin && type !== "current" ? "Play video" : undefined}
+            className={`${type === "last" ? "opacity-60 hover:opacity-100" : null} ${type === "current" ? "bg-background-active" : null} ${isAdmin ? "hover:cursor-pointer" : null} select-none hover:bg-spec-badge-chip-background group flex items-stretch p-[4px_8px_4px_0]`}
+            onClick={isAdmin && type !== "current" ? playVideo : undefined}
         >
             <div className="flex items-stretch">
                 <div className="flex">
                     <span className="m-auto w-[24px] p-0 text-center font-secondary text-[1.2rem] font-[400] leading-[1.5rem] text-text-secondary">
-                        {props.number ? props.number : null}
-                        {props.type === "current" ? "▶" : null}
+                        {number ?? null}
+                        {type === "current" ? "▶" : null}
                     </span>
                 </div>
                 <div>
                     <div
                         className="h-[56px] w-[100px] rounded-lg bg-cover bg-center bg-no-repeat"
-                        style={{ backgroundImage: `url(${props.video.thumbnail_url})` }}
+                        style={{ backgroundImage: `url(${video.thumbnail_url})` }}
                     ></div>
                 </div>
                 <article className="p-[0_8px]">
                     <h4 className="m-[0_0_4px] line-clamp-2 max-h-16 overflow-ellipsis whitespace-normal p-0 text-left font-secondary text-[1.4rem] font-[500] leading-[2rem] text-text-primary">
-                        {props.video.title}
+                        {video.title}
                     </h4>
                     <p className="text-left font-secondary text-[1.2rem] font-[400] leading-[1.8rem] text-text-secondary">
-                        {props.video.author_name}
+                        {video.author_name}
                     </p>
                 </article>
             </div>
 
-            {props.isAdmin && props.type === "number" && (
+            {isAdmin && type === "number" && (
                 <div className="ml-auto flex items-center justify-self-end hover:cursor-default">
                     <button
                         title="Remove video"
@@ -87,9 +87,6 @@ const VideoContent: React.FC<VideoProps> = memo(props => {
     );
 });
 
-const Video: React.FC<VideoProps> = props => {
-    // return loading ? <LoadingSkeleton /> : <VideoContent {...props} videoData={videoData} />;
-    return <VideoContent {...props} />;
-};
+Video.displayName = "Video";
 
 export default Video;
