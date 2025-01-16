@@ -56,11 +56,8 @@ export function removeMember(memberId: EMPM[EMType.REMOVE_MEMBER]): void {
     server.send(TSMType.REMOVE_MEMBER, { member_id: memberId });
 }
 
-export function skipCurrentVideo(
-    updatedAt: EMPM[EMType.SKIP_CURRENT_VIDEO],
-): EMRM[EMType.SKIP_CURRENT_VIDEO] {
+export function videoEnded(updatedAt: EMPM[EMType.VIDEO_ENDED]): EMRM[EMType.VIDEO_ENDED] {
     if (globalState.room.playlist.videos.length === 0) {
-        server.send(TSMType.UPDATE_PLAYER_STATE, globalState.room.player);
         return false;
     }
 
@@ -68,6 +65,7 @@ export function skipCurrentVideo(
         video_id: globalState.room.playlist.videos[0].id,
         updated_at: updatedAt,
     });
+
     return true;
 }
 
@@ -94,17 +92,14 @@ export function updateMuted(isMuted: EMPM[EMType.UPDATE_MUTED]): void {
     server.send(TSMType.UPDATE_MUTED, { is_muted: isMuted });
 }
 
-export function updatePlayerState(playerState: EMPM[EMType.UPDATE_PLAYER_STATE]): void {
+export function updatePlayerState(payload: EMPM[EMType.UPDATE_PLAYER_STATE]): void {
     // if (playerState.video_url !== globalState.room.player.video_url) {
     // return;
     // }
 
-    globalState.room.player.current_time = playerState.current_time;
-    globalState.room.player.is_playing = playerState.is_playing;
-    globalState.room.player.playback_rate = playerState.playback_rate;
-    globalState.room.player.updated_at = playerState.updated_at;
+    globalState.room.player = payload;
 
-    server.send(TSMType.UPDATE_PLAYER_STATE, playerState);
+    server.send(TSMType.UPDATE_PLAYER_STATE, payload);
 }
 
 export function updateReady(isReady: EMPM[EMType.UPDATE_READY]): void {

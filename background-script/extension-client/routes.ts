@@ -26,7 +26,7 @@ bgMessagingClient.addHandler(EMT.PROMOTE_MEMBER, Handler.promoteMember);
 
 bgMessagingClient.addHandler(EMT.REMOVE_MEMBER, Handler.removeMember);
 
-bgMessagingClient.addHandler(EMT.SKIP_CURRENT_VIDEO, Handler.skipCurrentVideo);
+bgMessagingClient.addHandler(EMT.VIDEO_ENDED, Handler.videoEnded);
 
 bgMessagingClient.addHandler(EMT.UPDATE_PLAYER_VIDEO, Handler.updatePlayerVideo);
 

@@ -20,11 +20,12 @@ class Player {
     private player: HTMLVideoElement;
 
     private isAdmin: boolean;
+    private videoId: number;
 
     private mode: Mode;
     private muted: boolean | undefined;
     private isReady: boolean;
-    private isPlayAfterEndedHandled: boolean;
+    private isEnded: boolean;
     private moveToStartAfterVideoChange: boolean;
     private adShowing: boolean;
     private isDataLoaded: boolean;
@@ -39,7 +40,9 @@ class Player {
     constructor(e: HTMLElement, p: HTMLVideoElement) {
         this.e = e;
         this.player = p;
+
         this.isAdmin = false;
+        this.videoId = 0;
 
         ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_IS_ADMIN).then(
             (res: ExtensionMessageResponseMap[ExtensionMessageType.GET_IS_ADMIN]) => {
@@ -47,9 +50,15 @@ class Player {
             },
         );
 
+        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_CURRENT_VIDEO).then(
+            (res: ExtensionMessageResponseMap[ExtensionMessageType.GET_CURRENT_VIDEO]) => {
+                this.videoId = res.id;
+            },
+        );
+
         this.mode = Mode.DEFAULT;
         this.isReady = false;
-        this.isPlayAfterEndedHandled = true;
+        this.isEnded = false;
         this.moveToStartAfterVideoChange = true;
         this.adShowing = false;
         this.isDataLoaded = false;
@@ -61,8 +70,9 @@ class Player {
 
         this.contentScriptMessagingClient.addHandler(
             ExtensionMessageType.CURRENT_VIDEO_UPDATED,
-            (videoData: ExtensionMessagePayloadMap[ExtensionMessageType.CURRENT_VIDEO_UPDATED]) => {
-                this.updateVideo(videoData.url);
+            (res: ExtensionMessagePayloadMap[ExtensionMessageType.CURRENT_VIDEO_UPDATED]) => {
+                this.videoId = res.id;
+                this.updateVideo(res.url);
             },
         );
 
@@ -165,8 +175,16 @@ class Player {
 
     private sendSkip() {
         logger.log("sending skip");
+        if (this.isEnded) {
+            this.setActualState();
+            return;
+        }
+
+        logger.log("sending skip 2");
+        this.isEnded = true;
+
         ContentScriptMessagingClient.sendMessage(
-            ExtensionMessageType.SKIP_CURRENT_VIDEO,
+            ExtensionMessageType.VIDEO_ENDED,
             dateNowInUs(),
         ).then(res => {
             if (res) return;
@@ -178,10 +196,27 @@ class Player {
         });
     }
 
+    private handlePauseTimeout: NodeJS.Timeout | undefined;
+    private setHandlePauseTimeout(): void {
+        logger.log("setUpdateIsReadyFalseTimeout");
+        this.clearHandlePauseTimeout();
+        this.handlePauseTimeout = setTimeout(() => {
+            logger.log("pause timeout");
+            this.handleStateChanged();
+        }, 4);
+    }
+
+    private clearHandlePauseTimeout(): boolean {
+        if (!this.handlePauseTimeout) return false;
+
+        clearTimeout(this.handlePauseTimeout);
+        this.handlePauseTimeout = undefined;
+        return true;
+    }
+
     //? add same for isReady true
     private udpateIsReadyFalseTimeout: NodeJS.Timeout | undefined;
     private setUpdateIsReadyFalseTimeout(): void {
-        logger.log("setUpdateIsReadyFalseTimeout");
         this.clearUpdateIsReadyFalseTimeout();
         this.udpateIsReadyFalseTimeout = setTimeout(() => {
             if (!this.isReady) return;
@@ -193,9 +228,6 @@ class Player {
     }
 
     private clearUpdateIsReadyFalseTimeout(): boolean {
-        logger.log("clearUpdateIsReadyFalseTimeout", {
-            udpateIsReadyFalseTimeout: this.udpateIsReadyFalseTimeout,
-        });
         if (!this.udpateIsReadyFalseTimeout) {
             return false;
         }
@@ -235,6 +267,8 @@ class Player {
             logger.log("ended ignored because is not admin");
             return;
         }
+
+        this.clearHandlePauseTimeout();
         this.sendSkip();
     }
 
@@ -266,9 +300,9 @@ class Player {
             this.ignorePauseCount--;
             return;
         }
-
         logger.log("pause");
-        this.handleStateChanged();
+
+        this.setHandlePauseTimeout();
     }
 
     private handleCanplay() {
@@ -308,18 +342,18 @@ class Player {
             return;
         }
 
+        if (this.isEnded) {
+            logger.log("play ignored because video ended");
+            this.setActualState();
+            return;
+        }
+
         if (this.ignorePlayCount > 0) {
             logger.log("play ignored");
             this.ignorePlayCount--;
             return;
         }
-
         logger.log("play");
-        if (!this.isPlayAfterEndedHandled) {
-            this.isPlayAfterEndedHandled = true;
-            this.setActualState();
-            return;
-        }
 
         this.handleStateChanged();
     }
@@ -337,6 +371,7 @@ class Player {
         }
 
         logger.log("seeking");
+        this.isEnded = false;
         this.setUpdateIsReadyFalseTimeout();
         this.handleStateChanged();
     }
@@ -373,7 +408,6 @@ class Player {
             // 2s - ok
             // todo: try to low as possible, in range 1-2s
             ct = this.player.duration - 2;
-            this.isPlayAfterEndedHandled = false;
         } else {
             if (state.is_playing) {
                 const delta = dateNowInUs() - state.updated_at;
@@ -383,6 +417,7 @@ class Player {
                 ct = state.current_time / 1e6;
             }
         }
+        this.isEnded = state.is_ended;
 
         if (state.is_playing && !this.getIsPlaying()) {
             this.ignorePlayCount++;
@@ -392,7 +427,7 @@ class Player {
         if (state.is_playing) {
             (this.player.play() as Promise<void>).catch(() => {
                 logger.log("error calling play, clicking player...");
-                // this.clickPlayButton();
+                this.clickPlayButton();
             });
         } else {
             this.player.pause();
@@ -409,9 +444,9 @@ class Player {
         });
     }
 
-    // private clickPlayButton() {
-    //     (document.querySelector(".ytp-cued-thumbnail-overlay > button") as HTMLElement).click();
-    // }
+    private clickPlayButton() {
+        (document.querySelector(".ytp-cued-thumbnail-overlay > button") as HTMLElement).click();
+    }
 
     private getIsPlaying(): boolean {
         return !this.player.paused;
@@ -422,7 +457,7 @@ class Player {
             updated_at: dateNowInUs(),
             current_time: Math.round(this.player.currentTime * 1e6),
             playback_rate: this.player.playbackRate,
-            is_ended: false,
+            is_ended: this.isEnded,
             is_playing: this.getIsPlaying(),
         };
         logger.log("get state returned", s);
@@ -430,13 +465,14 @@ class Player {
     }
 
     private handleStateChanged() {
+        this.clearHandlePauseTimeout();
         if (!this.isReady) return;
         if (this.isAdmin) {
             logger.log("sending state to server");
-            ContentScriptMessagingClient.sendMessage(
-                ExtensionMessageType.UPDATE_PLAYER_STATE,
-                this.getState(),
-            );
+            ContentScriptMessagingClient.sendMessage(ExtensionMessageType.UPDATE_PLAYER_STATE, {
+                video_id: this.videoId,
+                ...this.getState(),
+            });
         } else {
             this.setActualState();
         }
@@ -450,6 +486,7 @@ class Player {
         this.ignorePlayCount = 0;
         this.ignorePauseCount = 0;
         this.moveToStartAfterVideoChange = true;
+        this.isEnded = false;
         window.postMessage({ type: "SKIP", payload: videoUrl }, "*");
     }
 

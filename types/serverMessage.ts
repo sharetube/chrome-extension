@@ -61,8 +61,10 @@ export type ToServerMessagePayloadMap = {
         is_muted: boolean;
     };
     [TO.UPDATE_PLAYER_STATE]: {
+        video_id: number;
         playback_rate: number;
         is_playing: boolean;
+        is_ended: boolean;
         current_time: number;
         updated_at: number;
     };
