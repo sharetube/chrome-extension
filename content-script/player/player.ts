@@ -23,7 +23,6 @@ class Player {
 
     private mode: Mode;
     private muted: boolean | undefined;
-    private videoUrl: string;
     private isReady: boolean;
     private isPlayAfterEndedHandled: boolean;
     private moveToStartAfterVideoChange: boolean;
@@ -49,7 +48,6 @@ class Player {
         );
 
         this.mode = Mode.DEFAULT;
-        this.videoUrl = ""; //? remove
         this.isReady = false;
         this.isPlayAfterEndedHandled = true;
         this.moveToStartAfterVideoChange = true;
@@ -60,16 +58,10 @@ class Player {
         this.ignorePauseCount = 0;
 
         this.contentScriptMessagingClient = new ContentScriptMessagingClient();
-        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_CURRENT_VIDEO).then(
-            (url: string) => {
-                this.videoUrl = url;
-            },
-        );
 
         this.contentScriptMessagingClient.addHandler(
             ExtensionMessageType.CURRENT_VIDEO_UPDATED,
             (videoData: ExtensionMessagePayloadMap[ExtensionMessageType.CURRENT_VIDEO_UPDATED]) => {
-                this.videoUrl = videoData.url;
                 this.updateVideo(videoData.url);
             },
         );
@@ -218,7 +210,6 @@ class Player {
         switch (event.key) {
             case "ArrowRight":
                 logger.log("ArrowRight");
-                this.ignorePlayCount--;
                 if (this.isAdmin && this.player.duration - this.player.currentTime < 5) {
                     this.sendSkip();
                 }
@@ -226,7 +217,6 @@ class Player {
                 break;
             case "ArrowLeft":
                 logger.log("ArrowLeft");
-                this.ignorePlayCount--;
 
                 break;
         }
@@ -347,10 +337,10 @@ class Player {
         }
 
         logger.log("seeking");
-        if (this.isDataLoaded && this.getIsPlaying()) {
-            logger.log("ignore play count ++", { playCountBefore: this.ignorePlayCount });
-            this.ignorePlayCount++;
-        }
+        // if (this.isDataLoaded && this.getIsPlaying()) {
+        //     logger.log("ignore play count ++", { playCountBefore: this.ignorePlayCount });
+        //     this.ignorePlayCount++;
+        // }
         this.setUpdateIsReadyFalseTimeout();
         this.handleStateChanged();
     }
@@ -433,7 +423,6 @@ class Player {
 
     private getState(): PlayerType {
         const s = {
-            video_url: this.videoUrl,
             updated_at: dateNowInUs(),
             current_time: Math.round(this.player.currentTime * 1e6),
             playback_rate: this.player.playbackRate,
