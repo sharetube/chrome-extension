@@ -21,7 +21,7 @@ export const defaultState: State = {
             },
             version: 0,
         },
-        is_video_ended: false,
+        video_ended: false,
         player: {
             current_time: 0,
             is_playing: false,

@@ -156,7 +156,7 @@ export const playerVideoUpdated = (
 };
 
 export const videoEnded = (): void => {
-    globalState.room.is_video_ended = true;
+    globalState.room.video_ended = true;
 
     bgMessagingClient.sendMessageToPrimaryTab(ExtensionMessageType.VIDEO_ENDED);
 };
