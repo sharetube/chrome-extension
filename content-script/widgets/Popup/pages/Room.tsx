@@ -2,7 +2,7 @@ import Button from "../shared/Button/Button";
 import Input from "../shared/Input/Input";
 import Title from "../shared/Title/Title";
 import Avatar from "@entities/Avatar/Avatar";
-import getVideoUrlFromLink from "@shared/api/validateVideo";
+import { getVideoUrlFromLink } from "@shared/api/getVideoUrlFromLink";
 import { ContentScriptMessagingClient } from "@shared/client/client";
 import NextIcon from "@shared/ui/NextIcon/NextIcon";
 import React, { useEffect, useState } from "react";
@@ -46,10 +46,9 @@ const Room: React.FC<RoomProps> = ({ profile, changePage }) => {
         const value = event.target.value;
         setInitVideoValue(value);
 
-        getVideoUrlFromLink(value).then(response => {
-            setVideoUrl(response);
-            setIsButtonDisabled(!response);
-        });
+        const videoUrl = getVideoUrlFromLink(value);
+        setVideoUrl(videoUrl);
+        setIsButtonDisabled(!videoUrl);
     };
 
     const handleCreateRoomButtonClick = () => {

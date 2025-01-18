@@ -1,5 +1,7 @@
 import { dateNowInUs } from "../../shared/dateNowInUs";
+import { getVideoUrlFromLink } from "@shared/api/getVideoUrlFromLink";
 import { ContentScriptMessagingClient } from "@shared/client/client";
+import waitForElement from "@shared/lib/waitForElement";
 import { CSLogger } from "@shared/logging/logger";
 import {
     ExtensionMessagePayloadMap,
@@ -18,6 +20,7 @@ const logger = CSLogger.getInstance();
 class Player {
     private e: HTMLElement; // todo: rename
     private player: HTMLVideoElement;
+    private endScreenContent: HTMLDivElement | undefined;
 
     private isAdmin: boolean;
     private videoId: number;
@@ -26,7 +29,7 @@ class Player {
     private muted: boolean | undefined;
     private isReady: boolean;
     private isEnded: boolean;
-    private moveToStartAfterVideoChange: boolean;
+    private videoChanged: boolean;
     private adShowing: boolean;
     private isDataLoaded: boolean;
     private ignoreSeekingCount: number;
@@ -34,15 +37,49 @@ class Player {
     private ignorePauseCount: number;
 
     private contentScriptMessagingClient: ContentScriptMessagingClient;
-    private observer: MutationObserver | undefined;
+    private observer: MutationObserver; // todo: rename
+    private endScreenObserver: MutationObserver;
     private abortController: AbortController;
 
-    constructor(e: HTMLElement, p: HTMLVideoElement) {
+    constructor(e: HTMLElement, player: HTMLVideoElement) {
         this.e = e;
-        this.player = p;
+        this.player = player;
 
         this.isAdmin = false;
         this.videoId = 0;
+
+        this.observer = new MutationObserver(mutations => {
+            mutations.forEach(mutation => {
+                if (mutation.attributeName === "class") {
+                    this.handleAdChanged(this.e.classList);
+                    this.handleModeChanged(this.e.classList);
+                }
+            });
+        });
+
+        this.endScreenObserver = new MutationObserver(mutations => {
+            mutations.forEach(mutation => {
+                if (mutation.attributeName === "style") {
+                    if (!(mutation.target as HTMLDivElement).getAttribute("style")) {
+                        this.handleEnd2();
+                        this.endScreenContent
+                            ?.querySelector(".ytp-endscreen-content")!
+                            .childNodes.forEach(elem => {
+                                const newElem = elem.cloneNode(true) as HTMLAnchorElement;
+                                elem.replaceWith(newElem);
+                                newElem.addEventListener("click", event => {
+                                    event.preventDefault();
+
+                                    ContentScriptMessagingClient.sendMessage(
+                                        ExtensionMessageType.ADD_VIDEO,
+                                        getVideoUrlFromLink(newElem.href),
+                                    );
+                                });
+                            });
+                    }
+                }
+            });
+        });
 
         ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_IS_ADMIN).then(
             (res: ExtensionMessageResponseMap[ExtensionMessageType.GET_IS_ADMIN]) => {
@@ -59,7 +96,7 @@ class Player {
         this.mode = Mode.DEFAULT;
         this.isReady = false;
         this.isEnded = false;
-        this.moveToStartAfterVideoChange = true;
+        this.videoChanged = true;
         this.adShowing = false;
         this.isDataLoaded = false;
         this.ignoreSeekingCount = 0;
@@ -79,7 +116,7 @@ class Player {
         this.contentScriptMessagingClient.addHandler(
             ExtensionMessageType.PLAYER_STATE_UPDATED,
             (state: ExtensionMessagePayloadMap[ExtensionMessageType.PLAYER_STATE_UPDATED]) => {
-                logger.log("recieved new player state", state);
+                logger.log("received new player state", state);
                 if (this.adShowing) return;
                 this.setState(state);
             },
@@ -93,9 +130,16 @@ class Player {
             },
         );
 
+        this.contentScriptMessagingClient.addHandler(ExtensionMessageType.VIDEO_ENDED, () => {
+            if (this.isEnded) return;
+            this.isEnded = true;
+            this.player.currentTime = this.player.duration + 1;
+        });
+
         this.abortController = new AbortController();
 
         this.observeElement();
+        this.observeEndscreen();
         this.addEventListeners();
         this.sendMute();
     }
@@ -126,9 +170,6 @@ class Player {
         this.player.addEventListener("loadeddata", this.handleLoadedData.bind(this), {
             signal: this.abortController.signal,
         });
-        this.player.addEventListener("ended", this.handleEnded.bind(this), {
-            signal: this.abortController.signal,
-        });
         this.player.addEventListener("emptied", this.handleEmptied.bind(this), {
             signal: this.abortController.signal,
         });
@@ -147,12 +188,11 @@ class Player {
         this.contentScriptMessagingClient.removeHandler(ExtensionMessageType.CURRENT_VIDEO_UPDATED);
         this.contentScriptMessagingClient.removeHandler(ExtensionMessageType.PLAYER_STATE_UPDATED);
         this.contentScriptMessagingClient.removeHandler(ExtensionMessageType.ADMIN_STATUS_UPDATED);
+        this.contentScriptMessagingClient.removeHandler(ExtensionMessageType.VIDEO_ENDED);
     }
 
-    private disconnectObserver(): void {
-        if (!this.observer) return;
-        this.observer.disconnect();
-        this.observer = undefined;
+    private clearEndScreenObserver() {
+        this.endScreenObserver.disconnect();
     }
 
     public clearAll() {
@@ -160,7 +200,8 @@ class Player {
         this.clearUpdateIsReadyFalseTimeout();
         this.clearEventListeners();
         this.clearContentScriptHandlers();
-        this.disconnectObserver();
+        this.observer.disconnect();
+        this.clearEndScreenObserver();
     }
 
     private setActualState() {
@@ -173,45 +214,13 @@ class Player {
         );
     }
 
-    private sendSkip() {
-        logger.log("sending skip");
-        if (this.isEnded) {
-            this.setActualState();
-            return;
-        }
-
-        logger.log("sending skip 2");
+    private handleEnd2() {
+        logger.log("sending end");
         this.isEnded = true;
 
-        ContentScriptMessagingClient.sendMessage(
-            ExtensionMessageType.VIDEO_ENDED,
-            dateNowInUs(),
-        ).then(res => {
-            if (res) return;
-
-            const state = this.getState();
-            state.is_ended = true;
-            this.setState(state);
-            this.handleStateChanged();
-        });
-    }
-
-    private handlePauseTimeout: NodeJS.Timeout | undefined;
-    private setHandlePauseTimeout(): void {
-        logger.log("setUpdateIsReadyFalseTimeout");
-        this.clearHandlePauseTimeout();
-        this.handlePauseTimeout = setTimeout(() => {
-            logger.log("pause timeout");
-            this.handleStateChanged();
-        }, 4);
-    }
-
-    private clearHandlePauseTimeout(): boolean {
-        if (!this.handlePauseTimeout) return false;
-
-        clearTimeout(this.handlePauseTimeout);
-        this.handlePauseTimeout = undefined;
-        return true;
+        if (this.isAdmin) {
+            ContentScriptMessagingClient.sendMessage(ExtensionMessageType.VIDEO_ENDED);
+        }
     }
 
     //? add same for isReady true
@@ -242,9 +251,9 @@ class Player {
         switch (event.key) {
             case "ArrowRight":
                 logger.log("ArrowRight");
-                if (this.isAdmin && this.player.duration - this.player.currentTime < 5) {
-                    this.sendSkip();
-                }
+                // if (this.isAdmin && this.player.duration - this.player.currentTime < 5) {
+                //     this.sendEnded();
+                // }
 
                 break;
             case "ArrowLeft":
@@ -261,17 +270,6 @@ class Player {
         }
     }
 
-    private handleEnded() {
-        logger.log("ended");
-        if (!this.isAdmin) {
-            logger.log("ended ignored because is not admin");
-            return;
-        }
-
-        this.clearHandlePauseTimeout();
-        this.sendSkip();
-    }
-
     private handleEmptied() {
         if (this.adShowing) {
             logger.log("emptied ignored because ad is showing");
@@ -279,10 +277,12 @@ class Player {
         }
         logger.log("emptied");
 
-        if (this.moveToStartAfterVideoChange) {
+        if (this.videoChanged) {
             logger.log("moving to start after video change");
-            this.moveToStartAfterVideoChange = false;
+            this.videoChanged = false;
             this.player.currentTime = 0;
+            this.clearEndScreenObserver();
+            this.observeEndscreen();
         }
 
         this.isDataLoaded = false;
@@ -295,6 +295,11 @@ class Player {
             return;
         }
 
+        if (this.isEnded) {
+            logger.log("pause ignored because ended");
+            return;
+        }
+
         if (this.ignorePauseCount > 0) {
             logger.log("pause ignored");
             this.ignorePauseCount--;
@@ -302,7 +307,8 @@ class Player {
         }
         logger.log("pause");
 
-        this.setHandlePauseTimeout();
+        // this.setHandlePauseTimeout();
+        this.handleStateChanged();
     }
 
     private handleCanplay() {
@@ -342,11 +348,11 @@ class Player {
             return;
         }
 
-        if (this.isEnded) {
-            logger.log("play ignored because video ended");
-            this.setActualState();
-            return;
-        }
+        // if (this.isEnded) {
+        //     logger.log("play ignored because video ended");
+        //     this.setActualState();
+        //     return;
+        // }
 
         if (this.ignorePlayCount > 0) {
             logger.log("play ignored");
@@ -403,21 +409,13 @@ class Player {
 
     private setState(state: PlayerType) {
         let ct;
-        if (state.is_ended) {
-            // 1s - too low
-            // 2s - ok
-            // todo: try to low as possible, in range 1-2s
-            ct = this.player.duration - 2;
+        if (state.is_playing) {
+            const delta = dateNowInUs() - state.updated_at;
+            ct = Math.round(state.current_time + delta * state.playback_rate) / 1e6;
+            logger.log("delta", { delta });
         } else {
-            if (state.is_playing) {
-                const delta = dateNowInUs() - state.updated_at;
-                ct = Math.round(state.current_time + delta * state.playback_rate) / 1e6;
-                logger.log("delta", { delta });
-            } else {
-                ct = state.current_time / 1e6;
-            }
+            ct = state.current_time / 1e6;
         }
-        this.isEnded = state.is_ended;
 
         if (state.is_playing && !this.getIsPlaying()) {
             this.ignorePlayCount++;
@@ -465,7 +463,7 @@ class Player {
     }
 
     private handleStateChanged() {
-        this.clearHandlePauseTimeout();
+        // this.clearHandlePauseTimeout();
         if (!this.isReady) return;
         if (this.isAdmin) {
             logger.log("sending state to server");
@@ -485,21 +483,12 @@ class Player {
         this.ignoreSeekingCount = 0;
         this.ignorePlayCount = 0;
         this.ignorePauseCount = 0;
-        this.moveToStartAfterVideoChange = true;
+        this.videoChanged = true;
         this.isEnded = false;
         window.postMessage({ type: "SKIP", payload: videoUrl }, "*");
     }
 
     private observeElement(): void {
-        this.observer = new MutationObserver(mutations => {
-            mutations.forEach(mutation => {
-                if (mutation.type === "attributes" && mutation.attributeName === "class") {
-                    this.handleAdChanged(this.e.classList);
-                    this.handleModeChanged(this.e.classList);
-                }
-            });
-        });
-
         this.observer.observe(this.e, {
             attributes: true,
             attributeFilter: ["class"],
@@ -553,6 +542,16 @@ class Player {
     private setMode(mode: Mode) {
         if (this.mode === mode) return;
         this.mode = mode;
+    }
+
+    private observeEndscreen(): void {
+        waitForElement(".html5-endscreen", this.e).then(endScreen => {
+            this.endScreenContent = endScreen as HTMLDivElement;
+            this.endScreenObserver.observe(endScreen, {
+                attributes: true,
+                attributeFilter: ["style"],
+            });
+        });
     }
 }
 

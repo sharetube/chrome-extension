@@ -155,6 +155,12 @@ export const playerVideoUpdated = (
     }
 };
 
+export const videoEnded = (): void => {
+    globalState.room.is_video_ended = true;
+
+    bgMessagingClient.sendMessageToPrimaryTab(ExtensionMessageType.VIDEO_ENDED);
+};
+
 export const kickedFromRoom = (): void => {
     logger.log("KICKED FROM ROOM");
     bgMessagingClient.sendMessageToPrimaryTab(ExtensionMessageType.KICKED);

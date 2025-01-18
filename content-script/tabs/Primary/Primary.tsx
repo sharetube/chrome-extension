@@ -95,8 +95,10 @@ contentScriptMessageClient.addHandler(ExtensionMessageType.UPDATE_URL, url => {
 let player: Player | null = null;
 function initPlayer() {
     waitForElement(".html5-video-player").then(e => {
-        waitForElement("video").then(p => {
-            logger.log("PLAYER FOUND", { ...p });
+        waitForElement("video", e).then(p => {
+            // waitForElement(".html5-endscreen").then(endScreen => {
+            //     player = new Player(e, p as HTMLVideoElement, endScreen as HTMLDivElement);
+            // });
             player = new Player(e, p as HTMLVideoElement);
         });
         // .catch(error => console.log("Failed select video element", error));

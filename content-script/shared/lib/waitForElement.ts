@@ -1,13 +1,16 @@
-// import { CsLogger } from "@shared/logging/logger";
-
-const waitForElement = (selector: string, timeout = 2000, retries = 3): Promise<HTMLElement> =>
+const waitForElement = (
+    selector: string,
+    parent = document.documentElement,
+    timeout = 500,
+    retries = 30,
+): Promise<HTMLElement> =>
     new Promise((resolve, reject) => {
         const attempt = (retryCount: number) => {
-            const element = document.querySelector(selector);
+            const element = parent.querySelector(selector);
             if (element instanceof HTMLElement) return resolve(element);
 
             const observer = new MutationObserver(() => {
-                const element = document.querySelector(selector);
+                const element = parent.querySelector(selector);
                 if (element instanceof HTMLElement) {
                     clearTimeout(timeoutId);
                     observer.disconnect();
@@ -15,7 +18,7 @@ const waitForElement = (selector: string, timeout = 2000, retries = 3): Promise<
                 }
             });
 
-            observer.observe(document.documentElement, {
+            observer.observe(parent, {
                 childList: true,
                 subtree: true,
             });

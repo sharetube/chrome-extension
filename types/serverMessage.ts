@@ -14,6 +14,7 @@ export enum ToServerMessageType {
     UPDATE_MUTED = "UPDATE_MUTED",
     UPDATE_PLAYER_STATE = "UPDATE_PLAYER_STATE",
     UPDATE_PLAYER_VIDEO = "UPDATE_PLAYER_VIDEO",
+    END_VIDEO = "END_VIDEO",
     ALIVE = "ALIVE",
 }
 
@@ -28,6 +29,7 @@ export enum FromServerMessageType {
     MEMBER_UPDATED = "MEMBER_UPDATED",
     IS_ADMIN_UPDATED = "IS_ADMIN_UPDATED",
     PLAYER_STATE_UPDATED = "PLAYER_STATE_UPDATED",
+    VIDEO_ENDED = "VIDEO_ENDED",
 }
 
 const TO = ToServerMessageType;
@@ -47,6 +49,7 @@ export type ToServerMessagePayloadMap = {
     };
     [TO.ADD_VIDEO]: {
         video_url: string;
+        updated_at: number;
     };
     [TO.REMOVE_VIDEO]: {
         video_id: number;
@@ -64,7 +67,6 @@ export type ToServerMessagePayloadMap = {
         video_id: number;
         playback_rate: number;
         is_playing: boolean;
-        is_ended: boolean;
         current_time: number;
         updated_at: number;
     };
@@ -73,6 +75,7 @@ export type ToServerMessagePayloadMap = {
         updated_at: number;
     };
     [TO.ALIVE]: void;
+    [TO.END_VIDEO]: void;
 };
 
 export type FromServerMessagePayloadMap = {
@@ -115,6 +118,7 @@ export type FromServerMessagePayloadMap = {
     [FROM.PLAYER_STATE_UPDATED]: {
         player: PlayerType;
     };
+    [FROM.VIDEO_ENDED]: void;
 };
 
 export interface ToServerMessage<T extends ToServerMessageType> {

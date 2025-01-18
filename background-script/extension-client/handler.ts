@@ -7,6 +7,7 @@ import { ProfileStorage } from "background-script/profileStorage";
 import { globalState } from "background-script/state";
 import { getPrimaryTabIdOrUnset } from "background-script/tab";
 import { TabStorage } from "background-script/tabStorage";
+import { dateNowInUs } from "shared/dateNowInUs";
 import {
     ExtensionMessagePayloadMap as EMPM,
     ExtensionMessageResponseMap as EMRM,
@@ -25,7 +26,7 @@ const bgMessagingClient = BackgroundMessagingClient.getInstance();
 const tabStorage = TabStorage.getInstance();
 
 export function addVideo(videoUrl: EMPM[EMType.ADD_VIDEO]): void {
-    server.send(TSMType.ADD_VIDEO, { video_url: videoUrl });
+    server.send(TSMType.ADD_VIDEO, { video_url: videoUrl, updated_at: dateNowInUs() });
 }
 
 export function removeVideo(videoId: EMPM[EMType.REMOVE_VIDEO]): void {
@@ -56,17 +57,8 @@ export function removeMember(memberId: EMPM[EMType.REMOVE_MEMBER]): void {
     server.send(TSMType.REMOVE_MEMBER, { member_id: memberId });
 }
 
-export function videoEnded(updatedAt: EMPM[EMType.VIDEO_ENDED]): EMRM[EMType.VIDEO_ENDED] {
-    if (globalState.room.playlist.videos.length === 0) {
-        return false;
-    }
-
-    server.send(TSMType.UPDATE_PLAYER_VIDEO, {
-        video_id: globalState.room.playlist.videos[0].id,
-        updated_at: updatedAt,
-    });
-
-    return true;
+export function videoEnded(): void {
+    server.send(TSMType.END_VIDEO);
 }
 
 export function updatePlayerVideo({ videoId, updatedAt }: EMPM[EMType.UPDATE_PLAYER_VIDEO]): void {

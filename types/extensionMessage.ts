@@ -32,7 +32,7 @@ export enum ExtensionMessageType {
     PLAYER_STATE_UPDATED = "PLAYER_STATE_UPDATED",
     CURRENT_VIDEO_UPDATED = "CURRENT_VIDEO_UPDATED",
     UPDATE_PLAYER_VIDEO = "UPDATE_PLAYER_VIDEO",
-    VIDEO_ENDED = "SKIP_CURRENT_VIDEO",
+    VIDEO_ENDED = "VIDEO_ENDED",
     GET_PLAYER_STATE = "GET_PLAYER_STATE",
     GET_CURRENT_VIDEO = "GET_CURRENT_VIDEO",
     GET_LAST_VIDEO = "GET_LAST_VIDEO",
@@ -77,7 +77,7 @@ export type ExtensionMessagePayloadMap = {
         videoId: number;
         updatedAt: number;
     };
-    [ExtensionMessageType.VIDEO_ENDED]: number;
+    [ExtensionMessageType.VIDEO_ENDED]: void;
     [ExtensionMessageType.GET_PLAYER_STATE]: void;
     [ExtensionMessageType.GET_CURRENT_VIDEO]: void;
     [ExtensionMessageType.UPDATE_URL]: string;
@@ -108,7 +108,6 @@ export type ExtensionMessageResponseMap = {
     [ExtensionMessageType.GET_PLAYER_STATE]: PlayerType;
     [ExtensionMessageType.GET_CURRENT_VIDEO]: VideoType;
     [ExtensionMessageType.GET_LAST_VIDEO]: VideoType | null;
-    [ExtensionMessageType.VIDEO_ENDED]: boolean;
     // Devmode
     [ExtensionMessageType.GET_DEVMODE]: boolean;
     [ExtensionMessageType.DEVMODE_UPDATED]: boolean;

@@ -1,33 +1,24 @@
-import getVideoUrlFromLink from "../../shared/api/validateVideo";
 import useKey from "./hooks/useKey";
 import useAdmin from "@shared/Context/Admin/hooks/useAdmin";
+import { getVideoUrlFromLink } from "@shared/api/getVideoUrlFromLink";
 import { ContentScriptMessagingClient } from "@shared/client/client";
-import { CSLogger } from "@shared/logging/logger";
 import AddIcon from "@shared/ui/AddIcon/AddIcon";
 import React, { useState } from "react";
 import { ExtensionMessageType } from "types/extensionMessage";
-
-const logger = CSLogger.getInstance();
 
 const Search: React.FC = () => {
     const { isAdmin } = useAdmin();
     const [inputValue, setInputValue] = useState<string>("");
     const inputRef = useKey("/");
 
-    const add = (videoId: string) => {
-        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.ADD_VIDEO, videoId);
-    };
-
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) =>
         setInputValue(e.target.value);
 
     const handleAdd = () => {
-        getVideoUrlFromLink(inputValue)
-            .then(videoId => {
-                add(videoId);
-                setInputValue("");
-            })
-            .catch(error => logger.log("SEARCH INPUT ERROR", { ...error }));
+        const videoUrl = getVideoUrlFromLink(inputValue);
+        if (!videoUrl) return;
+        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.ADD_VIDEO, videoUrl);
+        setInputValue("");
     };
     const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === "Enter") handleAdd();

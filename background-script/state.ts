@@ -21,10 +21,10 @@ export const defaultState: State = {
             },
             version: 0,
         },
+        is_video_ended: false,
         player: {
             current_time: 0,
             is_playing: false,
-            is_ended: false,
             playback_rate: 1,
             updated_at: 0,
         },

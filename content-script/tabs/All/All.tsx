@@ -1,4 +1,5 @@
 import { AdminProvider } from "@shared/Context/Admin/Admin";
+import { getVideoUrlFromLink } from "@shared/api/getVideoUrlFromLink";
 import waitForElement from "@shared/lib/waitForElement";
 import ContextItem from "@widgets/ContextItem/ContextItem";
 import Popup from "@widgets/Popup/Popup";
@@ -23,19 +24,15 @@ contextMenuContainer.id = "st-context-menu";
 contextMenuContainer.className = "sharetube";
 contextMenuContainer.style.minWidth = "149px";
 
-const ytVideoRegex = /^https:\/\/(www\.)?(youtu\.be|youtube\.com)\/watch\?v=([^&]+)/;
-
 const videoUrlFromThumbnail = (e: Element): string => {
     const thumbnail = e.querySelector("a#thumbnail");
     if (!thumbnail) return "";
 
-    const match = (thumbnail as HTMLAnchorElement).href.match(ytVideoRegex);
-    return match ? match[3] : "";
+    return getVideoUrlFromLink((thumbnail as HTMLAnchorElement).href);
 };
 
 const videoUrlFromLocation = (): string => {
-    const match = window.location.href.match(ytVideoRegex);
-    return match ? match[3] : "";
+    return getVideoUrlFromLink(window.location.href);
 };
 
 const handleClick = (e: MouseEvent) => {
