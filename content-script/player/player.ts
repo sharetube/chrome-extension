@@ -20,7 +20,7 @@ const logger = CSLogger.getInstance();
 class Player {
     private e: HTMLElement; // todo: rename
     private player: HTMLVideoElement;
-    private endScreenContent: HTMLDivElement | undefined;
+    private endScreen: HTMLDivElement | undefined;
 
     private isAdmin: boolean;
     private videoId: number;
@@ -37,7 +37,7 @@ class Player {
     private ignorePauseCount: number;
 
     private contentScriptMessagingClient: ContentScriptMessagingClient;
-    private observer: MutationObserver; // todo: rename
+    private parentObserver: MutationObserver;
     private endScreenObserver: MutationObserver;
     private abortController: AbortController;
 
@@ -48,7 +48,7 @@ class Player {
         this.isAdmin = false;
         this.videoId = 0;
 
-        this.observer = new MutationObserver(mutations => {
+        this.parentObserver = new MutationObserver(mutations => {
             mutations.forEach(mutation => {
                 if (mutation.attributeName === "class") {
                     this.handleAdChanged(this.e.classList);
@@ -62,7 +62,7 @@ class Player {
                 if (mutation.attributeName === "style") {
                     if (!(mutation.target as HTMLDivElement).getAttribute("style")) {
                         this.handleEnd2();
-                        this.endScreenContent
+                        this.endScreen
                             ?.querySelector(".ytp-endscreen-content")!
                             .childNodes.forEach(elem => {
                                 const newElem = elem.cloneNode(true) as HTMLAnchorElement;
@@ -138,7 +138,7 @@ class Player {
 
         this.abortController = new AbortController();
 
-        this.observeElement();
+        this.observeParent();
         this.observeEndscreen();
         this.addEventListeners();
         this.sendMute();
@@ -200,7 +200,7 @@ class Player {
         this.clearUpdateIsReadyFalseTimeout();
         this.clearEventListeners();
         this.clearContentScriptHandlers();
-        this.observer.disconnect();
+        this.parentObserver.disconnect();
         this.clearEndScreenObserver();
     }
 
@@ -488,13 +488,6 @@ class Player {
         window.postMessage({ type: "SKIP", payload: videoUrl }, "*");
     }
 
-    private observeElement(): void {
-        this.observer.observe(this.e, {
-            attributes: true,
-            attributeFilter: ["class"],
-        });
-    }
-
     // Ad handling
     private handleAdChanged(cl: DOMTokenList): void {
         const adShowing = cl.contains("ad-showing");
@@ -544,9 +537,16 @@ class Player {
         this.mode = mode;
     }
 
+    private observeParent(): void {
+        this.parentObserver.observe(this.e, {
+            attributes: true,
+            attributeFilter: ["class"],
+        });
+    }
+
     private observeEndscreen(): void {
         waitForElement(".html5-endscreen", this.e).then(endScreen => {
-            this.endScreenContent = endScreen as HTMLDivElement;
+            this.endScreen = endScreen as HTMLDivElement;
             this.endScreenObserver.observe(endScreen, {
                 attributes: true,
                 attributeFilter: ["style"],

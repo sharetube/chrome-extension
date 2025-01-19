@@ -81,10 +81,7 @@ const handleClick = (e: MouseEvent) => {
                 </AdminProvider>,
             );
 
-            if (listbox) {
-                listbox.prepend(contextMenuContainer);
-            }
-
+            listbox?.prepend(contextMenuContainer);
             break;
         }
     }
