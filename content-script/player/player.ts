@@ -348,12 +348,6 @@ class Player {
             return;
         }
 
-        // if (this.isEnded) {
-        //     logger.log("play ignored because video ended");
-        //     this.setActualState();
-        //     return;
-        // }
-
         if (this.ignorePlayCount > 0) {
             logger.log("play ignored");
             this.ignorePlayCount--;
@@ -455,7 +449,6 @@ class Player {
             updated_at: dateNowInUs(),
             current_time: Math.round(this.player.currentTime * 1e6),
             playback_rate: this.player.playbackRate,
-            is_ended: this.isEnded,
             is_playing: this.getIsPlaying(),
         };
         logger.log("get state returned", s);

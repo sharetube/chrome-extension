@@ -54,9 +54,7 @@ const Room: React.FC<RoomProps> = ({ profile, changePage }) => {
     const handleCreateRoomButtonClick = () => {
         if (videoUrl) {
             setInitVideoValue("");
-            ContentScriptMessagingClient.sendMessage(ExtensionMessageType.CREATE_ROOM, {
-                videoUrl: videoUrl,
-            });
+            ContentScriptMessagingClient.sendMessage(ExtensionMessageType.CREATE_ROOM, videoUrl);
         }
     };
 

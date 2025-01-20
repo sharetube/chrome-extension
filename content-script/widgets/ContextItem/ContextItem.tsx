@@ -1,15 +1,15 @@
 import useAdmin from "@shared/Context/Admin/hooks/useAdmin";
+import { getContextMenuVideoUrl } from "@shared/api/getContextMenuVideoUrl";
 import { ContentScriptMessagingClient } from "@shared/client/client";
 import ShareTubeIcon from "@shared/ui/ShareTubeIcon/ShareTubeIcon";
 import React, { useEffect, useState } from "react";
 import { ExtensionMessageType } from "types/extensionMessage";
 
 interface ContextItemProps {
-    videoUrl: string;
     callback: () => void;
 }
 
-const ContextItem: React.FC<ContextItemProps> = ({ videoUrl, callback }) => {
+const ContextItem: React.FC<ContextItemProps> = ({ callback }) => {
     const { isAdmin } = useAdmin();
     const [isPrimaryTabExists, setIsPrimaryTabExists] = useState<boolean>(true);
 
@@ -31,13 +31,15 @@ const ContextItem: React.FC<ContextItemProps> = ({ videoUrl, callback }) => {
     }, []);
 
     const sendCreateRoom = () => {
-        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.CREATE_ROOM, {
-            videoUrl,
+        getContextMenuVideoUrl().then(videoUrl => {
+            ContentScriptMessagingClient.sendMessage(ExtensionMessageType.CREATE_ROOM, videoUrl);
         });
     };
 
     const sendAddVideo = () => {
-        ContentScriptMessagingClient.sendMessage(ExtensionMessageType.ADD_VIDEO, videoUrl);
+        getContextMenuVideoUrl().then(videoUrl => {
+            ContentScriptMessagingClient.sendMessage(ExtensionMessageType.ADD_VIDEO, videoUrl);
+        });
     };
 
     const onClick: React.MouseEventHandler<HTMLDivElement> = e => {

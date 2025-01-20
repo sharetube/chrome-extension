@@ -1,5 +1,5 @@
 import { AdminProvider } from "@shared/Context/Admin/Admin";
-import { getVideoUrlFromLink } from "@shared/api/getVideoUrlFromLink";
+import { getContextMenuVideoUrl } from "@shared/api/getContextMenuVideoUrl";
 import waitForElement from "@shared/lib/waitForElement";
 import ContextItem from "@widgets/ContextItem/ContextItem";
 import Popup from "@widgets/Popup/Popup";
@@ -24,17 +24,6 @@ contextMenuContainer.id = "st-context-menu";
 contextMenuContainer.className = "sharetube";
 contextMenuContainer.style.minWidth = "149px";
 
-const videoUrlFromThumbnail = (e: Element): string => {
-    const thumbnail = e.querySelector("a#thumbnail");
-    if (!thumbnail) return "";
-
-    return getVideoUrlFromLink((thumbnail as HTMLAnchorElement).href);
-};
-
-const videoUrlFromLocation = (): string => {
-    return getVideoUrlFromLink(window.location.href);
-};
-
 const handleClick = (e: MouseEvent) => {
     const tagNames = [
         "ytd-compact-video-renderer",
@@ -48,10 +37,7 @@ const handleClick = (e: MouseEvent) => {
 
     let enteredIf: boolean = false;
 
-    const dropdowns = Array.from(
-        document.querySelector("ytd-popup-container")!.querySelectorAll("tp-yt-iron-dropdown"),
-    );
-    const dropdown = dropdowns.find(e => !(e as HTMLElement).id);
+    const dropdown = document.querySelector("ytd-popup-container tp-yt-iron-dropdown");
     const listbox = dropdown?.querySelector("tp-yt-paper-listbox");
 
     const removeRender = () => {
@@ -73,11 +59,9 @@ const handleClick = (e: MouseEvent) => {
         if (elem) {
             enteredIf = true;
 
-            const url = videoUrlFromThumbnail(elem) || videoUrlFromLocation();
-
             createRoot(contextMenuContainer).render(
                 <AdminProvider>
-                    <ContextItem videoUrl={url} callback={callback} />
+                    <ContextItem callback={callback} />
                 </AdminProvider>,
             );
 
@@ -92,3 +76,67 @@ const handleClick = (e: MouseEvent) => {
 };
 
 document.addEventListener("click", handleClick);
+
+// let listbox: Element | undefined;
+
+// function removeRender() {
+//     const contextMenu = document.querySelector("tp-yt-paper-listbox #st-context-menu");
+//     contextMenu?.parentElement?.removeChild(contextMenu);
+// }
+
+// function renderContextMenu() {
+//     if (listbox?.firstElementChild?.id === "st-context-menu") return;
+
+//     getContextMenuVideoUrl().then(() => {
+//         console.log("rendered");
+//         createRoot(contextMenuContainer).render(
+//             <AdminProvider>
+//                 <ContextItem callback={removeRender} />
+//             </AdminProvider>,
+//         );
+
+//         listbox?.prepend(contextMenuContainer);
+//     });
+// }
+
+// const debouncedRenderContextMenu = debounce(renderContextMenu, 100);
+
+// function initListBoxListener() {
+//     if (!listbox) return;
+
+//     const observer = new MutationObserver(mutations => {
+//         for (const mutation of mutations) {
+//             if (mutation.type === "childList") {
+//                 console.log("Listbox Children were modified!");
+//                 debouncedRenderContextMenu();
+//             }
+//         }
+//     });
+
+//     observer.observe(listbox, {
+//         childList: true,
+//         subtree: false,
+//     });
+// }
+
+// waitForElement("ytd-popup-container").then(elem => {
+//     console.log(elem);
+
+//     const observer = new MutationObserver(mutations => {
+//         for (const mutation of mutations) {
+//             if (mutation.type === "childList") {
+//                 console.log("Children were modified!");
+
+//                 listbox = document.querySelector("tp-yt-paper-listbox")!;
+//                 initListBoxListener();
+//                 observer.disconnect();
+//                 break;
+//             }
+//         }
+//     });
+
+//     observer.observe(elem, {
+//         childList: true,
+//         subtree: false,
+//     });
+// });

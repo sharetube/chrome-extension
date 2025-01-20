@@ -115,8 +115,8 @@ export async function createRoom(
 ) {
     if (sender?.tab?.id !== undefined) setTargetPrimaryTabId(sender.tab.id);
     const profile = await profileStorage.get();
-    server.createRoom(profile, payload.videoUrl).then(() => {
-        logger.log("ROOM CREATED", { videoUrl: payload.videoUrl });
+    server.createRoom(profile, payload).then(() => {
+        logger.log("ROOM CREATED", { videoUrl: payload });
     });
 }
 

@@ -31,6 +31,12 @@
       "matches": ["https://*.youtube.com/*", "https://*.youtu.be/*"],
       "world": "MAIN",
       "run_at": "document_start"
+    },
+    {
+      "js": ["scripts/getContextMenuVideo.ts"],
+      "matches": ["https://*.youtube.com/*", "https://*.youtu.be/*"],
+      "world": "MAIN",
+      "run_at": "document_start"
     }
   ],
   "background": {

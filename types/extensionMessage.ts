@@ -55,7 +55,7 @@ export type ExtensionMessagePayloadMap = {
     [ExtensionMessageType.SWITCH_TO_PRIMARY_TAB]: void;
     [ExtensionMessageType.IS_PRIMARY_TAB_EXISTS]: void;
     [ExtensionMessageType.IS_PRIMARY_TAB]: void;
-    [ExtensionMessageType.CREATE_ROOM]: { videoUrl: string };
+    [ExtensionMessageType.CREATE_ROOM]: string;
     [ExtensionMessageType.GO_TO_VIDEO]: string;
     [ExtensionMessageType.REORDER_PLAYLIST]: number[];
     // Room
