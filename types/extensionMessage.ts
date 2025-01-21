@@ -14,6 +14,7 @@ export enum ExtensionMessageType {
     SWITCH_TO_PRIMARY_TAB = "SWITCH_TO_PRIMARY_TAB",
     IS_PRIMARY_TAB_EXISTS = "IS_PRIMARY_TAB_EXISTS",
     IS_PRIMARY_TAB = "IS_PRIMARY_TAB",
+    PRIMARY_TAB_LOADED = "PRIMARY_TAB_LOADED",
     GET_IS_ADMIN = "GET_ADMIN_STATUS",
     REORDER_PLAYLIST = "REORDER_PLAYLIST",
     ADMIN_STATUS_UPDATED = "ADMIN_STATUS_UPDATED",
@@ -83,6 +84,7 @@ export type ExtensionMessagePayloadMap = {
     [ExtensionMessageType.UPDATE_URL]: string;
     [ExtensionMessageType.CURRENT_VIDEO_UPDATED]: VideoType;
     [ExtensionMessageType.LAST_VIDEO_UPDATED]: VideoType;
+    [ExtensionMessageType.PRIMARY_TAB_LOADED]: void;
     // Profile
     [ExtensionMessageType.UPDATE_MUTED]: boolean;
     [ExtensionMessageType.UPDATE_READY]: boolean;

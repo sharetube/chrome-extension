@@ -4,11 +4,13 @@ type State = {
     room: RoomType;
     isAdmin: boolean;
     updatePlayerStateRid: string;
+    waitingForPrimaryTab: boolean;
 };
 
 export const defaultState: State = {
     isAdmin: false,
     updatePlayerStateRid: "",
+    waitingForPrimaryTab: false,
     room: {
         id: "",
         playlist: {

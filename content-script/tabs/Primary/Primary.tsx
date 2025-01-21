@@ -14,6 +14,8 @@ const logger = CSLogger.getInstance();
 const contentScriptMessageClient = new ContentScriptMessagingClient();
 let isPrimaryTab = false;
 
+ContentScriptMessagingClient.sendMessage(ExtensionMessageType.PRIMARY_TAB_LOADED);
+
 const hideShareStyleId = "hide-share-style";
 function update() {
     ContentScriptMessagingClient.sendMessage(ExtensionMessageType.IS_PRIMARY_TAB).then(

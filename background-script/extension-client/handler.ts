@@ -1,4 +1,4 @@
-import { setTargetPrimaryTabId } from "../targetPrimaryTabId";
+import { getTargetPrimaryTabId, setTargetPrimaryTabId } from "../targetPrimaryTabId";
 import { BackgroundMessagingClient } from "background-script/clients/ExtensionClient";
 import ServerClient from "background-script/clients/ServerClient";
 import { DebugModeStorage } from "background-script/logging/debugModeStorage";
@@ -150,6 +150,15 @@ export async function isPrimaryTab(
 
     tabStorage.addTab(sender.tab.id);
     return getPrimaryTabIdOrUnset().then(primaryTabId => primaryTabId === sender.tab?.id);
+}
+
+export function primaryTabLoaded(): void {
+    bgMessagingClient.broadcastMessage(ExtensionMessageType.PRIMARY_TAB_SET);
+    const targetPrimaryTabId = getTargetPrimaryTabId();
+    if (targetPrimaryTabId) {
+        tabStorage.addTab(targetPrimaryTabId);
+        tabStorage.setPrimaryTab(targetPrimaryTabId);
+    }
 }
 
 export function isPrimaryTabExists(): EMRM[EMType.IS_PRIMARY_TAB_EXISTS] {

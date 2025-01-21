@@ -2,14 +2,12 @@ import { BackgroundMessagingClient } from "background-script/clients/ExtensionCl
 import { JWTStorage } from "background-script/jwtStorage";
 import { BGLogger } from "background-script/logging/logger";
 import { globalState, resetState } from "background-script/state";
-import { TabStorage } from "background-script/tabStorage";
-import { takeTargetPrimaryTabId } from "background-script/targetPrimaryTabId";
+import { getTargetPrimaryTabId } from "background-script/targetPrimaryTabId";
 import { ExtensionMessageType } from "types/extensionMessage";
 import { FromServerMessagePayloadMap, FromServerMessageType } from "types/serverMessage";
 import browser from "webextension-polyfill";
 
 const bgMessagingClient = BackgroundMessagingClient.getInstance();
-const tabStorage = TabStorage.getInstance();
 const jwtStorage = JWTStorage.getInstance();
 const logger = BGLogger.getInstance();
 
@@ -22,7 +20,7 @@ export function joinedRoom(
     globalState.isAdmin = payload.joined_member.is_admin;
 
     const videoPageLink = `https://youtube.com/watch?v=${payload.room.playlist.current_video.url}`;
-    const targetPrimaryTabId = takeTargetPrimaryTabId();
+    const targetPrimaryTabId = getTargetPrimaryTabId();
     if (targetPrimaryTabId) {
         browser.tabs.update(targetPrimaryTabId, { url: videoPageLink });
         // bgMessagingClient.sendMessage(
@@ -31,9 +29,7 @@ export function joinedRoom(
         //     payload.room.player.video_url,
         // );
         // todo: skip that if target primary tab was primary tab
-        bgMessagingClient.broadcastMessage(ExtensionMessageType.PRIMARY_TAB_SET);
-        tabStorage.addTab(targetPrimaryTabId);
-        tabStorage.setPrimaryTab(targetPrimaryTabId);
+        globalState.waitingForPrimaryTab = true;
     } else {
         logger.log("No target primary tab found");
     }

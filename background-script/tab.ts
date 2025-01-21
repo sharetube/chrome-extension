@@ -18,7 +18,7 @@ const domainRegex = /^https:\/\/(www\.)?(youtu\.be|youtube\.com)/;
 const inviteLinkRegex = /^https:\/\/(www\.)?(youtu\.be|youtube\.com)\/st\/(.+)/;
 const roomIdRegex = /^[a-zA-Z0-9.-]{8}$/;
 
-const handleTab = async (tabId: number, url: string) => {
+async function handleTab(tabId: number, url: string) {
     const inviteLinkMatch = url.match(inviteLinkRegex);
     if (!inviteLinkMatch) return;
 
@@ -56,7 +56,7 @@ const handleTab = async (tabId: number, url: string) => {
     server.joinRoom(profile, roomId).catch(() => {
         showErrorPage();
     });
-};
+}
 
 async function clearPrimaryTab() {
     server.close();
