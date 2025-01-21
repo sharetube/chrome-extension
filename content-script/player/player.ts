@@ -117,6 +117,7 @@ class Player {
             ExtensionMessageType.PLAYER_STATE_UPDATED,
             (state: ExtensionMessagePayloadMap[ExtensionMessageType.PLAYER_STATE_UPDATED]) => {
                 logger.log("received new player state", state);
+                this.isEnded = false;
                 if (this.adShowing) return;
                 this.setState(state);
             },
@@ -133,12 +134,15 @@ class Player {
         this.contentScriptMessagingClient.addHandler(ExtensionMessageType.VIDEO_ENDED, state => {
             if (this.isEnded) return;
             this.isEnded = true;
-            this.setState({
-                current_time: this.player.duration + 1,
-                is_playing: state.is_playing,
-                playback_rate: state.playback_rate,
-                updated_at: state.updated_at,
-            });
+            this.setState(
+                {
+                    current_time: this.player.duration * 1e7,
+                    is_playing: true,
+                    playback_rate: state.playback_rate,
+                    updated_at: state.updated_at,
+                },
+                true,
+            );
         });
 
         this.abortController = new AbortController();
@@ -256,21 +260,16 @@ class Player {
         switch (event.key) {
             case "ArrowRight":
                 logger.log("ArrowRight");
-                // if (this.isAdmin && this.player.duration - this.player.currentTime < 5) {
-                //     this.sendEnded();
-                // }
-
                 break;
             case "ArrowLeft":
                 logger.log("ArrowLeft");
-
                 break;
         }
     }
 
     private handleWaiting() {
         logger.log("waiting");
-        if (this.isDataLoaded) {
+        if (!this.isEnded && this.isDataLoaded) {
             this.setUpdateIsReadyFalseTimeout();
         }
     }
@@ -285,7 +284,6 @@ class Player {
         if (this.videoChanged) {
             logger.log("moving to start after video change");
             this.videoChanged = false;
-            this.player.currentTime = 0;
             this.clearEndScreenObserver();
             this.observeEndscreen();
         }
@@ -406,14 +404,18 @@ class Player {
         this.sendMute();
     }
 
-    private setState(state: PlayerStateType) {
+    private setState(state: PlayerStateType, isEnded?: boolean) {
         let ct;
-        if (state.is_playing) {
-            const delta = dateNowInUs() - state.updated_at;
-            ct = Math.round(state.current_time + delta * state.playback_rate) / 1e6;
-            logger.log("delta", { delta });
+        if (isEnded) {
+            ct = this.player.duration + 1;
         } else {
-            ct = state.current_time / 1e6;
+            if (state.is_playing) {
+                const delta = dateNowInUs() - state.updated_at;
+                ct = Math.round(state.current_time + delta * state.playback_rate) / 1e6;
+                logger.log("delta", { delta });
+            } else {
+                ct = state.current_time / 1e6;
+            }
         }
 
         if (state.is_playing && !this.getIsPlaying()) {

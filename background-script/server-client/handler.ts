@@ -111,7 +111,10 @@ export const playerStateUpdated = (
         payload.rid !== globalState.updatePlayerStateRid
     ) {
         if (payload.player.is_ended) {
-            bgMessagingClient.sendMessageToPrimaryTab(ExtensionMessageType.VIDEO_ENDED);
+            bgMessagingClient.sendMessageToPrimaryTab(
+                ExtensionMessageType.VIDEO_ENDED,
+                payload.player.state,
+            );
         } else {
             bgMessagingClient.sendMessageToPrimaryTab(
                 ExtensionMessageType.PLAYER_STATE_UPDATED,
