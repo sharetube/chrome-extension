@@ -6,7 +6,7 @@ const updateVideoUrl = (videoUrl: string) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (a as any).data.watchEndpoint.videoId = videoUrl;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (a as any).data.commandMetadata.webCommandMetadata.url = `/watch?v=${videoUrl}`;
+    (a as any).data.commandMetadata.webCommandMetadata.url = `/watch?v=${videoUrl}&t=0`;
     a.click();
 };
 
