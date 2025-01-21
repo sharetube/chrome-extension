@@ -9,7 +9,7 @@ import {
     ExtensionMessageType,
 } from "types/extensionMessage";
 import { Mode } from "types/mode";
-import { PlayerType } from "types/player.type";
+import { PlayerStateType } from "types/player.type";
 
 interface MastheadElement extends HTMLElement {
     theater: boolean;
@@ -130,10 +130,15 @@ class Player {
             },
         );
 
-        this.contentScriptMessagingClient.addHandler(ExtensionMessageType.VIDEO_ENDED, () => {
+        this.contentScriptMessagingClient.addHandler(ExtensionMessageType.VIDEO_ENDED, state => {
             if (this.isEnded) return;
             this.isEnded = true;
-            this.player.currentTime = this.player.duration + 1;
+            this.setState({
+                current_time: this.player.duration + 1,
+                is_playing: state.is_playing,
+                playback_rate: state.playback_rate,
+                updated_at: state.updated_at,
+            });
         });
 
         this.abortController = new AbortController();
@@ -207,7 +212,7 @@ class Player {
     private setActualState() {
         logger.log("setActualState");
         ContentScriptMessagingClient.sendMessage(ExtensionMessageType.GET_PLAYER_STATE).then(
-            (state: PlayerType) => {
+            (state: PlayerStateType) => {
                 logger.log("fetched player state", state);
                 this.setState(state);
             },
@@ -401,7 +406,7 @@ class Player {
         this.sendMute();
     }
 
-    private setState(state: PlayerType) {
+    private setState(state: PlayerStateType) {
         let ct;
         if (state.is_playing) {
             const delta = dateNowInUs() - state.updated_at;
@@ -444,7 +449,7 @@ class Player {
         return !this.player.paused;
     }
 
-    private getState(): PlayerType {
+    private getState(): PlayerStateType {
         const s = {
             updated_at: dateNowInUs(),
             current_time: Math.round(this.player.currentTime * 1e6),

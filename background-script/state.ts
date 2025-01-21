@@ -2,11 +2,13 @@ import { RoomType } from "types/room.type";
 
 type State = {
     room: RoomType;
-    is_admin: boolean;
+    isAdmin: boolean;
+    updatePlayerStateRid: string;
 };
 
 export const defaultState: State = {
-    is_admin: false,
+    isAdmin: false,
+    updatePlayerStateRid: "",
     room: {
         id: "",
         playlist: {
@@ -21,12 +23,15 @@ export const defaultState: State = {
             },
             version: 0,
         },
-        video_ended: false,
         player: {
-            current_time: 0,
-            is_playing: false,
-            playback_rate: 1,
-            updated_at: 0,
+            state: {
+                current_time: 0,
+                is_playing: false,
+                playback_rate: 1,
+                updated_at: 0,
+            },
+            is_ended: false,
+            version: 0,
         },
         members: [],
     },

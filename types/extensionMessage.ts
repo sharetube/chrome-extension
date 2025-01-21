@@ -1,7 +1,7 @@
 import { MemberType } from "./member.type";
 import { ProfileType } from "./profile.type";
 import { PlaylistType, VideoType } from "./video.type";
-import { PlayerType } from "types/player.type";
+import { PlayerStateType } from "types/player.type";
 
 export enum ExtensionMessageType {
     PRIMARY_TAB_SET = "PRIMARY_TAB_SET",
@@ -71,13 +71,13 @@ export type ExtensionMessagePayloadMap = {
     [ExtensionMessageType.PROMOTE_MEMBER]: string;
     [ExtensionMessageType.REMOVE_MEMBER]: string;
     // Player
-    [ExtensionMessageType.UPDATE_PLAYER_STATE]: { video_id: number } & PlayerType;
-    [ExtensionMessageType.PLAYER_STATE_UPDATED]: PlayerType;
+    [ExtensionMessageType.UPDATE_PLAYER_STATE]: { video_id: number } & PlayerStateType;
+    [ExtensionMessageType.PLAYER_STATE_UPDATED]: PlayerStateType;
     [ExtensionMessageType.UPDATE_PLAYER_VIDEO]: {
         videoId: number;
         updatedAt: number;
     };
-    [ExtensionMessageType.VIDEO_ENDED]: void;
+    [ExtensionMessageType.VIDEO_ENDED]: PlayerStateType;
     [ExtensionMessageType.GET_PLAYER_STATE]: void;
     [ExtensionMessageType.GET_CURRENT_VIDEO]: void;
     [ExtensionMessageType.UPDATE_URL]: string;
@@ -105,7 +105,7 @@ export type ExtensionMessageResponseMap = {
     [ExtensionMessageType.REMOVE_VIDEO]: string;
     [ExtensionMessageType.GET_ROOM_ID]: string;
     [ExtensionMessageType.GET_IS_ADMIN]: boolean;
-    [ExtensionMessageType.GET_PLAYER_STATE]: PlayerType;
+    [ExtensionMessageType.GET_PLAYER_STATE]: PlayerStateType;
     [ExtensionMessageType.GET_CURRENT_VIDEO]: VideoType;
     [ExtensionMessageType.GET_LAST_VIDEO]: VideoType | null;
     // Devmode

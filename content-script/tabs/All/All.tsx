@@ -1,5 +1,4 @@
 import { AdminProvider } from "@shared/Context/Admin/Admin";
-import { getContextMenuVideoUrl } from "@shared/api/getContextMenuVideoUrl";
 import waitForElement from "@shared/lib/waitForElement";
 import ContextItem from "@widgets/ContextItem/ContextItem";
 import Popup from "@widgets/Popup/Popup";

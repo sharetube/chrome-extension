@@ -26,11 +26,19 @@ const bgMessagingClient = BackgroundMessagingClient.getInstance();
 const tabStorage = TabStorage.getInstance();
 
 export function addVideo(videoUrl: EMPM[EMType.ADD_VIDEO]): void {
-    server.send(TSMType.ADD_VIDEO, { video_url: videoUrl, updated_at: dateNowInUs() });
+    server.send(TSMType.ADD_VIDEO, {
+        video_url: videoUrl,
+        updated_at: dateNowInUs(),
+        player_version: globalState.room.player.version,
+        playlist_version: globalState.room.playlist.version,
+    });
 }
 
 export function removeVideo(videoId: EMPM[EMType.REMOVE_VIDEO]): void {
-    server.send(TSMType.REMOVE_VIDEO, { video_id: videoId });
+    server.send(TSMType.REMOVE_VIDEO, {
+        video_id: videoId,
+        playlist_version: globalState.room.playlist.version,
+    });
 }
 
 export function getPlaylist(): EMRM[EMType.GET_PLAYLIST] {
@@ -46,7 +54,7 @@ export function getRoomId(): EMRM[EMType.GET_ROOM_ID] {
 }
 
 export function getIsAdmin(): EMRM[EMType.GET_IS_ADMIN] {
-    return globalState.is_admin;
+    return globalState.isAdmin;
 }
 
 export function promoteMember(memberId: EMPM[EMType.PROMOTE_MEMBER]): void {
@@ -58,18 +66,22 @@ export function removeMember(memberId: EMPM[EMType.REMOVE_MEMBER]): void {
 }
 
 export function videoEnded(): void {
-    server.send(TSMType.END_VIDEO);
+    server.send(TSMType.END_VIDEO, {
+        player_version: globalState.room.player.version,
+    });
 }
 
 export function updatePlayerVideo({ videoId, updatedAt }: EMPM[EMType.UPDATE_PLAYER_VIDEO]): void {
     server.send(TSMType.UPDATE_PLAYER_VIDEO, {
         video_id: videoId,
         updated_at: updatedAt,
+        player_version: globalState.room.player.version,
+        playlist_version: globalState.room.playlist.version,
     });
 }
 
 export function getPlayerState(): EMRM[EMType.GET_PLAYER_STATE] {
-    return globalState.room.player;
+    return globalState.room.player.state;
 }
 
 export function getPlayerVideoUrl(): EMRM[EMType.GET_CURRENT_VIDEO] {
@@ -85,13 +97,15 @@ export function updateMuted(isMuted: EMPM[EMType.UPDATE_MUTED]): void {
 }
 
 export function updatePlayerState(payload: EMPM[EMType.UPDATE_PLAYER_STATE]): void {
-    // if (playerState.video_url !== globalState.room.player.video_url) {
-    // return;
-    // }
+    globalState.room.player.state = payload;
+    globalState.updatePlayerStateRid = Math.random().toString(36).substring(2);
 
-    globalState.room.player = payload;
-
-    server.send(TSMType.UPDATE_PLAYER_STATE, payload);
+    server.send(TSMType.UPDATE_PLAYER_STATE, {
+        rid: globalState.updatePlayerStateRid,
+        player_version: globalState.room.player.version,
+        ...payload,
+    });
+    globalState.room.player.version++;
 }
 
 export function updateReady(isReady: EMPM[EMType.UPDATE_READY]): void {
@@ -145,6 +159,7 @@ export function isPrimaryTabExists(): EMRM[EMType.IS_PRIMARY_TAB_EXISTS] {
 export function reorderPlaylist(payload: EMPM[EMType.REORDER_PLAYLIST]): void {
     server.send(TSMType.REORDER_PLAYLIST, {
         video_ids: payload,
+        playlist_version: globalState.room.playlist.version,
     });
 }
 

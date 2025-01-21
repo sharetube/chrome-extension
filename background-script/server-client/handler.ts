@@ -19,7 +19,7 @@ export function joinedRoom(
     jwtStorage.set(payload.jwt);
     resetState();
     globalState.room = payload.room;
-    globalState.is_admin = payload.joined_member.is_admin;
+    globalState.isAdmin = payload.joined_member.is_admin;
 
     const videoPageLink = `https://youtube.com/watch?v=${payload.room.playlist.current_video.url}`;
     const targetPrimaryTabId = takeTargetPrimaryTabId();
@@ -102,7 +102,7 @@ export const memberUpdated = (
 export const isAdminUpdated = (
     payload: FromServerMessagePayloadMap[FromServerMessageType.IS_ADMIN_UPDATED],
 ): void => {
-    globalState.is_admin = payload.is_admin;
+    globalState.isAdmin = payload.is_admin;
     bgMessagingClient.broadcastMessage(ExtensionMessageType.ADMIN_STATUS_UPDATED, payload.is_admin);
 };
 
@@ -110,19 +110,27 @@ export const playerStateUpdated = (
     payload: FromServerMessagePayloadMap[FromServerMessageType.PLAYER_STATE_UPDATED],
 ): void => {
     globalState.room.player = payload.player;
+    if (
+        payload.player.version === globalState.room.player.version &&
+        payload.rid !== globalState.updatePlayerStateRid
+    ) {
+        if (payload.player.is_ended) {
+            bgMessagingClient.sendMessageToPrimaryTab(ExtensionMessageType.VIDEO_ENDED);
+        } else {
+            bgMessagingClient.sendMessageToPrimaryTab(
+                ExtensionMessageType.PLAYER_STATE_UPDATED,
+                payload.player.state,
+            );
+        }
 
-    bgMessagingClient.sendMessageToPrimaryTab(
-        ExtensionMessageType.PLAYER_STATE_UPDATED,
-        payload.player,
-    );
-
-    //? indicates loss of player_video_updated msg, should also get updated playlist
-    // if (payload.player.video_url !== globalState.room.player.video_url) {
-    //     bgMessagingClient.sendMessageToPrimaryTab(
-    //         ExtensionMessageType.PLAYER_VIDEO_UPDATED,
-    //         payload.player.video_url,
-    //     );
-    // }
+        //? indicates loss of player_video_updated msg, should also get updated playlist
+        // if (payload.player.video_url !== globalState.room.player.video_url) {
+        //     bgMessagingClient.sendMessageToPrimaryTab(
+        //         ExtensionMessageType.PLAYER_VIDEO_UPDATED,
+        //         payload.player.video_url,
+        //     );
+        // }
+    }
 };
 
 export const playerVideoUpdated = (
@@ -153,12 +161,6 @@ export const playerVideoUpdated = (
             payload.playlist.last_video,
         );
     }
-};
-
-export const videoEnded = (): void => {
-    globalState.room.video_ended = true;
-
-    bgMessagingClient.sendMessageToPrimaryTab(ExtensionMessageType.VIDEO_ENDED);
 };
 
 export const kickedFromRoom = (): void => {

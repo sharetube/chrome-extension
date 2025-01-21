@@ -24,6 +24,4 @@ serverClient.addHandler(FromServerMessageType.PLAYER_STATE_UPDATED, Handler.play
 
 serverClient.addHandler(FromServerMessageType.PLAYER_VIDEO_UPDATED, Handler.playerVideoUpdated);
 
-serverClient.addHandler(FromServerMessageType.VIDEO_ENDED, Handler.videoEnded);
-
 serverClient.addCloseCodeHandler(4001, Handler.kickedFromRoom);
