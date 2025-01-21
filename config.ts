@@ -8,8 +8,7 @@ type Config = {
 const config: Config = {
     debug: true,
     api: {
-        // baseUrl: "go-game-api.online",
-        baseUrl: "localhost",
+        baseUrl: "go-game-api.online",
     },
 };
 

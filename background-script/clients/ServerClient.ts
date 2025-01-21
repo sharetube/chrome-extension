@@ -114,7 +114,7 @@ class ServerClient {
         const params = this.buildParams(profile, { "video-url": videoUrl });
         logger.log("WS: CREATING ROOM", params);
         // todo: implement WSConnectionURLBuilder
-        return this.init(`ws://${baseUrl}/api/v1/ws/room/create?${buildQueryParams(params)}`);
+        return this.init(`wss://${baseUrl}/api/v1/ws/room/create?${buildQueryParams(params)}`);
     }
 
     public async joinRoom(profile: ProfileType, room_id: string): Promise<void> {
@@ -122,7 +122,7 @@ class ServerClient {
         const params = this.buildParams(profile, jwt ? { jwt } : {});
         logger.log("WS: JOINING ROOM", params);
         return this.init(
-            `ws://${baseUrl}/api/v1/ws/room/${room_id}/join?${buildQueryParams(params)}`,
+            `wss://${baseUrl}/api/v1/ws/room/${room_id}/join?${buildQueryParams(params)}`,
         );
     }
 
