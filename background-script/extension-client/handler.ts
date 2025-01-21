@@ -5,7 +5,7 @@ import { DebugModeStorage } from "background-script/logging/debugModeStorage";
 import { BGLogger } from "background-script/logging/logger";
 import { ProfileStorage } from "background-script/profileStorage";
 import { globalState } from "background-script/state";
-import { getPrimaryTabIdOrUnset } from "background-script/tab";
+import { getPrimaryTabIdOrUnset, updatePrimaryTabUrlToRoomId } from "background-script/tab";
 import { TabStorage } from "background-script/tabStorage";
 import { dateNowInUs } from "shared/dateNowInUs";
 import {
@@ -153,11 +153,15 @@ export async function isPrimaryTab(
 }
 
 export function primaryTabLoaded(): void {
-    bgMessagingClient.broadcastMessage(ExtensionMessageType.PRIMARY_TAB_SET);
-    const targetPrimaryTabId = getTargetPrimaryTabId();
-    if (targetPrimaryTabId) {
-        tabStorage.addTab(targetPrimaryTabId);
-        tabStorage.setPrimaryTab(targetPrimaryTabId);
+    if (globalState.waitingForPrimaryTab) {
+        const targetPrimaryTabId = getTargetPrimaryTabId();
+        if (targetPrimaryTabId) {
+            tabStorage.addTab(targetPrimaryTabId);
+            tabStorage.setPrimaryTab(targetPrimaryTabId);
+            updatePrimaryTabUrlToRoomId();
+            bgMessagingClient.broadcastMessage(ExtensionMessageType.PRIMARY_TAB_SET);
+            globalState.waitingForPrimaryTab = false;
+        }
     }
 }
 

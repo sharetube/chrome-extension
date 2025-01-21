@@ -93,6 +93,14 @@ browser.tabs.onRemoved.addListener(async tabId => {
 });
 
 let ignoreNextTabUpdate = false;
+export function updatePrimaryTabUrlToRoomId() {
+    ignoreNextTabUpdate = true;
+    bgMessagingClient.sendMessageToPrimaryTab(
+        ExtensionMessageType.UPDATE_URL,
+        `/st/${globalState.room.id}`,
+    );
+}
+
 browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     if (!changeInfo.url) {
         return;
@@ -120,9 +128,5 @@ browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
         return;
     }
 
-    ignoreNextTabUpdate = true;
-    bgMessagingClient.sendMessageToPrimaryTab(
-        ExtensionMessageType.UPDATE_URL,
-        `/st/${globalState.room.id}`,
-    );
+    updatePrimaryTabUrlToRoomId();
 });
