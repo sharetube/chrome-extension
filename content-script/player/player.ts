@@ -58,6 +58,7 @@ class Player {
         });
 
         this.endScreenObserver = new MutationObserver(mutations => {
+            if (!this.isReady || !this.isDataLoaded) return;
             mutations.forEach(mutation => {
                 if (mutation.attributeName === "style") {
                     if (!(mutation.target as HTMLDivElement).getAttribute("style")) {

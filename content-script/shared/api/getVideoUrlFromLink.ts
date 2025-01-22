@@ -1,6 +1,6 @@
 export function getVideoUrlFromLink(link: string): string {
     const match = link.match(
-        /(?:youtube\.com\/(?:[^/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/,
+        /^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w-]+\?v=|embed\/|v\/|live\/)?)([\w-]{11})(\S+)?$/,
     );
-    return match ? match[1] : "";
+    return match ? match[5] : "";
 }
