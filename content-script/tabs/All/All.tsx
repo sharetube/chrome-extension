@@ -7,15 +7,15 @@ import { createRoot } from "react-dom/client";
 
 // Render popup
 waitForElement("#end")
-    .then(elem => {
-        const popupContainer = document.createElement("div");
-        popupContainer.id = "st-popup-container";
-        popupContainer.className = "sharetube";
+	.then((elem) => {
+		const popupContainer = document.createElement("div");
+		popupContainer.id = "st-popup-container";
+		popupContainer.className = "sharetube";
 
-        createRoot(popupContainer).render(<Popup />);
-        elem.prepend(popupContainer);
-    })
-    .catch(error => console.error("ST: Failed to render popup", error));
+		createRoot(popupContainer).render(<Popup />);
+		elem.prepend(popupContainer);
+	})
+	.catch((error) => console.error("ST: Failed to render popup", error));
 
 // Context item renderer
 const contextMenuContainer = document.createElement("div");
@@ -24,54 +24,56 @@ contextMenuContainer.className = "sharetube";
 contextMenuContainer.style.minWidth = "149px";
 
 const handleClick = (e: MouseEvent) => {
-    const tagNames = [
-        "ytd-compact-video-renderer",
-        "ytd-rich-item-renderer",
-        "ytd-playlist-video-renderer",
-        "ytd-grid-video-renderer",
-        "ytd-video-renderer",
-        "ytd-watch-metadata",
-        "ytd-playlist-panel-video-renderer",
-    ];
+	const tagNames = [
+		"ytd-compact-video-renderer",
+		"ytd-rich-item-renderer",
+		"ytd-playlist-video-renderer",
+		"ytd-grid-video-renderer",
+		"ytd-video-renderer",
+		"ytd-watch-metadata",
+		"ytd-playlist-panel-video-renderer",
+	];
 
-    let enteredIf: boolean = false;
+	let enteredIf = false;
 
-    const dropdown = document.querySelector("ytd-popup-container tp-yt-iron-dropdown");
-    const listbox = dropdown?.querySelector("tp-yt-paper-listbox");
+	const dropdown = document.querySelector(
+		"ytd-popup-container tp-yt-iron-dropdown",
+	);
+	const listbox = dropdown?.querySelector("tp-yt-paper-listbox");
 
-    const removeRender = () => {
-        if (listbox) {
-            const contextMenu = listbox.querySelector("#st-context-menu");
-            if (contextMenu) {
-                listbox.removeChild(contextMenu);
-            }
-        }
-    };
-    const callback = () => {
-        removeRender();
-        document.body.click();
-    };
+	const removeRender = () => {
+		if (listbox) {
+			const contextMenu = listbox.querySelector("#st-context-menu");
+			if (contextMenu) {
+				listbox.removeChild(contextMenu);
+			}
+		}
+	};
+	const callback = () => {
+		removeRender();
+		document.body.click();
+	};
 
-    for (const tagName of tagNames) {
-        const elem = (e.target as HTMLElement).closest(tagName);
+	for (const tagName of tagNames) {
+		const elem = (e.target as HTMLElement).closest(tagName);
 
-        if (elem) {
-            enteredIf = true;
+		if (elem) {
+			enteredIf = true;
 
-            createRoot(contextMenuContainer).render(
-                <AdminProvider>
-                    <ContextItem callback={callback} />
-                </AdminProvider>,
-            );
+			createRoot(contextMenuContainer).render(
+				<AdminProvider>
+					<ContextItem callback={callback} />
+				</AdminProvider>,
+			);
 
-            listbox?.prepend(contextMenuContainer);
-            break;
-        }
-    }
+			listbox?.prepend(contextMenuContainer);
+			break;
+		}
+	}
 
-    if (!enteredIf) {
-        removeRender();
-    }
+	if (!enteredIf) {
+		removeRender();
+	}
 };
 
 document.addEventListener("click", handleClick);

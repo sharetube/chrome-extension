@@ -1,72 +1,76 @@
 {
-  "{{chrome}}.manifest_version": 3,
-  "{{firefox}}.manifest_version": 2,
-  "version": "1.0.0",
-  "{{chrome}}.version_name": "1.0.0 beta (Oly)",
-  "name": "ShareTube",
-  "short_name": "ST",
-  "author": "Sharetube team",
-  "description": "A browser extension that lets you watch yotube videos together with your friends in real-time!",
-  "permissions": ["storage", "tabs", "webNavigation"],
-  "options_ui": {
-    "page": "pages/options/options.html",
-    "open_in_tab": false
-  },
-  "icons": {
-    "16": "icon16.png",
-    "32": "icon32.png",
-    "48": "icon48.png",
-    "128": "icon128.png"
-  },
-  "content_scripts": [
-    {
-      "js": ["content-script/index.ts"],
-      "matches": ["https://*.youtube.com/*", "https://*.youtu.be/*"],
-      "run_at": "document_start",
-      "{{firefox}}.match_about_blank": true,
-      "{{firefox}}.all_frames": true
-    },
-    {
-      "js": ["scripts/setVideo.ts"],
-      "matches": ["https://*.youtube.com/*", "https://*.youtu.be/*"],
-      "world": "MAIN",
-      "run_at": "document_start"
-    },
-    {
-      "js": ["scripts/getContextMenuVideo.ts"],
-      "matches": ["https://*.youtube.com/*", "https://*.youtu.be/*"],
-      "world": "MAIN",
-      "run_at": "document_start"
-    }
-  ],
-  "background": {
-    "{{chrome}}.service_worker": "background-script/index.ts",
-    "{{firefox}}.scripts": ["background-script/index.ts"],
-    "{{firefox}}.persistent": true
-  },
-  "{{chrome}}.action": {
-    "default_popup": "pages/popup/popup.html"
-  },
-  "{{chrome}}.minimum_chrome_version": "116",
-  "{{chrome}}.web_accessible_resources": [
-    {
-      "matches": [],
-      "resources": ["pages/error.html", "pages/loading.html", "pages/cat-sleep.gif"],
-      "use_dynamic_url": false
-    }
-  ],
-  "{{firefox}}.web_accessible_resources": [
-    "pages/error.html",
-    "pages/loading.html",
-    "pages/cat-sleep.gif"
-  ],
-  "{{firefox}}.browser_specific_settings": {
-    "gecko": {
-      "id": "sharetube.team@gmail.com",
-      "strict_min_version": "78.0"
-    },
-    "gecko_android": {
-      "strict_min_version": "79.0"
-    }
-  }
+	"{{chrome}}.manifest_version": 3,
+	"{{firefox}}.manifest_version": 2,
+	"version": "1.0.0",
+	"{{chrome}}.version_name": "1.0.0 beta (Oly)",
+	"name": "ShareTube",
+	"short_name": "ST",
+	"author": "Sharetube team",
+	"description": "A browser extension that lets you watch yotube videos together with your friends in real-time!",
+	"permissions": ["storage", "tabs", "webNavigation"],
+	"options_ui": {
+		"page": "pages/options/options.html",
+		"open_in_tab": false
+	},
+	"icons": {
+		"16": "icon16.png",
+		"32": "icon32.png",
+		"48": "icon48.png",
+		"128": "icon128.png"
+	},
+	"content_scripts": [
+		{
+			"js": ["content-script/index.ts"],
+			"matches": ["https://*.youtube.com/*", "https://*.youtu.be/*"],
+			"run_at": "document_start",
+			"{{firefox}}.match_about_blank": true,
+			"{{firefox}}.all_frames": true
+		},
+		{
+			"js": ["scripts/setVideo.ts"],
+			"matches": ["https://*.youtube.com/*", "https://*.youtu.be/*"],
+			"world": "MAIN",
+			"run_at": "document_start"
+		},
+		{
+			"js": ["scripts/getContextMenuVideo.ts"],
+			"matches": ["https://*.youtube.com/*", "https://*.youtu.be/*"],
+			"world": "MAIN",
+			"run_at": "document_start"
+		}
+	],
+	"background": {
+		"{{chrome}}.service_worker": "background-script/index.ts",
+		"{{firefox}}.scripts": ["background-script/index.ts"],
+		"{{firefox}}.persistent": true
+	},
+	"{{chrome}}.action": {
+		"default_popup": "pages/popup/popup.html"
+	},
+	"{{chrome}}.minimum_chrome_version": "116",
+	"{{chrome}}.web_accessible_resources": [
+		{
+			"matches": [],
+			"resources": [
+				"pages/error.html",
+				"pages/loading.html",
+				"pages/cat-sleep.gif"
+			],
+			"use_dynamic_url": false
+		}
+	],
+	"{{firefox}}.web_accessible_resources": [
+		"pages/error.html",
+		"pages/loading.html",
+		"pages/cat-sleep.gif"
+	],
+	"{{firefox}}.browser_specific_settings": {
+		"gecko": {
+			"id": "sharetube.team@gmail.com",
+			"strict_min_version": "78.0"
+		},
+		"gecko_android": {
+			"strict_min_version": "79.0"
+		}
+	}
 }

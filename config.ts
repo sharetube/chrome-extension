@@ -1,15 +1,15 @@
 type Config = {
-    debug: boolean;
-    api: {
-        baseUrl: string;
-    };
+	debug: boolean;
+	api: {
+		baseUrl: string;
+	};
 };
 
 const config: Config = {
-    debug: true,
-    api: {
-        baseUrl: "go-game-api.online",
-    },
+	debug: true,
+	api: {
+		baseUrl: "go-game-api.online",
+	},
 };
 
 export default config;

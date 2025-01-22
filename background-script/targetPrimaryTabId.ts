@@ -1,9 +1,9 @@
 let targetPrimaryTabId: number | null = null;
 
 export function getTargetPrimaryTabId(): number | null {
-    return targetPrimaryTabId;
+	return targetPrimaryTabId;
 }
 
 export function setTargetPrimaryTabId(tabId: number) {
-    targetPrimaryTabId = tabId;
+	targetPrimaryTabId = tabId;
 }

@@ -1,35 +1,36 @@
 const updateVideoUrl = (videoUrl: string) => {
-    const a = document.body.querySelector(
-        "ytd-compact-video-renderer ytd-thumbnail > a",
-    ) as HTMLElement;
-    if (!a) return;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (a as any).data.watchEndpoint.videoId = videoUrl;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (a as any).data.commandMetadata.webCommandMetadata.url = `/watch?v=${videoUrl}&t=0`;
-    a.click();
+	const a = document.body.querySelector(
+		"ytd-compact-video-renderer ytd-thumbnail > a",
+	) as HTMLElement;
+	if (!a) return;
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+	(a as any).data.watchEndpoint.videoId = videoUrl;
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+	(a as any).data.commandMetadata.webCommandMetadata.url =
+		`/watch?v=${videoUrl}&t=0`;
+	a.click();
 };
 
 function goToMain() {
-    const logo = document.querySelector(
-        ".yt-simple-endpoint .style-scope .ytd-topbar-logo-renderer",
-    ) as HTMLElement;
-    if (!logo) return;
+	const logo = document.querySelector(
+		".yt-simple-endpoint .style-scope .ytd-topbar-logo-renderer",
+	) as HTMLElement;
+	if (!logo) return;
 
-    logo.click();
+	logo.click();
 }
 
-window.addEventListener("message", event => {
-    const { type, payload } = event.data;
-    // todo: add to constants
-    switch (type) {
-        case "GO_TO_MAIN":
-            goToMain();
-            break;
-        case "SKIP":
-            updateVideoUrl(payload);
-            break;
-        default:
-            return;
-    }
+window.addEventListener("message", (event) => {
+	const { type, payload } = event.data;
+	// todo: add to constants
+	switch (type) {
+		case "GO_TO_MAIN":
+			goToMain();
+			break;
+		case "SKIP":
+			updateVideoUrl(payload);
+			break;
+		default:
+			return;
+	}
 });

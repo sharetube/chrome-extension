@@ -1,44 +1,44 @@
 {
-  "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
-    "useDefineForClassFields": true,
-    "lib": ["DOM", "DOM.Iterable", "ESNext"],
-    "allowJs": false,
-    "skipLibCheck": true,
-    "esModuleInterop": false,
-    "allowSyntheticDefaultImports": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "Node",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "jsx": "react-jsx",
-    "baseUrl": ".",
-    "allowImportingTsExtensions": true,
-    "paths": {
-      "@app/*": ["content-script/app/*"],
-      "@shared/*": ["content-script/shared/*"],
-      "@widgets/*": ["content-script/widgets/*"],
-      "@entities/*": ["content-script/entities/*"],
-      "@tabs/*": ["content-script/tabs/*"],
-      "@player/*": ["content-script/player/*"],
-      "components/*": ["content-script/components/*"],
-      "types/*": ["types/*"],
-      "constants/*": ["constants/*"],
-      "config": ["config.ts"]
-    }
-  },
-  "include": [
-    "content-script/**/*.ts",
-    "content-script/**/*.tsx",
-    "background-script/**/*.ts",
-    "background-script/**/*.tsx",
-    "shared/**/*.ts",
-    "constants/**/*.ts",
-    "scripts/**/*.ts"
-  ],
-  "exclude": ["node_modules", "dist", ".yarn", ".husky", ".vscode"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+	"compilerOptions": {
+		"target": "ESNext",
+		"module": "ESNext",
+		"useDefineForClassFields": true,
+		"lib": ["DOM", "DOM.Iterable", "ESNext"],
+		"allowJs": false,
+		"skipLibCheck": true,
+		"esModuleInterop": false,
+		"allowSyntheticDefaultImports": true,
+		"strict": true,
+		"forceConsistentCasingInFileNames": true,
+		"moduleResolution": "Node",
+		"resolveJsonModule": true,
+		"isolatedModules": true,
+		"noEmit": true,
+		"jsx": "react-jsx",
+		"baseUrl": ".",
+		"allowImportingTsExtensions": true,
+		"paths": {
+			"@app/*": ["content-script/app/*"],
+			"@shared/*": ["content-script/shared/*"],
+			"@widgets/*": ["content-script/widgets/*"],
+			"@entities/*": ["content-script/entities/*"],
+			"@tabs/*": ["content-script/tabs/*"],
+			"@player/*": ["content-script/player/*"],
+			"components/*": ["content-script/components/*"],
+			"types/*": ["types/*"],
+			"constants/*": ["constants/*"],
+			"config": ["config.ts"]
+		}
+	},
+	"include": [
+		"content-script/**/*.ts",
+		"content-script/**/*.tsx",
+		"background-script/**/*.ts",
+		"background-script/**/*.tsx",
+		"shared/**/*.ts",
+		"constants/**/*.ts",
+		"scripts/**/*.ts"
+	],
+	"exclude": ["node_modules", "dist", ".yarn", ".husky", ".vscode"],
+	"references": [{ "path": "./tsconfig.node.json" }]
 }
