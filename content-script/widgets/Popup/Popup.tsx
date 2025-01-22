@@ -66,7 +66,7 @@ const Popup: React.FC = () => {
 				setUser(payload);
 			},
 		);
-	}, [contentScriptMessagingClient]);
+	}, []);
 
 	return (
 		<div className="st-popup h-[40px] w-[40px] box-border relative m-[0_8px_0_0]">

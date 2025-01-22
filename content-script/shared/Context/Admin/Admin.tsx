@@ -37,7 +37,7 @@ const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
 				setIsAdmin(payload);
 			},
 		);
-	}, [messagingClient]);
+	}, []);
 
 	return (
 		<AdminContext.Provider value={{ isAdmin }}>

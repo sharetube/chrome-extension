@@ -38,8 +38,6 @@ const Video: React.FC<VideoProps> = ({
 		);
 	}, [video.id, isAdmin, type]);
 
-	console.log("video rerendered");
-
 	return (
 		<div
 			title={isAdmin && type !== "current" ? "Play video" : undefined}

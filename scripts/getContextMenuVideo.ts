@@ -6,14 +6,12 @@ window.addEventListener("message", (event) => {
 			(document.body.querySelector("ytd-menu-popup-renderer") as any).data
 				.items;
 		let videoUrl = "";
-		console.log(items);
 		for (const item of items) {
 			videoUrl =
 				item.menuServiceItemRenderer?.serviceEndpoint?.signalServiceEndpoint
 					?.actions[0]?.addToPlaylistCommand?.videoId;
 
 			if (videoUrl || null) {
-				console.log("videoUrl", videoUrl);
 				break;
 			}
 		}

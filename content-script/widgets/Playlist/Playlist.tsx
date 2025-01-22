@@ -38,7 +38,7 @@ const Playlist: React.FC = () => {
 		return () => {
 			messageClient.removeHandler(ExtensionMessageType.LAST_VIDEO_UPDATED);
 		};
-	}, [messageClient]);
+	}, []);
 
 	// Current
 	useEffect(() => {
@@ -58,7 +58,7 @@ const Playlist: React.FC = () => {
 		return () => {
 			messageClient.removeHandler(ExtensionMessageType.CURRENT_VIDEO_UPDATED);
 		};
-	}, [messageClient]);
+	}, []);
 
 	// Playlist
 	useEffect(() => {
@@ -77,7 +77,7 @@ const Playlist: React.FC = () => {
 		return () => {
 			messageClient.removeHandler(ExtensionMessageType.PLAYLIST_UPDATED);
 		};
-	}, [messageClient]);
+	}, []);
 
 	const handleOnDragEnd = (result: DropResult) => {
 		if (!result.destination) return;

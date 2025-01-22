@@ -44,7 +44,7 @@ const MemberList: React.FC<MemberListProps> = ({ callback }) => {
 		return () => {
 			messagingClient.removeHandler(ExtensionMessageType.MEMBERS_UPDATED);
 		};
-	}, [messagingClient]);
+	}, []);
 
 	if (loading) {
 		return <></>;

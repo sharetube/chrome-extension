@@ -35,7 +35,7 @@ const ContextItem: React.FC<ContextItemProps> = ({ callback }) => {
 				setIsPrimaryTabExists(false);
 			},
 		);
-	}, [contentSciptMessagingClient]);
+	}, []);
 
 	const sendCreateRoom = () => {
 		getContextMenuVideoUrl().then((videoUrl) => {

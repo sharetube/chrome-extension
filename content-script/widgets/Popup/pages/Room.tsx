@@ -41,7 +41,7 @@ const Room: React.FC<RoomProps> = ({ profile, changePage }) => {
 				setIsNavigateButtonDisabled(true);
 			},
 		);
-	}, [contentSciptMessagingClient]);
+	}, []);
 
 	const [initVideoValue, setInitVideoValue] = useState("");
 	const [videoUrl, setVideoUrl] = useState("");
