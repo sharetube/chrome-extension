@@ -23,121 +23,74 @@ contextMenuContainer.id = "st-context-menu";
 contextMenuContainer.className = "sharetube";
 contextMenuContainer.style.minWidth = "149px";
 
-const handleClick = (e: MouseEvent) => {
-	const tagNames = [
-		"ytd-compact-video-renderer",
-		"ytd-rich-item-renderer",
-		"ytd-playlist-video-renderer",
-		"ytd-grid-video-renderer",
-		"ytd-video-renderer",
-		"ytd-watch-metadata",
-		"ytd-playlist-panel-video-renderer",
-	];
+let listbox: Element | undefined;
+let ignoreNextChange = false;
 
-	let enteredIf = false;
+function removeRender() {
+	if (listbox?.firstElementChild?.id !== "st-context-menu") return;
 
-	const dropdown = document.querySelector(
-		"ytd-popup-container tp-yt-iron-dropdown",
+	const contextMenu = document.querySelector(
+		"tp-yt-paper-listbox #st-context-menu",
 	);
-	const listbox = dropdown?.querySelector("tp-yt-paper-listbox");
 
-	const removeRender = () => {
-		if (listbox) {
-			const contextMenu = listbox.querySelector("#st-context-menu");
-			if (contextMenu) {
-				listbox.removeChild(contextMenu);
-			}
+	ignoreNextChange = true;
+	contextMenu?.parentElement?.removeChild(contextMenu);
+}
+
+function closeContextMenu() {
+	document.body.click();
+}
+
+function renderContextMenu() {
+	if (listbox?.firstElementChild?.id === "st-context-menu") return;
+
+	createRoot(contextMenuContainer).render(
+		<AdminProvider>
+			<ContextItem removeFn={removeRender} closeFn={closeContextMenu} />
+		</AdminProvider>,
+	);
+
+	listbox?.prepend(contextMenuContainer);
+}
+
+function initListBoxListener() {
+	if (!listbox) return;
+
+	const observer = new MutationObserver((mutations) => {
+		if (ignoreNextChange) {
+			ignoreNextChange = false;
+			return;
 		}
-	};
-	const callback = () => {
-		removeRender();
-		document.body.click();
-	};
 
-	for (const tagName of tagNames) {
-		const elem = (e.target as HTMLElement).closest(tagName);
-
-		if (elem) {
-			enteredIf = true;
-
-			createRoot(contextMenuContainer).render(
-				<AdminProvider>
-					<ContextItem callback={callback} />
-				</AdminProvider>,
-			);
-
-			listbox?.prepend(contextMenuContainer);
+		for (const mutation of mutations) {
+			if (mutation.type === "childList") {
+				renderContextMenu();
+			}
 			break;
 		}
-	}
+	});
 
-	if (!enteredIf) {
-		removeRender();
-	}
-};
+	observer.observe(listbox, {
+		childList: true,
+		subtree: false,
+	});
+}
 
-document.addEventListener("click", handleClick);
+waitForElement("ytd-popup-container").then((elem) => {
+	const observer = new MutationObserver((mutations) => {
+		for (const mutation of mutations) {
+			if (mutation.type === "childList") {
+				listbox = document.querySelector("tp-yt-paper-listbox") || undefined;
+				initListBoxListener();
+				observer.disconnect();
 
-// let listbox: Element | undefined;
+				break;
+			}
+		}
+	});
 
-// function removeRender() {
-//     const contextMenu = document.querySelector("tp-yt-paper-listbox #st-context-menu");
-//     contextMenu?.parentElement?.removeChild(contextMenu);
-// }
-
-// function renderContextMenu() {
-//     if (listbox?.firstElementChild?.id === "st-context-menu") return;
-
-//     getContextMenuVideoUrl().then(() => {
-//         console.log("rendered");
-//         createRoot(contextMenuContainer).render(
-//             <AdminProvider>
-//                 <ContextItem callback={removeRender} />
-//             </AdminProvider>,
-//         );
-
-//         listbox?.prepend(contextMenuContainer);
-//     });
-// }
-
-// const debouncedRenderContextMenu = debounce(renderContextMenu, 100);
-
-// function initListBoxListener() {
-//     if (!listbox) return;
-
-//     const observer = new MutationObserver(mutations => {
-//         for (const mutation of mutations) {
-//             if (mutation.type === "childList") {
-//                 console.log("Listbox Children were modified!");
-//                 debouncedRenderContextMenu();
-//             }
-//         }
-//     });
-
-//     observer.observe(listbox, {
-//         childList: true,
-//         subtree: false,
-//     });
-// }
-
-// waitForElement("ytd-popup-container").then(elem => {
-//     console.log(elem);
-
-//     const observer = new MutationObserver(mutations => {
-//         for (const mutation of mutations) {
-//             if (mutation.type === "childList") {
-//                 console.log("Children were modified!");
-
-//                 listbox = document.querySelector("tp-yt-paper-listbox")!;
-//                 initListBoxListener();
-//                 observer.disconnect();
-//                 break;
-//             }
-//         }
-//     });
-
-//     observer.observe(elem, {
-//         childList: true,
-//         subtree: false,
-//     });
-// });
+	observer.observe(elem, {
+		childList: true,
+		subtree: false,
+	});
+});

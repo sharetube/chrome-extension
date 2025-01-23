@@ -6,6 +6,7 @@ window.addEventListener("message", (event) => {
 			(document.body.querySelector("ytd-menu-popup-renderer") as any).data
 				.items;
 		let videoUrl = "";
+		console.log("items", items);
 		for (const item of items) {
 			videoUrl =
 				item.menuServiceItemRenderer?.serviceEndpoint?.signalServiceEndpoint

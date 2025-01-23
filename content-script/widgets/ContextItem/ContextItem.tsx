@@ -7,16 +7,20 @@ import { useEffect, useState } from "react";
 import { ExtensionMessageType } from "types/extensionMessage";
 
 interface ContextItemProps {
-	callback: () => void;
+	removeFn: () => void;
+	closeFn: () => void;
 }
 
-const ContextItem: React.FC<ContextItemProps> = ({ callback }) => {
+const ContextItem: React.FC<ContextItemProps> = ({ removeFn, closeFn }) => {
 	const { isAdmin } = useAdmin();
 	const [isPrimaryTabExists, setIsPrimaryTabExists] = useState<boolean>(true);
 
 	const contentSciptMessagingClient = new ContentScriptMessagingClient();
 
 	useEffect(() => {
+		getContextMenuVideoUrl().catch(() => {
+			removeFn();
+		});
 		ContentScriptMessagingClient.sendMessage(
 			ExtensionMessageType.IS_PRIMARY_TAB_EXISTS,
 		).then((response) => {
@@ -61,13 +65,13 @@ const ContextItem: React.FC<ContextItemProps> = ({ callback }) => {
 		e.stopPropagation();
 
 		if (!isPrimaryTabExists) {
-			callback();
+			closeFn();
 			sendCreateRoom();
 			return;
 		}
 
 		if (isPrimaryTabExists && isAdmin) {
-			callback();
+			closeFn();
 			sendAddVideo();
 			return;
 		}
