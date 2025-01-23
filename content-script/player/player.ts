@@ -18,7 +18,7 @@ interface MastheadElement extends HTMLElement {
 const logger = CSLogger.getInstance();
 
 class Player {
-	private e: HTMLElement; // todo: rename
+	private parent: HTMLElement;
 	private player: HTMLVideoElement;
 	private endScreen: HTMLDivElement | undefined;
 
@@ -42,7 +42,7 @@ class Player {
 	private abortController: AbortController;
 
 	constructor(e: HTMLElement, player: HTMLVideoElement) {
-		this.e = e;
+		this.parent = e;
 		this.player = player;
 
 		this.isAdmin = false;
@@ -51,8 +51,8 @@ class Player {
 		this.parentObserver = new MutationObserver((mutations) => {
 			for (const mutation of mutations) {
 				if (mutation.attributeName === "class") {
-					this.handleAdChanged(this.e.classList);
-					this.handleModeChanged(this.e.classList);
+					this.handleAdChanged(this.parent.classList);
+					this.handleModeChanged(this.parent.classList);
 				}
 				break;
 			}
@@ -579,14 +579,14 @@ class Player {
 	}
 
 	private observeParent(): void {
-		this.parentObserver.observe(this.e, {
+		this.parentObserver.observe(this.parent, {
 			attributes: true,
 			attributeFilter: ["class"],
 		});
 	}
 
 	private observeEndscreen(): void {
-		waitForElement(".html5-endscreen", this.e).then((endScreen) => {
+		waitForElement(".html5-endscreen", this.parent).then((endScreen) => {
 			this.endScreen = endScreen as HTMLDivElement;
 			this.endScreenObserver.observe(endScreen, {
 				attributes: true,
@@ -596,8 +596,8 @@ class Player {
 	}
 
 	private removeCeVideos() {
-		waitForElement(".ytp-ce-video", this.e).then(() => {
-			this.e.querySelectorAll(".ytp-ce-video").forEach((e) => {
+		waitForElement(".ytp-ce-video", this.parent).then(() => {
+			this.parent.querySelectorAll(".ytp-ce-video").forEach((e) => {
 				e.remove();
 			});
 		});
