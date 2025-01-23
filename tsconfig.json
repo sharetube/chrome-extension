@@ -27,7 +27,7 @@
 			"components/*": ["content-script/components/*"],
 			"types/*": ["types/*"],
 			"constants/*": ["constants/*"],
-			"config": ["config.ts"]
+			"config": ["config.json"]
 		}
 	},
 	"include": [

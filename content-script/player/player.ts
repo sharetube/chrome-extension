@@ -596,11 +596,13 @@ class Player {
 	}
 
 	private removeCeVideos() {
-		waitForElement(".ytp-ce-video", this.parent).then(() => {
-			this.parent.querySelectorAll(".ytp-ce-video").forEach((e) => {
-				e.remove();
-			});
-		});
+		waitForElement(".ytp-ce-video", this.parent)
+			.then(() => {
+				this.parent.querySelectorAll(".ytp-ce-video").forEach((e) => {
+					e.remove();
+				});
+			})
+			.catch(() => {});
 	}
 }
 

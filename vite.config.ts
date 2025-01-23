@@ -6,7 +6,10 @@ import tsconfigPaths from "vite-tsconfig-paths";
 
 const baseOutDir = "dist";
 
-export default defineConfig(() => {
+export default defineConfig(({ mode }) => {
+	const isDev = mode === "development";
+	const isProduction = !isDev;
+
 	const browser: string = process.env.BROWSER || "chrome";
 	const outDir = `${baseOutDir}/${browser}`;
 
@@ -37,12 +40,15 @@ export default defineConfig(() => {
 				scripts: "/scripts/",
 				constants: "/constants",
 				types: "/types",
-				config: "config.ts",
+				config: "config.json",
 			},
 		},
 		assetsInclude: ["**/*.png"],
 		build: {
 			outDir: outDir,
+			sourcemap: isDev,
+			minify: isProduction,
+			reportCompressedSize: isProduction,
 		},
 	};
 });

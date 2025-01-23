@@ -1,7 +1,7 @@
 import { JWTStorage } from "background-script/jwtStorage";
 import { BGLogger } from "background-script/logging/logger";
-import config from "config";
 import debounce from "lodash.debounce";
+import { APIDomain } from "config";
 import { connectToWS } from "pkg/ws/ws";
 import type { ProfileType } from "types/profile.type";
 import {
@@ -10,8 +10,6 @@ import {
 	type ToServerMessagePayloadMap,
 	ToServerMessageType,
 } from "types/serverMessage";
-
-const { baseUrl } = config.api;
 
 type MessageHandler<T extends FromServerMessageType> = (
 	payload: FromServerMessagePayloadMap[T],
@@ -120,7 +118,7 @@ class ServerClient {
 		logger.log("WS: CREATING ROOM", params);
 		// todo: implement WSConnectionURLBuilder
 		return this.init(
-			`wss://${baseUrl}/api/v1/ws/room/create?${buildQueryParams(params)}`,
+			`wss://${APIDomain}/api/v1/ws/room/create?${buildQueryParams(params)}`,
 		);
 	}
 
@@ -129,7 +127,7 @@ class ServerClient {
 		const params = this.buildParams(profile, jwt ? { jwt } : {});
 		logger.log("WS: JOINING ROOM", params);
 		return this.init(
-			`wss://${baseUrl}/api/v1/ws/room/${room_id}/join?${buildQueryParams(params)}`,
+			`wss://${APIDomain}/api/v1/ws/room/${room_id}/join?${buildQueryParams(params)}`,
 		);
 	}
 
