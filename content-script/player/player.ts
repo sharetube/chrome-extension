@@ -148,18 +148,10 @@ class Player {
 
 		this.contentScriptMessagingClient.addHandler(
 			ExtensionMessageType.VIDEO_ENDED,
-			(state) => {
+			() => {
 				if (this.isEnded) return;
 				this.isEnded = true;
-				this.setState(
-					{
-						current_time: this.player.duration * 1e7,
-						is_playing: true,
-						playback_rate: state.playback_rate,
-						updated_at: state.updated_at,
-					},
-					true,
-				);
+				this.endVideo();
 			},
 		);
 
@@ -167,7 +159,7 @@ class Player {
 
 		this.observeParent();
 		this.observeEndscreen();
-		this.observeCeVideos();
+		this.removeCeVideos();
 		this.addEventListeners();
 		this.sendMute();
 	}
@@ -209,10 +201,6 @@ class Player {
 		this.player.addEventListener("emptied", this.handleEmptied.bind(this), {
 			signal: this.abortController.signal,
 		});
-
-		document.addEventListener("keydown", this.handleKeyDown.bind(this), {
-			signal: this.abortController.signal,
-		});
 	}
 
 	private clearEventListeners() {
@@ -246,7 +234,7 @@ class Player {
 		this.clearContentScriptHandlers();
 		this.parentObserver.disconnect();
 		this.clearEndScreenObserver();
-		this.observeCeVideos();
+		this.removeCeVideos();
 	}
 
 	private setActualState() {
@@ -297,17 +285,6 @@ class Player {
 	}
 
 	// Handlers
-	private handleKeyDown(event: KeyboardEvent) {
-		switch (event.key) {
-			case "ArrowRight":
-				logger.log("ArrowRight");
-				break;
-			case "ArrowLeft":
-				logger.log("ArrowLeft");
-				break;
-		}
-	}
-
 	private handleWaiting() {
 		logger.log("waiting");
 		if (!this.isEnded && this.isDataLoaded) {
@@ -450,18 +427,27 @@ class Player {
 		this.sendMute();
 	}
 
-	private setState(state: PlayerStateType, isEnded?: boolean) {
+	private endVideo() {
+		if (!this.getIsPlaying()) {
+			this.ignorePlayCount++;
+		}
+		(this.player.play() as Promise<void>).catch(() => {
+			logger.log("error calling play, clicking player...");
+			this.clickPlayButton();
+		});
+
+		this.player.currentTime = this.player.duration + 1;
+		this.ignoreSeekingCount++;
+	}
+
+	private setState(state: PlayerStateType) {
 		let ct: number;
-		if (isEnded) {
-			ct = this.player.duration + 1;
+		if (state.is_playing) {
+			const delta = dateNowInUs() - state.updated_at;
+			ct = Math.round(state.current_time + delta * state.playback_rate) / 1e6;
+			logger.log("delta", { delta });
 		} else {
-			if (state.is_playing) {
-				const delta = dateNowInUs() - state.updated_at;
-				ct = Math.round(state.current_time + delta * state.playback_rate) / 1e6;
-				logger.log("delta", { delta });
-			} else {
-				ct = state.current_time / 1e6;
-			}
+			ct = state.current_time / 1e6;
 		}
 
 		if (state.is_playing && !this.getIsPlaying()) {
@@ -609,7 +595,7 @@ class Player {
 		});
 	}
 
-	private observeCeVideos() {
+	private removeCeVideos() {
 		waitForElement(".ytp-ce-video", this.e).then(() => {
 			this.e.querySelectorAll(".ytp-ce-video").forEach((e) => {
 				e.remove();

@@ -80,7 +80,7 @@ export type ExtensionMessagePayloadMap = {
 		videoId: number;
 		updatedAt: number;
 	};
-	[ExtensionMessageType.VIDEO_ENDED]: PlayerStateType;
+	[ExtensionMessageType.VIDEO_ENDED]: undefined;
 	[ExtensionMessageType.GET_PLAYER_STATE]: undefined;
 	[ExtensionMessageType.GET_CURRENT_VIDEO]: undefined;
 	[ExtensionMessageType.UPDATE_URL]: string;
