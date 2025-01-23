@@ -49,20 +49,21 @@ class Player {
 		this.videoId = 0;
 
 		this.parentObserver = new MutationObserver((mutations) => {
-			mutations.forEach((mutation) => {
+			for (const mutation of mutations) {
 				if (mutation.attributeName === "class") {
 					this.handleAdChanged(this.e.classList);
 					this.handleModeChanged(this.e.classList);
 				}
-			});
+				break;
+			}
 		});
 
 		this.endScreenObserver = new MutationObserver((mutations) => {
 			if (!this.isReady || !this.isDataLoaded) return;
-			mutations.forEach((mutation) => {
+			for (const mutation of mutations) {
 				if (mutation.attributeName === "style") {
 					if (!(mutation.target as HTMLDivElement).getAttribute("style")) {
-						this.handleEnd2();
+						this.handleEnd();
 						this.endScreen
 							?.querySelector(".ytp-endscreen-content")
 							?.childNodes.forEach((elem) => {
@@ -78,8 +79,9 @@ class Player {
 								});
 							});
 					}
+					break;
 				}
-			});
+			}
 		});
 
 		ContentScriptMessagingClient.sendMessage(
@@ -165,6 +167,7 @@ class Player {
 
 		this.observeParent();
 		this.observeEndscreen();
+		this.observeCeVideos();
 		this.addEventListeners();
 		this.sendMute();
 	}
@@ -243,6 +246,7 @@ class Player {
 		this.clearContentScriptHandlers();
 		this.parentObserver.disconnect();
 		this.clearEndScreenObserver();
+		this.observeCeVideos();
 	}
 
 	private setActualState() {
@@ -255,7 +259,7 @@ class Player {
 		});
 	}
 
-	private handleEnd2() {
+	private handleEnd() {
 		logger.log("sending end");
 		this.isEnded = true;
 
@@ -347,7 +351,6 @@ class Player {
 		}
 		logger.log("pause");
 
-		// this.setHandlePauseTimeout();
 		this.handleStateChanged();
 	}
 
@@ -510,7 +513,6 @@ class Player {
 	}
 
 	private handleStateChanged() {
-		// this.clearHandlePauseTimeout();
 		if (!this.isReady) return;
 		if (this.isAdmin) {
 			logger.log("sending state to server");
@@ -603,6 +605,14 @@ class Player {
 			this.endScreenObserver.observe(endScreen, {
 				attributes: true,
 				attributeFilter: ["style"],
+			});
+		});
+	}
+
+	private observeCeVideos() {
+		waitForElement(".ytp-ce-video", this.e).then(() => {
+			this.e.querySelectorAll(".ytp-ce-video").forEach((e) => {
+				e.remove();
 			});
 		});
 	}

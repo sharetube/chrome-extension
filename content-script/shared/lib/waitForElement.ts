@@ -1,8 +1,8 @@
 const waitForElement = (
 	selector: string,
 	parent = document.documentElement,
-	timeout = 500,
-	retries = 30,
+	timeout = 200,
+	retries = 50,
 ): Promise<HTMLElement> =>
 	new Promise((resolve, reject) => {
 		const attempt = (retryCount: number) => {
@@ -26,7 +26,6 @@ const waitForElement = (
 			const timeoutId = setTimeout(() => {
 				observer.disconnect();
 				if (retryCount > 0) {
-					// CsLogger.getInstance().log("Retrying find elem", { retryCount, selector });
 					attempt(retryCount - 1);
 				} else {
 					reject(`Failed to find element with selector: ${selector}`);
