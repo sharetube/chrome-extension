@@ -1,46 +1,50 @@
-import {
-    ExtensionMessage,
-    ExtensionMessagePayloadMap,
-    ExtensionMessageType,
+import browser from "webextension-polyfill";
+import type {
+	ExtensionMessage,
+	ExtensionMessagePayloadMap,
+	ExtensionMessageType,
 } from "../types/extensionMessage";
-import { log } from "./log";
 
 type MessageHandler<T extends ExtensionMessageType> = (
-    payload: ExtensionMessagePayloadMap[T],
-    sender: chrome.runtime.MessageSender,
+	payload: ExtensionMessagePayloadMap[T],
+	sender: browser.Runtime.MessageSender,
 ) => any;
 
 export abstract class BaseMessagingClient {
-    protected handlers: Map<ExtensionMessageType, MessageHandler<any>>;
+	protected handlers: Map<ExtensionMessageType, MessageHandler<any>>;
 
-    protected constructor() {
-        this.handlers = new Map();
-        this.initMessageListener();
-    }
+	constructor() {
+		this.handlers = new Map();
+		this.initMessageListener();
+	}
 
-    protected initMessageListener(): void {
-        chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-            this.handleMessage(message, sender).then(sendResponse);
-            return true;
-        });
-    }
+	protected initMessageListener(): void {
+		browser.runtime.onMessage.addListener(
+			(message: any, sender: browser.Runtime.MessageSender, sendResponse) => {
+				this.handleMessage(message, sender).then(sendResponse);
+				return true;
+			},
+		);
+	}
 
-    protected async handleMessage(
-        message: ExtensionMessage<ExtensionMessageType>,
-        sender: chrome.runtime.MessageSender,
-    ): Promise<any> {
-        const handler = this.handlers.get(message.type);
-        if (handler) {
-            log(`handling incoming message: type: ${message.type}, payload: `, message.payload);
-            return handler(message.payload, sender);
-        }
-    }
+	protected async handleMessage(
+		message: ExtensionMessage<ExtensionMessageType>,
+		sender: browser.Runtime.MessageSender,
+	): Promise<any> {
+		const handler = this.handlers.get(message.type);
+		if (handler) {
+			return handler(message.payload, sender);
+		}
+	}
 
-    public addHandler<T extends ExtensionMessageType>(type: T, handler: MessageHandler<T>): void {
-        this.handlers.set(type, handler);
-    }
+	public addHandler<T extends ExtensionMessageType>(
+		type: T,
+		handler: MessageHandler<T>,
+	): void {
+		this.handlers.set(type, handler);
+	}
 
-    public removeHandler<T extends ExtensionMessageType>(type: T): void {
-        this.handlers.delete(type);
-    }
+	public removeHandler<T extends ExtensionMessageType>(type: T): void {
+		this.handlers.delete(type);
+	}
 }

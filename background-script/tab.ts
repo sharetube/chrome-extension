@@ -1,123 +1,141 @@
+import { ExtensionMessageType } from "types/extensionMessage";
+import browser from "webextension-polyfill";
 import { BackgroundMessagingClient } from "./clients/ExtensionClient";
 import ServerClient from "./clients/ServerClient";
+import { BGLogger } from "./logging/logger";
 import { ProfileStorage } from "./profileStorage";
 import { globalState } from "./state";
 import { TabStorage } from "./tabStorage";
 import { setTargetPrimaryTabId } from "./targetPrimaryTabId";
-import { ExtensionMessageType } from "types/extensionMessage";
 
 const server = ServerClient.getInstance();
 const tabStorage = TabStorage.getInstance();
+const logger = BGLogger.getInstance();
 const bgMessagingClient = BackgroundMessagingClient.getInstance();
 const profileStorage = ProfileStorage.getInstance();
 
 const domainRegex = /^https:\/\/(www\.)?(youtu\.be|youtube\.com)/;
-const inviteLinkRegex = /^https:\/\/(www\.)?youtu\.be\/st\/(.+)$/;
+const inviteLinkRegex = /^https:\/\/(www\.)?(youtu\.be|youtube\.com)\/st\/(.+)/;
 const roomIdRegex = /^[a-zA-Z0-9.-]{8}$/;
 
-const handleTab = async (tabId: number, url: string) => {
-    const inviteLinkMatch = url.match(inviteLinkRegex);
-    console.log("inviteLinkMatch", inviteLinkMatch);
-    if (!inviteLinkMatch) return;
+async function handleTab(tabId: number, url: string) {
+	const inviteLinkMatch = url.match(inviteLinkRegex);
+	if (!inviteLinkMatch) return;
 
-    const showErrorPage = () => {
-        chrome.tabs.update(tabId, {
-            url: chrome.runtime.getURL("/pages/error.html"),
-        });
-    };
+	const showErrorPage = () => {
+		browser.tabs.update(tabId, {
+			url: browser.runtime.getURL("/pages/error.html"),
+		});
+	};
 
-    const roomId = inviteLinkMatch[2];
-    const roomIdMatch = roomId.match(roomIdRegex);
-    console.log("roomIdMatch", roomIdMatch);
-    if (!roomIdMatch) {
-        showErrorPage();
-        return;
-    }
+	const roomId = inviteLinkMatch[3];
+	const roomIdMatch = roomId.match(roomIdRegex);
+	if (!roomIdMatch) {
+		showErrorPage();
+		return;
+	}
 
-    const primaryTabId = await tabStorage.getPrimaryTab();
-    if (primaryTabId) {
-        if (primaryTabId === tabId) {
-            server.close();
+	const primaryTabId = await tabStorage.getPrimaryTab();
+	if (primaryTabId) {
+		if (primaryTabId === tabId) {
+			server.close();
+		} else {
+			browser.tabs.update(primaryTabId, { active: true });
+			browser.tabs.remove(tabId);
+			return;
+		}
+	} else {
+		// show loading screen
+		browser.tabs.update(tabId, {
+			url: browser.runtime.getURL("/pages/loading.html"),
+		});
+	}
 
-            setTargetPrimaryTabId(tabId);
-            const profile = await profileStorage.get();
-            server.joinRoom(profile, roomId).catch(() => {
-                showErrorPage();
-            });
-        } else {
-            chrome.tabs.update(primaryTabId, { active: true });
-            chrome.tabs.remove(tabId);
-        }
-    } else {
-        const profile = await profileStorage.get();
-
-        setTargetPrimaryTabId(tabId);
-        // show loading screen
-        chrome.tabs.update(tabId, {
-            url: chrome.runtime.getURL("/pages/loading.html"),
-        });
-
-        server.joinRoom(profile, roomId).catch(() => {
-            showErrorPage();
-        });
-    }
-};
+	setTargetPrimaryTabId(tabId);
+	const profile = await profileStorage.get();
+	server.joinRoom(profile, roomId).catch(() => {
+		showErrorPage();
+	});
+}
 
 async function clearPrimaryTab() {
-    server.close();
-    await tabStorage.unsetPrimaryTab();
-    bgMessagingClient.broadcastMessage(ExtensionMessageType.PRIMARY_TAB_UNSET);
+	server.close();
+	await tabStorage.unsetPrimaryTab();
+	bgMessagingClient.broadcastMessage(ExtensionMessageType.PRIMARY_TAB_UNSET);
 }
 
 export async function getPrimaryTabIdOrUnset(): Promise<number | null> {
-    const primaryTabId = await tabStorage.getPrimaryTab();
-    if (!primaryTabId) return null;
+	const primaryTabId = await tabStorage.getPrimaryTab();
+	if (!primaryTabId) return null;
 
-    return new Promise(resolve => {
-        chrome.tabs
-            .get(primaryTabId)
-            .then(() => resolve(primaryTabId))
-            .catch(async () => {
-                tabStorage.removeTab(primaryTabId);
-                await clearPrimaryTab();
-                resolve(null);
-            });
-    });
+	return new Promise((resolve) => {
+		browser.tabs
+			.get(primaryTabId)
+			.then(() => resolve(primaryTabId))
+			.catch(async () => {
+				tabStorage.removeTab(primaryTabId);
+				await clearPrimaryTab();
+				resolve(null);
+			});
+	});
 }
 
-chrome.webNavigation.onBeforeNavigate.addListener(
-    details => {
-        if (details.url) handleTab(details.tabId, details.url);
-    },
-    { url: [{ hostSuffix: "youtu.be" }] },
+browser.webNavigation.onBeforeNavigate.addListener(
+	(details) => {
+		if (details.url) handleTab(details.tabId, details.url);
+	},
+	{ url: [{ hostSuffix: "youtu.be" }, { hostSuffix: "youtube.com" }] },
 );
 
-chrome.tabs.onRemoved.addListener(async tabId => {
-    console.log("tab removed", tabId);
-    getPrimaryTabIdOrUnset();
+browser.tabs.onRemoved.addListener(async (tabId) => {
+	logger.log("tab removed", { tabdId: tabId });
+	getPrimaryTabIdOrUnset();
 });
 
-chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
-    if (!changeInfo.url) {
-        return;
-    }
+let ignoreNextTabUpdate = false;
+export function updatePrimaryTabUrlToRoomId() {
+	ignoreNextTabUpdate = true;
+	bgMessagingClient.sendMessageToPrimaryTab(
+		ExtensionMessageType.UPDATE_URL,
+		`/st/${globalState.room.id}`,
+	);
+}
 
-    const primaryTabId = await getPrimaryTabIdOrUnset();
-    if (primaryTabId !== tabId) {
-        return;
-    }
-    console.log("tab updated", tabId, primaryTabId, changeInfo.url);
+browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+	if (!changeInfo.url) {
+		return;
+	}
 
-    if (!tab.url?.match(domainRegex)) {
-        clearPrimaryTab();
-        return;
-    }
+	const primaryTabId = await getPrimaryTabIdOrUnset();
+	if (primaryTabId !== tabId) {
+		return;
+	}
+	logger.log("tab updated", { tabId, url: changeInfo.url });
 
-    if (
-        changeInfo.url !== `https://www.youtube.com/watch?v=${globalState.room.player.video_url}` &&
-        changeInfo.url !==
-            `https://www.youtube.com/watch?v=${globalState.room.player.video_url}&t=0`
-    ) {
-        clearPrimaryTab();
-    }
+	if (ignoreNextTabUpdate) {
+		ignoreNextTabUpdate = false;
+		return;
+	}
+
+	if (
+		!tab.url?.match(domainRegex) ||
+		(!changeInfo.url.startsWith(
+			`https://www.youtube.com/st/${globalState.room.id}`,
+		) &&
+			!changeInfo.url.startsWith(
+				`https://www.youtube.com/watch?v=${globalState.room.playlist.current_video.url}`,
+			) &&
+			!changeInfo.url.startsWith(
+				`https://www.youtube.com/watch?v=${globalState.room.playlist.current_video.url}&t=0`,
+			) &&
+			(!globalState.room.playlist.last_video ||
+				!changeInfo.url.startsWith(
+					`https://www.youtube.com/watch?v=${globalState.room.playlist.last_video.url}`,
+				)))
+	) {
+		clearPrimaryTab();
+		return;
+	}
+
+	updatePrimaryTabUrlToRoomId();
 });

@@ -1,13 +1,14 @@
 export type PlayerStateType = {
-    playback_rate: number;
-    is_playing: boolean;
-    is_ended: boolean;
-    current_time: number;
-    updated_at: number;
+	playback_rate: number;
+	is_playing: boolean;
+	current_time: number;
+	updated_at: number;
 };
 
-export type PlayerType = PlayerStateType & {
-    video_url: string;
+export type PlayerType = {
+	state: PlayerStateType;
+	is_ended: boolean;
+	version: number;
 };
 
 export type PlayerElement = HTMLVideoElement;

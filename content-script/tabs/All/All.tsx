@@ -1,76 +1,97 @@
 import { AdminProvider } from "@shared/Context/Admin/Admin";
-import { ContentScriptMessagingClient } from "@shared/client/client";
 import waitForElement from "@shared/lib/waitForElement";
 import ContextItem from "@widgets/ContextItem/ContextItem";
 import Popup from "@widgets/Popup/Popup";
-import ReactDOM from "react-dom";
-import { ExtensionMessageType } from "types/extensionMessage";
+import React from "react";
+import { createRoot } from "react-dom/client";
 
 // Render popup
 waitForElement("#end")
-    .then(elem => {
-        const container = document.createElement("div");
-        container.id = "st-popup-container";
-        container.className = "sharetube";
-        elem.prepend(container);
-        ReactDOM.render(<Popup />, container);
-    })
-    .catch(error => console.error("ST: Failed to render popup", error));
+	.then((elem) => {
+		const popupContainer = document.createElement("div");
+		popupContainer.id = "st-popup-container";
+		popupContainer.className = "sharetube";
+
+		createRoot(popupContainer).render(<Popup />);
+		elem.prepend(popupContainer);
+	})
+	.catch((error) => console.error("ST: Failed to render popup", error));
 
 // Context item renderer
-const container = document.createElement("div");
-container.id = "st-context-menu";
-container.style.minWidth = "149px";
+const contextMenuContainer = document.createElement("div");
+contextMenuContainer.id = "st-context-menu";
+contextMenuContainer.className = "sharetube";
+contextMenuContainer.style.minWidth = "149px";
 
-const regex = /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([^&]+)/;
+let listbox: Element | undefined;
+let ignoreNextChange = false;
 
-const getThambnail = (e: Element): string => {
-    const thumbnail = e.querySelector("a#thumbnail");
-    if (thumbnail) {
-        const match = (thumbnail as HTMLAnchorElement).href.match(regex);
-        return match ? match[1] : "";
-    }
-    return "";
-};
+function removeRender() {
+	if (listbox?.firstElementChild?.id !== "st-context-menu") return;
 
-const getUrl = (): string => {
-    const match = window.location.href.match(regex);
-    return match ? match[1] : "";
-};
+	const contextMenu = document.querySelector(
+		"tp-yt-paper-listbox #st-context-menu",
+	);
 
-const gg = (e: Element) => {
-    const dropdowns = Array.from(
-        document.querySelector("ytd-popup-container")!.querySelectorAll("tp-yt-iron-dropdown"),
-    );
-    const element = dropdowns
-        .find(e => !(e as HTMLElement).id)
-        ?.querySelector("tp-yt-paper-listbox");
+	ignoreNextChange = true;
+	contextMenu?.parentElement?.removeChild(contextMenu);
+}
 
-    const url = getThambnail(e);
-    const id = !!url ? url : getUrl();
+function closeContextMenu() {
+	document.body.click();
+}
 
-    ReactDOM.render(
-        <AdminProvider>
-            <ContextItem id={id} />
-        </AdminProvider>,
-        container,
-    );
-    element.prepend(container);
-};
+function renderContextMenu() {
+	if (listbox?.firstElementChild?.id === "st-context-menu") return;
+	console.log("context menu rendered");
 
-const clickHandle = (e: MouseEvent) => {
-    const a = (e.target as HTMLElement).closest("ytd-compact-video-renderer");
-    const b = (e.target as HTMLElement).closest("ytd-rich-item-renderer");
+	createRoot(contextMenuContainer).render(
+		<AdminProvider>
+			<ContextItem removeFn={removeRender} closeFn={closeContextMenu} />
+		</AdminProvider>,
+	);
 
-    const c = (e.target as HTMLElement).closest("ytd-watch-metadata");
+	listbox?.prepend(contextMenuContainer);
+}
 
-    if (a) {
-        gg(a);
-    } else if (b) {
-        gg(b);
-    } else if (c) {
-        gg(c);
-    }
-};
+function initListBoxListener() {
+	if (!listbox) return;
 
-document.addEventListener("click", clickHandle);
+	const observer = new MutationObserver((mutations) => {
+		if (ignoreNextChange) {
+			ignoreNextChange = false;
+
+			return;
+		}
+
+		const mutation = mutations.find((m) => m.type === "childList");
+		if (!mutation) return;
+
+		renderContextMenu();
+	});
+
+	renderContextMenu();
+	observer.observe(listbox, {
+		childList: true,
+		subtree: false,
+	});
+}
+
+waitForElement("ytd-popup-container").then((elem) => {
+	const observer = new MutationObserver((mutations) => {
+		const mutation = mutations.find((m) => m.type === "childList");
+		if (!mutation) return;
+
+		const l = document.querySelector("tp-yt-paper-listbox");
+		if (!l) return;
+		listbox = l;
+
+		initListBoxListener();
+		observer.disconnect();
+	});
+
+	observer.observe(elem, {
+		childList: true,
+		subtree: false,
+	});
+});
