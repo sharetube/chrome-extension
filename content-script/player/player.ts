@@ -21,6 +21,7 @@ class Player {
 	private parent: HTMLElement;
 	private player: HTMLVideoElement;
 	private endScreen: HTMLDivElement | undefined;
+	private autoNavBtn: HTMLButtonElement;
 
 	private isAdmin: boolean;
 	private videoId: number;
@@ -39,48 +40,78 @@ class Player {
 	private contentScriptMessagingClient: ContentScriptMessagingClient;
 	private parentObserver: MutationObserver;
 	private endScreenObserver: MutationObserver;
-	private abortController: AbortController;
+	private autoNavObserver: MutationObserver;
 
-	constructor(e: HTMLElement, player: HTMLVideoElement) {
-		this.parent = e;
+	private abortController: AbortController | undefined;
+
+	constructor(parent: HTMLElement, player: HTMLVideoElement) {
+		this.parent = parent;
 		this.player = player;
+
+		this.autoNavBtn = parent.querySelector(
+			".ytp-chrome-bottom .ytp-right-controls .ytp-autonav-toggle-button-container",
+		) as HTMLButtonElement;
 
 		this.isAdmin = false;
 		this.videoId = 0;
 
 		this.parentObserver = new MutationObserver((mutations) => {
-			for (const mutation of mutations) {
-				if (mutation.attributeName === "class") {
-					this.handleAdChanged(this.parent.classList);
-					this.handleModeChanged(this.parent.classList);
-				}
-				break;
+			const mutation = mutations.find((m) => m.attributeName === "class");
+			if (!mutation) return;
+
+			this.handleAdChanged(this.parent.classList);
+			this.handleModeChanged(this.parent.classList);
+		});
+
+		this.autoNavObserver = new MutationObserver((mutations) => {
+			const mutation = mutations.find(
+				(m) => m.attributeName === "aria-checked",
+			);
+			if (!mutation) return;
+
+			const targetElement = mutation.target as HTMLDivElement;
+			if (targetElement.getAttribute("aria-checked") === "true") {
+				this.autoNavBtn.click();
 			}
 		});
 
 		this.endScreenObserver = new MutationObserver((mutations) => {
 			if (!this.isReady || !this.isDataLoaded) return;
-			for (const mutation of mutations) {
-				if (mutation.attributeName === "style") {
-					if (!(mutation.target as HTMLDivElement).getAttribute("style")) {
-						this.handleEnd();
-						this.endScreen
-							?.querySelector(".ytp-endscreen-content")
-							?.childNodes.forEach((elem) => {
-								const newElem = elem.cloneNode(true) as HTMLAnchorElement;
-								elem.replaceWith(newElem);
-								newElem.addEventListener("click", (event) => {
-									event.preventDefault();
 
-									ContentScriptMessagingClient.sendMessage(
-										ExtensionMessageType.ADD_VIDEO,
-										getVideoUrlFromLink(newElem.href),
-									);
-								});
-							});
-					}
-					break;
-				}
+			const mutation = mutations.find((m) => m.attributeName === "style");
+			if (!mutation) return;
+
+			const targetElement = mutation.target as HTMLDivElement;
+			const styleAttribute = targetElement?.getAttribute("style");
+
+			if (!styleAttribute) {
+				this.handleEnd();
+
+				const endScreenContent = this.endScreen?.querySelector(
+					".ytp-endscreen-content",
+				);
+				if (!endScreenContent) return;
+
+				const fragment = document.createDocumentFragment();
+
+				endScreenContent.childNodes.forEach((elem) => {
+					const originalElement = elem as HTMLAnchorElement;
+					const clonedElement = originalElement.cloneNode(
+						true,
+					) as HTMLAnchorElement;
+
+					clonedElement.addEventListener("click", (event) => {
+						event.preventDefault();
+						ContentScriptMessagingClient.sendMessage(
+							ExtensionMessageType.ADD_VIDEO,
+							getVideoUrlFromLink(clonedElement.href),
+						);
+					});
+
+					fragment.appendChild(clonedElement);
+				});
+
+				endScreenContent.replaceChildren(fragment);
 			}
 		});
 
@@ -131,8 +162,10 @@ class Player {
 			) => {
 				logger.log("received new player state", state);
 				this.isEnded = false;
-				if (this.adShowing) return;
-				this.setState(state);
+
+				if (!this.adShowing) {
+					this.setState(state);
+				}
 			},
 		);
 
@@ -150,22 +183,23 @@ class Player {
 			ExtensionMessageType.VIDEO_ENDED,
 			() => {
 				if (this.isEnded) return;
+
 				this.isEnded = true;
 				this.endVideo();
 			},
 		);
-
-		this.abortController = new AbortController();
 
 		this.observeParent();
 		this.observeEndscreen();
 		this.removeCeVideos();
 		this.addEventListeners();
 		this.sendMute();
+		this.observeAutoNav();
 	}
 
 	private addEventListeners() {
-		// Mute handle
+		this.abortController = new AbortController();
+
 		this.player.addEventListener("volumechange", this.handleMute.bind(this), {
 			signal: this.abortController.signal,
 		});
@@ -203,11 +237,6 @@ class Player {
 		});
 	}
 
-	private clearEventListeners() {
-		this.abortController.abort(); // Removes all listeners attached with this controller
-		this.abortController = new AbortController();
-	}
-
 	private clearContentScriptHandlers() {
 		this.contentScriptMessagingClient.removeHandler(
 			ExtensionMessageType.CURRENT_VIDEO_UPDATED,
@@ -223,18 +252,14 @@ class Player {
 		);
 	}
 
-	private clearEndScreenObserver() {
-		this.endScreenObserver.disconnect();
-	}
-
 	public clearAll() {
 		logger.log("clearAll");
+		this.abortController?.abort();
 		this.clearUpdateIsReadyFalseTimeout();
-		this.clearEventListeners();
 		this.clearContentScriptHandlers();
 		this.parentObserver.disconnect();
+		this.autoNavObserver.disconnect();
 		this.clearEndScreenObserver();
-		this.removeCeVideos();
 	}
 
 	private setActualState() {
@@ -593,6 +618,20 @@ class Player {
 				attributeFilter: ["style"],
 			});
 		});
+	}
+
+	private clearEndScreenObserver() {
+		this.endScreenObserver.disconnect();
+	}
+
+	private observeAutoNav(): void {
+		this.autoNavObserver.observe(
+			this.autoNavBtn.querySelector(".ytp-autonav-toggle-button") as Node,
+			{
+				attributes: true,
+				attributeFilter: ["aria-checked"],
+			},
+		);
 	}
 
 	private removeCeVideos() {

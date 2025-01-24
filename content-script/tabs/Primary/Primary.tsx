@@ -19,6 +19,8 @@ ContentScriptMessagingClient.sendMessage(
 );
 
 const hideShareStyleId = "hide-share-style";
+const hideElementsStyleId = "hide-elements-style";
+
 function update() {
 	ContentScriptMessagingClient.sendMessage(
 		ExtensionMessageType.IS_PRIMARY_TAB,
@@ -41,13 +43,26 @@ function update() {
                     }
                 `;
 
+			let hideElementsStyle = document.getElementById(hideElementsStyleId);
+
+			if (!hideElementsStyle) {
+				hideElementsStyle = document.createElement("style");
+				hideElementsStyle.id = hideElementsStyleId;
+				document.head.appendChild(hideElementsStyle);
+			}
+			hideElementsStyle.textContent = `
+					.ytp-button[data-tooltip-target-id="ytp-autonav-toggle-button"],
+					#flexible-item-buttons,
+					#voice-search-button,
+					yt-button-shape#button-shape,
+					.ytp-next-button.ytp-button,
+					.ytp-miniplayer-button {
+						display: none !important;
+					}
+					`;
+
 			initPlayer();
 			initSearch();
-			hideAutoplayButton();
-			hideNextVideoButton();
-			hideBottomPanel();
-			hideClipButton();
-			hideVoiceSearchButton();
 			showMainPanel();
 
 			// open share panel
@@ -72,12 +87,12 @@ function update() {
 		} else {
 			disablePlayer();
 			disableSearch();
-			showAutoplayButton();
-			showNextVideoButton();
-			showBottomPanel();
-			showClipButton();
-			showVoiceSearchButton();
 			hideMainPanel();
+
+			const hideElementsStyle = document.getElementById(hideElementsStyleId);
+			if (hideElementsStyle) {
+				hideElementsStyle.textContent = "";
+			}
 		}
 	});
 }
@@ -106,9 +121,6 @@ let player: Player | null = null;
 function initPlayer() {
 	waitForElement(".html5-video-player").then((e) => {
 		waitForElement("video", e).then((p) => {
-			// waitForElement(".html5-endscreen").then(endScreen => {
-			//     player = new Player(e, p as HTMLVideoElement, endScreen as HTMLDivElement);
-			// });
 			player = new Player(e, p as HTMLVideoElement);
 		});
 		// .catch(error => console.log("Failed select video element", error));
@@ -127,62 +139,6 @@ function hideElement(elem: HTMLElement) {
 
 function showElement(elem: HTMLElement) {
 	elem.style.display = "";
-}
-
-function hideAutoplayButton() {
-	waitForElement(".ytp-autonav-toggle-button-container").then((elem) => {
-		hideElement(elem);
-	});
-	// .then(error => console.log("Failed to remove autoplay button", error));
-}
-
-function showAutoplayButton() {
-	waitForElement(".ytp-autonav-toggle-button-container").then((elem) => {
-		showElement(elem);
-	});
-	// .catch(error => console.log("Failed to remove autoplay button", error));
-}
-
-function hideNextVideoButton() {
-	waitForElement(".ytp-next-button.ytp-button").then((elem) => {
-		hideElement(elem);
-	});
-	// .catch(error => console.log("Failed to remove next button", error));
-}
-
-function showNextVideoButton() {
-	waitForElement(".ytp-next-button.ytp-button").then((elem) => {
-		showElement(elem);
-	});
-	// .catch(error => console.log("Failed to remove next button", error));
-}
-
-function hideClipButton() {
-	waitForElement("#flexible-item-buttons").then((elem) => {
-		hideElement(elem);
-	});
-	// .catch(error => console.log("Failed to remove clip button", error));
-}
-
-function showClipButton() {
-	waitForElement("#flexible-item-buttons").then((elem) => {
-		showElement(elem);
-	});
-	// .catch(error => console.log("Failed to remove clip button", error));
-}
-
-function hideBottomPanel() {
-	waitForElement("yt-button-shape#button-shape").then((elem) => {
-		hideElement(elem);
-	});
-	// .catch(error => console.log("Failed to shape button", error));
-}
-
-function showBottomPanel() {
-	waitForElement("yt-button-shape#button-shape").then((elem) => {
-		showElement(elem);
-	});
-	// .catch(error => console.log("Failed to shape button", error));
 }
 
 function showMainPanel() {
@@ -236,17 +192,5 @@ function disableSearch() {
 		Array.from(elem.children).forEach((child) => {
 			showElement(child as HTMLElement);
 		});
-	});
-}
-
-function showVoiceSearchButton() {
-	waitForElement("#voice-search-button").then((elem) => {
-		showElement(elem);
-	});
-}
-
-function hideVoiceSearchButton() {
-	waitForElement("#voice-search-button").then((elem) => {
-		hideElement(elem);
 	});
 }

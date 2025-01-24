@@ -43,6 +43,7 @@ function closeContextMenu() {
 
 function renderContextMenu() {
 	if (listbox?.firstElementChild?.id === "st-context-menu") return;
+	console.log("context menu rendered");
 
 	createRoot(contextMenuContainer).render(
 		<AdminProvider>
@@ -59,17 +60,17 @@ function initListBoxListener() {
 	const observer = new MutationObserver((mutations) => {
 		if (ignoreNextChange) {
 			ignoreNextChange = false;
+
 			return;
 		}
 
-		for (const mutation of mutations) {
-			if (mutation.type === "childList") {
-				renderContextMenu();
-			}
-			break;
-		}
+		const mutation = mutations.find((m) => m.type === "childList");
+		if (!mutation) return;
+
+		renderContextMenu();
 	});
 
+	renderContextMenu();
 	observer.observe(listbox, {
 		childList: true,
 		subtree: false,
@@ -78,15 +79,15 @@ function initListBoxListener() {
 
 waitForElement("ytd-popup-container").then((elem) => {
 	const observer = new MutationObserver((mutations) => {
-		for (const mutation of mutations) {
-			if (mutation.type === "childList") {
-				listbox = document.querySelector("tp-yt-paper-listbox") || undefined;
-				initListBoxListener();
-				observer.disconnect();
+		const mutation = mutations.find((m) => m.type === "childList");
+		if (!mutation) return;
 
-				break;
-			}
-		}
+		const l = document.querySelector("tp-yt-paper-listbox");
+		if (!l) return;
+		listbox = l;
+
+		initListBoxListener();
+		observer.disconnect();
 	});
 
 	observer.observe(elem, {
