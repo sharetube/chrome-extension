@@ -1,4 +1,5 @@
 window.addEventListener("message", (event) => {
+	if (!event.data) return;
 	const { type } = event.data;
 	if (type === "GET_CONTEXT_MENU_VIDEO") {
 		const items =

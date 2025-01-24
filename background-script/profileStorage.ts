@@ -1,4 +1,4 @@
-import { defaultProfile } from "constants/defaultProfile";
+import { getDefaultProfile } from "constants/defaultProfile";
 import type { ProfileType } from "types/profile.type";
 import browser from "webextension-polyfill";
 
@@ -22,8 +22,10 @@ export class ProfileStorage {
 		const profile = result[this.STORAGE_KEY] as ProfileType | undefined;
 
 		if (!profile) {
-			await this.set(defaultProfile);
-			return defaultProfile;
+			const profile = getDefaultProfile();
+
+			await this.set(profile);
+			return profile;
 		}
 
 		return profile;
