@@ -29,7 +29,6 @@ export default defineConfig(({ mode }) => {
 			}),
 			tsconfigPaths(),
 		],
-		// assetsInclude: ["**/*.png"],
 		build: {
 			outDir: outDir,
 			sourcemap: isDev,

@@ -43,7 +43,6 @@ function closeContextMenu() {
 
 function renderContextMenu() {
 	if (listbox?.firstElementChild?.id === "st-context-menu") return;
-	console.log("context menu rendered");
 
 	createRoot(contextMenuContainer).render(
 		<AdminProvider>
