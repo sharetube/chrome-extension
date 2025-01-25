@@ -29,21 +29,7 @@ export default defineConfig(({ mode }) => {
 			}),
 			tsconfigPaths(),
 		],
-		resolve: {
-			alias: {
-				"@app": "/content-script/app/",
-				"@shared": "/content-script/shared",
-				"@widgets": "/content-script/widgets",
-				"@entities": "/content-script/entities",
-				"@tabs": "/content-script/tabs",
-				"@player": "/content-script/player",
-				scripts: "/scripts/",
-				constants: "/constants",
-				types: "/types",
-				config: "config.json",
-			},
-		},
-		assetsInclude: ["**/*.png"],
+		// assetsInclude: ["**/*.png"],
 		build: {
 			outDir: outDir,
 			sourcemap: isDev,

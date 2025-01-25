@@ -1,7 +1,7 @@
 import { JWTStorage } from "background-script/jwtStorage";
 import { BGLogger } from "background-script/logging/logger";
-import debounce from "lodash.debounce";
 import { APIDomain } from "config";
+import debounce from "lodash.debounce";
 import { connectToWS } from "pkg/ws/ws";
 import type { ProfileType } from "types/profile.type";
 import {
